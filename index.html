@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXI Admin Panel - Login</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: radial-gradient(circle at center, #1a0b2e 0%, #080410 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .login-card {
+            background-color: #120e24;
+            width: 100%;
+            max-width: 380px;
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 2px solid #8b00ff;
+            box-shadow: 0 0 30px rgba(139, 0, 255, 0.4), inset 0 0 10px rgba(139, 0, 255, 0.2);
+            text-align: center;
+        }
+
+        .lock-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+            display: inline-block;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+        }
+
+        .admin-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .admin-subtitle {
+            font-size: 13px;
+            color: #a09cb0;
+            margin-bottom: 30px;
+        }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #ffffff;
+            color: #333333;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .google-btn:hover {
+            background-color: #f1f1f1;
+            transform: translateY(-2px);
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        #statusMessage {
+            font-size: 12px;
+            margin-top: 15px;
+            font-weight: 500;
+            min-height: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="lock-icon">🔐</div>
+        <div class="admin-title">Admin Panel</div>
+        <div class="admin-subtitle">Sign in with your admin Google account</div>
+
+        <button class="google-btn" id="googleLoginBtn">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo">
+            Sign in with Google
+        </button>
+
+        <div id="statusMessage"></div>
+    </div>
+
+    <!-- Firebase SDK Modular -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
+            authDomain: "oxi-esports.firebaseapp.com",
+            projectId: "oxi-esports",
+            storageBucket: "oxi-esports.firebasestorage.app",
+            messagingSenderId: "924353594492",
+            appId: "1:924353594492:web:08329a3d1f67e7a5da35f9",
+            databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+
+        const statusMsg = document.getElementById('statusMessage');
+        const loginBtn = document.getElementById('googleLoginBtn');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const cleanEmail = user.email.replace(/[.#$[\]]/g, "_");
+                const adminSnap = await get(ref(db, 'admins/' + cleanEmail));
+                
+                if (adminSnap.exists()) {
+                    window.location.href = "dashboard.html";
+                } else {
+                    await signOut(auth);
+                }
+            }
+        });
+
+        loginBtn.addEventListener('click', async () => {
+            try {
+                loginBtn.disabled = true;
+                statusMsg.style.color = "#00ffd2";
+                statusMsg.innerText = "Authenticating with Google...";
+
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                const email = user.email;
+                const cleanEmail = email.replace(/[.#$[\]]/g, "_");
+
+                const allAdminsSnap = await get(ref(db, 'admins'));
+                const specificAdminSnap = await get(ref(db, 'admins/' + cleanEmail));
+
+                if (!allAdminsSnap.exists()) {
+                    // First time setup - Make first login Super Admin
+                    await set(ref(db, 'admins/' + cleanEmail), { 
+                        email: email, 
+                        role: 'super' 
+                    });
+                    window.location.href = "dashboard.html";
+                } 
+                else if (specificAdminSnap.exists()) {
+                    window.location.href = "dashboard.html";
+                } 
+                else {
+                    await signOut(auth);
+                    statusMsg.style.color = "#ff0055";
+                    statusMsg.innerText = "Access Denied: Email not registered as Admin.";
+                    alert(`🚫 Access Denied!\n\nThis Google Account (${email}) is not authorized.\nOnly Super Admins can grant access from the Admin Management tab.`);
+                }
+
+            } catch (error) {
+                console.error(error);
+                statusMsg.style.color = "#ff0055";
+                if (error.code === 'auth/operation-not-allowed') {
+                    alert("Error: Enable Google Auth Provider in Firebase Console -> Authentication -> Sign-in method!");
+                } else {
+                    statusMsg.innerText = "Login failed. Try again.";
+                }
+            } finally {
+                loginBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
