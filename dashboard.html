@@ -74,10 +74,10 @@
             box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
         }
 
-        /* Original Category Grid Layout */
+        /* Responsive Clean Category Grid */
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 1.25rem;
         }
 
@@ -86,16 +86,17 @@
             border: 1px solid #334155;
             border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
         }
 
         .category-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
         .category-img {
-            height: 130px;
+            height: 120px;
             object-fit: cover;
             width: 100%;
         }
@@ -107,7 +108,7 @@
             border-radius: 8px;
         }
 
-        /* Auto / Manual Toggle Mode */
+        /* Payment Auto/Manual Switch Styling */
         .mode-toggle-group {
             display: flex;
             gap: 12px;
@@ -142,6 +143,7 @@
             color: #fff;
         }
 
+        /* Custom Dark SweetAlert */
         .swal2-popup.swal-dark {
             background-color: #1e293b !important;
             color: #f8fafc !important;
@@ -203,7 +205,7 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Users List (NO DELETE BUTTON) -->
+                <!-- Section 2: Users List (No Delete Option) -->
                 <div id="section-users" class="content-section d-none">
                     <h4 class="mb-4"><i class="fas fa-users text-info me-2"></i>Registered Users</h4>
                     <div class="card p-3">
@@ -244,7 +246,7 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Payment Settings (Clean & Clear Input Layout) -->
+                <!-- Section 4: Payment Settings (Clear Labels & Inputs) -->
                 <div id="section-payment" class="content-section d-none">
                     <h4 class="mb-4"><i class="fas fa-wallet text-info me-2"></i>Payment Settings</h4>
                     <div class="card p-4" style="max-width: 550px;">
@@ -438,7 +440,7 @@
             }).then(() => SwalDark.fire({ icon: 'success', title: 'Settings Saved', timer: 1500, showConfirmButton: false }));
         }
 
-        // --- CATEGORIES ---
+        // --- CATEGORIES (Clean Button Layout) ---
         function loadCategories() {
             db.ref('match_categories').on('value', (snap) => {
                 const container = document.getElementById('categoryContainer');
@@ -451,11 +453,11 @@
                     const cat = child.val();
                     container.innerHTML += `
                         <div class="category-card p-2 text-center">
-                            <img src="${cat.image || 'https://via.placeholder.com/220x130'}" class="category-img mb-2 rounded">
+                            <img src="${cat.image || 'https://via.placeholder.com/220x120'}" class="category-img mb-2 rounded">
                             <h6 class="fw-bold text-white mb-2">${cat.title}</h6>
-                            <div class="d-flex gap-1">
-                                <button class="btn btn-primary btn-sm w-100" onclick="openCategoryMatches('${child.key}', '${cat.title}')"><i class="fas fa-list me-1"></i>Matches</button>
-                                <button class="btn btn-outline-danger btn-sm" onclick="deleteCategory('${child.key}')"><i class="fas fa-trash"></i></button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-info btn-sm text-white fw-bold flex-grow-1" onclick="openCategoryMatches('${child.key}', '${cat.title}')"><i class="fas fa-gamepad me-1"></i>Matches</button>
+                                <button class="btn btn-outline-danger btn-sm" onclick="deleteCategory('${child.key}')"><i class="fas fa-trash-alt"></i></button>
                             </div>
                         </div>
                     `;
@@ -575,7 +577,7 @@
             });
         }
 
-        // --- USERS LIST (No Delete Button - Full Phone Number) ---
+        // --- USERS LIST (No Trash/Delete Button, Full Phone Number) ---
         function loadUsers() {
             db.ref('users').on('value', (snap) => {
                 const tbody = document.getElementById('usersTableBody');
@@ -593,8 +595,8 @@
                             <td>${u.email || 'N/A'}</td>
                             <td class="text-success fw-bold">৳ ${u.wallet || 0}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-warning me-1" onclick="editWallet('${child.key}', ${u.wallet || 0})" title="Edit Balance"><i class="fas fa-coins me-1"></i>Balance</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="banUserPrompt('${child.key}', '${u.email}')" title="Ban Account"><i class="fas fa-ban me-1"></i>Ban</button>
+                                <button class="btn btn-sm btn-outline-warning me-2" onclick="editWallet('${child.key}', ${u.wallet || 0})" title="Edit Balance"><i class="fas fa-coins me-1"></i>Coins</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="banUserPrompt('${child.key}', '${u.email}')" title="Ban Account"><i class="fas fa-user-slash me-1"></i>Ban</button>
                             </td>
                         </tr>
                     `;
