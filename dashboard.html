@@ -3,485 +3,515 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OXI E-Sports - Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>OXI ADMIN - Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-color:#070510; --card-bg:#120e24; --primary:#8b00ff; --cyan:#00ffd2; --danger:#ff0055; --text-muted:#a09cb0; }
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-        body{background:var(--bg-color);color:#fff;min-height:100vh;padding:20px;}
-        .admin-nav{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);padding:15px 25px;border-radius:16px;border:1px solid rgba(139,0,255,0.3);margin-bottom:25px;}
-        .admin-nav h2{font-family:'Rajdhani',sans-serif;color:var(--cyan);letter-spacing:1px;font-size:22px;}
-        .badge-role{background:linear-gradient(135deg,#ffaa00,#ff6600);color:#000;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-left:8px;}
-        .badge-role.normal{background:#3b82f6;color:#fff;}
-        .btn-logout{background:var(--danger);color:#fff;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-weight:600;font-size:13px;}
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
-        .stat-card{background:var(--card-bg);border-radius:16px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.05);transition:0.3s;}
-        .stat-card:hover{border-color:var(--primary);transform:translateY(-3px);}
-        .stat-card i{font-size:24px;color:var(--cyan);margin-bottom:10px;}
-        .stat-card h3{font-size:28px;font-family:'Rajdhani',sans-serif;}
-        .stat-card p{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;}
-        .tabs-container{display:flex;gap:10px;overflow-x:auto;margin-bottom:25px;padding-bottom:5px;}
-        .tab-pill{padding:10px 22px;background:rgba(255,255,255,0.05);border-radius:30px;color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:0.3s;border:1px solid transparent;}
-        .tab-pill.active{background:var(--primary);color:#fff;box-shadow:0 0 15px rgba(139,0,255,0.4);}
-        .tab-pill i{margin-right:8px;}
-        .tab-content{display:none;}.tab-content.active{display:block;}
-        .section-card{background:var(--card-bg);border-radius:16px;padding:25px;border:1px solid rgba(139,0,255,0.2);margin-bottom:25px;}
-        .section-title{font-family:'Rajdhani',sans-serif;color:var(--cyan);font-size:20px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-        .admin-form-row{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:20px;}
-        .admin-input{flex:1;min-width:240px;padding:12px 18px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;outline:none;font-size:13px;}
-        .admin-input:focus{border-color:var(--cyan);}
-        .btn-add{background:var(--cyan);color:#000;border:none;padding:12px 25px;border-radius:12px;font-weight:700;cursor:pointer;transition:0.3s;}
-        .btn-add:hover{box-shadow:0 0 15px rgba(0,255,210,0.3);}
-        .category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px;}
-        .cat-box{background:#130f28;border-radius:16px;overflow:hidden;aspect-ratio:1/1;position:relative;cursor:pointer;border:1px solid rgba(139,0,255,0.3);transition:0.3s ease;}
-        .cat-box:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:0 0 20px rgba(0,255,210,0.3);}
-        .cat-img{width:100%;height:100%;object-fit:cover;opacity:0.7;transition:0.3s;}
-        .cat-box:hover .cat-img{opacity:0.85;scale:1.05;}
-        .cat-overlay{position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,rgba(7,5,16,0.95),transparent);padding:15px;text-align:center;}
-        .cat-overlay h4{font-size:16px;font-weight:700;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.8);}
-        .cat-overlay p{font-size:11px;color:var(--cyan);margin-top:3px;}
-        .table-responsive{width:100%;overflow-x:auto;}
-        .user-table{width:100%;border-collapse:collapse;margin-top:10px;}
-        .user-table th{color:var(--cyan);font-size:12px;font-weight:600;text-align:left;padding:15px;border-bottom:1px solid rgba(255,255,255,0.05);}
-        .user-table td{padding:15px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;color:#fff;}
-        .td-name{font-weight:600;}.td-email{color:var(--text-muted);}.td-phone{font-weight:600;color:#fff;}
-        .td-pass-pill{color:#00ffd2;background:rgba(0,255,210,0.08);padding:5px 12px;border-radius:4px;font-family:monospace;font-size:12px;}
-        .btn-ban-user{background:#ff0044;color:#fff;padding:6px 16px;border-radius:20px;font-size:10px;font-weight:700;border:none;cursor:pointer;}
-        .admin-info-box{background:#1b1638;border-radius:10px;padding:15px;border-left:4px solid var(--primary);margin-bottom:25px;}
-        .admin-info-box p{font-size:13px;color:#fff;margin-bottom:5px;}
-        .admin-add-buttons{display:flex;gap:15px;margin-bottom:35px;flex-wrap:wrap;}
-        .btn-add-super-admin{flex:1;min-width:200px;padding:14px;background:#00e676;color:#000;border-radius:12px;font-weight:700;border:none;cursor:pointer;font-size:14px;}
-        .btn-add-normal-admin{flex:1;min-width:200px;padding:14px;background:#3b82f6;color:#fff;border-radius:12px;font-weight:700;border:none;cursor:pointer;font-size:14px;}
-        .admin-user-card{background:#151129;border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:16px 20px;margin-bottom:12px;}
-        .auc-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
-        .auc-left-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;}
-        .auc-left-sub{font-size:11px;color:var(--text-muted);margin-top:4px;margin-left:24px;}
-        .btn-remove-admin{background:#ff0f0f;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
-        .switch{position:relative;display:inline-block;width:44px;height:22px;}
-        .switch input{opacity:0;width:0;height:0;}
-        .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#333;transition:.4s;border-radius:34px;}
-        .slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%;}
-        input:checked+.slider{background-color:var(--cyan);}
-        input:checked+.slider:before{transform:translateX(22px);background-color:#000;}
-        .permission-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:15px;background:rgba(0,0,0,0.3);border-radius:10px;margin-top:12px;}
-        .permission-item{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-muted);font-weight:600;}
-        .match-management-view{position:fixed;top:0;left:0;width:100vw;height:100vh;background:#05030a;z-index:2000;display:none;flex-direction:column;overflow:hidden;}
-        .match-management-view.active{display:flex;}
-        .mm-header{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;background:#0b0816;border-bottom:1px solid rgba(255,255,255,0.08);}
-        .mm-header-left{display:flex;align-items:center;gap:15px;}
-        .mm-back-btn{font-size:20px;color:#fff;cursor:pointer;}
-        .mm-header h3{font-size:20px;font-weight:600;color:#fff;}
-        .mm-tabs-bar{display:flex;background:#0b0816;border-bottom:1px solid rgba(255,255,255,0.08);padding:0 20px;}
-        .mm-sub-tab{padding:14px 25px;font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer;position:relative;}
-        .mm-sub-tab.active{color:#3b82f6;}
-        .mm-sub-tab.active::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;background:#3b82f6;border-radius:3px 3px 0 0;}
-        .mm-content-area{flex:1;padding:20px;overflow-y:auto;max-width:900px;margin:0 auto;width:100%;}
-        .match-card-item{background:var(--card-bg);border:1px solid rgba(139,0,255,0.25);border-radius:16px;padding:20px;margin-bottom:15px;}
-        .m-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-        .m-card-title{font-size:16px;font-weight:700;color:#fff;}
-        .m-card-badge{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(0,255,210,0.1);color:var(--cyan);border:1px solid var(--cyan);}
-        .m-card-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;background:rgba(0,0,0,0.3);padding:12px;border-radius:12px;margin-bottom:15px;text-align:center;}
-        .m-card-body small{display:block;font-size:10px;color:var(--text-muted);}
-        .m-card-body strong{font-size:14px;color:#fff;}
-        .m-room-box{display:flex;gap:10px;flex-wrap:wrap;background:rgba(0,255,210,0.04);border:1px dashed rgba(0,255,210,0.3);padding:12px;border-radius:12px;margin-bottom:15px;}
-        .m-room-box input{flex:1;min-width:130px;padding:8px 12px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--cyan);font-size:12px;outline:none;}
-        .fab-add-btn{position:fixed;bottom:35px;right:35px;width:58px;height:58px;border-radius:18px;background:#eae2f8;color:#120e24;display:flex;justify-content:center;align-items:center;font-size:26px;cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:2100;}
-        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:3000;display:none;justify-content:center;align-items:center;padding:20px;}
-        .modal-overlay.active{display:flex;}
-        .modal-card{background:var(--card-bg);border:1px solid var(--primary);border-radius:20px;padding:25px;width:100%;max-width:480px;}
-        .modal-card h3{font-family:'Rajdhani',sans-serif;color:var(--cyan);font-size:22px;margin-bottom:15px;}
-        .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a0033;border:1px solid var(--cyan);color:#fff;padding:12px 25px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:0.3s;opacity:0;}
-        .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+        :root {
+            --bg-color: #0b021a;
+            --card-bg: #150a2e;
+            --primary: #9d00ff;
+            --accent: #00ffcc;
+            --text: #ffffff;
+            --text-dim: #b0a3c4;
+            --danger: #ff3366;
+            --success: #00c853;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text); overflow-x: hidden; }
+
+        /* Header */
+        header {
+            background: var(--card-bg);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #25164d;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-area h2 { font-weight: 600; letter-spacing: 1px; color: var(--accent); }
+        .role-badge {
+            background: linear-gradient(45deg, #ff9800, #ff5722);
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px 5%;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid #25164d;
+            transition: 0.3s;
+        }
+
+        .stat-card i { font-size: 24px; color: var(--accent); margin-bottom: 10px; }
+        .stat-card h3 { font-size: 28px; color: var(--text); }
+        .stat-card p { color: var(--text-dim); font-size: 12px; text-transform: uppercase; }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            padding: 10px 5%;
+            overflow-x: auto;
+            background: #0f0524;
+            border-bottom: 1px solid #25164d;
+        }
+
+        .tab-btn {
+            background: #25164d;
+            color: var(--text-dim);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(157, 0, 255, 0.4);
+        }
+
+        /* Content Area */
+        .main-content { padding: 30px 5%; }
+        .tab-panel { display: none; animation: fadeIn 0.4s ease; }
+        .tab-panel.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Form Controls */
+        .section-header { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--accent); }
+        .input-group {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #25164d;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        input {
+            background: #0b021a;
+            border: 1px solid #3d2b63;
+            padding: 12px 15px;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* List Items & Grids */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #25164d;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .category-card img { width: 100%; height: 150px; object-fit: cover; }
+        .category-card h3 { padding: 15px; text-align: center; font-size: 16px; }
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Admin Table */
+        table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 10px; overflow: hidden; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #25164d; }
+        th { background: #1c0e3d; color: var(--accent); }
+
+        .perm-toggles { display: flex; gap: 10px; font-size: 11px; }
+        .perm-toggles label { background: #25164d; padding: 2px 8px; border-radius: 5px; cursor: pointer; }
+
     </style>
 </head>
 <body>
 
-    <div class="admin-nav">
-        <h2>OXI ADMIN <span class="badge-role" id="adminRoleBadge">SUPER ADMIN</span></h2>
-        <button class="btn-logout" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-    </div>
+    <header>
+        <div class="logo-area">
+            <h2>OXI ADMIN</h2>
+            <span class="role-badge" id="admin-role-badge">SUPER ADMIN</span>
+        </div>
+        <button class="logout-btn" onclick="logoutAdmin()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </header>
 
     <div class="stats-grid">
-        <div class="stat-card"><i class="fa-solid fa-users"></i><h3 id="statTotalUsers">0</h3><p>Total Registered Users</p></div>
-        <div class="stat-card"><i class="fa-solid fa-user-slash"></i><h3 id="statBannedUsers">0</h3><p>Banned Accounts</p></div>
-        <div class="stat-card"><i class="fa-solid fa-images"></i><h3 id="statBanners">0</h3><p>Active Banners</p></div>
-        <div class="stat-card"><i class="fa-solid fa-gamepad"></i><h3 id="statCategories">0</h3><p>Game Categories</p></div>
-    </div>
-
-    <div class="tabs-container">
-        <div class="tab-pill active" id="tabPillGames" onclick="switchNav('gamesTab', this)"><i class="fa-solid fa-gamepad"></i> Games & Matches</div>
-        <div class="tab-pill" id="tabPillUsers" onclick="switchNav('usersTab', this)"><i class="fa-solid fa-users"></i> Users List</div>
-        <div class="tab-pill" id="tabPillBan" onclick="switchNav('banTab', this)"><i class="fa-solid fa-ban"></i> Banned List</div>
-        <div class="tab-pill" id="tabPillBanner" onclick="switchNav('bannerTab', this)"><i class="fa-solid fa-image"></i> Banners</div>
-        <div class="tab-pill" id="tabPillPayment" onclick="switchNav('paymentTab', this)"><i class="fa-solid fa-wallet"></i> Payment Settings</div>
-        <div class="tab-pill" id="tabPillAdmins" onclick="switchNav('adminsTab', this)"><i class="fa-solid fa-crown"></i> Admins Management</div>
-    </div>
-
-    <!-- 1. GAMES & MATCHES -->
-    <div class="tab-content active" id="gamesTab">
-        <div class="section-card">
-            <div class="section-title"><i class="fa-solid fa-plus-circle"></i> Create New Match Category</div>
-            <form onsubmit="addCategory(event)" class="admin-form-row">
-                <input type="text" id="catTitleInput" class="admin-input" placeholder="Category Name (e.g. BR Match)" required>
-                <input type="url" id="catImageInput" class="admin-input" placeholder="Square Image URL (1:1 Ratio)" required>
-                <button type="submit" class="btn-add">ADD CATEGORY</button>
-            </form>
+        <div class="stat-card">
+            <i class="fas fa-users"></i>
+            <h3 id="total-users">0</h3>
+            <p>Total Registered Users</p>
         </div>
-        <div class="section-card">
-            <div class="section-title"><i class="fa-solid fa-list"></i> Select Category Box to Manage Matches</div>
-            <div class="category-grid" id="adminCategoryGrid"></div>
+        <div class="stat-card">
+            <i class="fas fa-user-slash"></i>
+            <h3 id="total-banned">0</h3>
+            <p>Banned Accounts</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-image"></i>
+            <h3 id="total-banners">0</h3>
+            <p>Active Banners</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-gamepad"></i>
+            <h3 id="total-categories">0</h3>
+            <p>Game Categories</p>
         </div>
     </div>
 
-    <!-- 2. USERS LIST -->
-    <div class="tab-content" id="usersTab">
-        <div class="section-card">
-            <div class="section-title"><i class="fa-solid fa-users"></i> Registered User Database</div>
-            <div class="table-responsive">
-                <table class="user-table">
-                    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Password</th><th>Balance</th><th>Action</th></tr></thead>
-                    <tbody id="usersTableBody"></tbody>
-                </table>
+    <div class="nav-tabs" id="admin-nav">
+        <button class="tab-btn active" onclick="switchNav('games', this)" id="nav-games-btn">
+            <i class="fas fa-gamepad"></i> Games & Matches
+        </button>
+        <button class="tab-btn" onclick="switchNav('users', this)" id="nav-users-btn">
+            <i class="fas fa-users-cog"></i> Users List
+        </button>
+        <button class="tab-btn" onclick="switchNav('banned', this)" id="nav-banned-btn">
+            <i class="fas fa-ban"></i> Banned List
+        </button>
+        <button class="tab-btn" onclick="switchNav('banners', this)" id="nav-banners-btn">
+            <i class="fas fa-image"></i> Banners
+        </button>
+        <button class="tab-btn" onclick="switchNav('payment', this)" id="nav-payment-btn">
+            <i class="fas fa-wallet"></i> Payment Settings
+        </button>
+        <button class="tab-btn" onclick="switchNav('admins', this)" id="nav-admins-btn" style="display:none;">
+            <i class="fas fa-crown"></i> Admins Management
+        </button>
+    </div>
+
+    <div class="main-content">
+        <!-- Games Panel -->
+        <div id="games-panel" class="tab-panel active">
+            <div class="section-header"><i class="fas fa-plus-circle"></i> Create New Match Category</div>
+            <div class="input-group">
+                <input type="text" id="cat-title" placeholder="Category Name (e.g. BR Match)">
+                <input type="text" id="cat-image" placeholder="Square Image URL (1:1 Ratio)">
+                <button class="action-btn" onclick="addCategory()">ADD CATEGORY</button>
+            </div>
+
+            <div class="section-header"><i class="fas fa-list-ul"></i> Select Category Box to Manage Matches</div>
+            <div id="categories-container" class="category-grid">
+                <!-- Categories will load here -->
             </div>
         </div>
-    </div>
 
-    <!-- 3. BANNED LIST -->
-    <div class="tab-content" id="banTab">
-        <div class="section-card">
-            <div class="section-title"><i class="fa-solid fa-user-slash"></i> Restricted Accounts</div>
-            <div class="table-responsive">
-                <table class="user-table">
-                    <thead><tr><th>User Key / Email</th><th>Action</th></tr></thead>
-                    <tbody id="bannedTableBody"></tbody>
-                </table>
+        <!-- Admins Management Panel -->
+        <div id="admins-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-user-shield"></i> Manage Administrative Access</div>
+            <div class="input-group">
+                <input type="email" id="new-admin-email" placeholder="Admin Email Address">
+                <select id="new-admin-role" style="background:#0b021a; border:1px solid #3d2b63; color:white; padding:10px; border-radius:8px;">
+                    <option value="admin">Normal Admin</option>
+                    <option value="super">Super Admin</option>
+                </select>
+                <button class="action-btn" onclick="addNewAdmin()">ADD ADMIN</button>
             </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email Address</th>
+                        <th>Role</th>
+                        <th>Permissions (for Admins)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-list-body">
+                    <!-- Admins will load here -->
+                </tbody>
+            </table>
         </div>
+
+        <!-- Users, Banned, Banners, Payment panels will be built out next... -->
+        <div id="users-panel" class="tab-panel"><h2>User List Management</h2><p>Working on this section...</p></div>
+        <div id="banned-panel" class="tab-panel"><h2>Banned Users</h2><p>Working on this section...</p></div>
+        <div id="banners-panel" class="tab-panel"><h2>Home Banners</h2><p>Working on this section...</p></div>
+        <div id="payment-panel" class="tab-panel"><h2>Payment Gateway Settings</h2><p>Working on this section...</p></div>
     </div>
 
-    <!-- 4. BANNERS -->
-    <div class="tab-content" id="bannerTab">
-        <div class="section-card">
-            <div class="section-title"><i class="fa-solid fa-image"></i> Banner Slider Settings</div>
-            <form onsubmit="addBanner(event)" class="admin-form-row">
-                <input type="url" id="bannerUrlInput" class="admin-input" placeholder="Banner Image URL" required>
-                <button type="submit" class="btn-add">ADD BANNER</button>
-            </form>
-            <div id="bannersListContainer" class="admin-form-row" style="margin-top:20px;"></div>
-        </div>
-    </div>
-
-    <!-- 5. PAYMENT SETTINGS -->
-    <div class="tab-content" id="paymentTab">
-        <div class="section-card">
-            <div class="section-title"><i class="fa-solid fa-wallet"></i> Payment Switches & Numbers</div>
-            <form onsubmit="savePaymentSettings(event)">
-                <div style="margin-bottom:20px;display:flex;align-items:center;gap:20px;">
-                    <label class="switch"><input type="checkbox" id="bkashActive"><span class="slider"></span></label>
-                    <span style="width:100px;color:#e2136e;font-weight:700;">bKash No:</span>
-                    <input type="text" id="bkashNum" class="admin-input" style="max-width:300px;">
-                </div>
-                <div style="margin-bottom:20px;display:flex;align-items:center;gap:20px;">
-                    <label class="switch"><input type="checkbox" id="nagadActive"><span class="slider"></span></label>
-                    <span style="width:100px;color:#f7921e;font-weight:700;">Nagad No:</span>
-                    <input type="text" id="nagadNum" class="admin-input" style="max-width:300px;">
-                </div>
-                <div style="margin-bottom:20px;display:flex;align-items:center;gap:20px;">
-                    <label class="switch"><input type="checkbox" id="rocketActive"><span class="slider"></span></label>
-                    <span style="width:100px;color:#8c3494;font-weight:700;">Rocket No:</span>
-                    <input type="text" id="rocketNum" class="admin-input" style="max-width:300px;">
-                </div>
-                <button type="submit" class="btn-add">SAVE PAYMENT SETTINGS</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 6. ADMINS MANAGEMENT (with Permission Toggles) -->
-    <div class="tab-content" id="adminsTab">
-        <div class="section-card">
-            <div class="section-title"><i class="fa-solid fa-crown"></i> Admin Management</div>
-            <div class="admin-info-box">
-                <p>💡 Super Admin: সব কাজ করতে পারবে + Admin Manage + Permission Control</p>
-                <p>💡 Normal Admin: শুধু Super Admin যেসব Permission দেবে সেই কাজগুলো করতে পারবে</p>
-            </div>
-            <div class="admin-add-buttons">
-                <button class="btn-add-super-admin" onclick="promptAddAdmin('super')"><i class="fa-solid fa-plus"></i> Add Super Admin</button>
-                <button class="btn-add-normal-admin" onclick="promptAddAdmin('normal')"><i class="fa-solid fa-plus"></i> Add Normal Admin</button>
-            </div>
-            <div style="color:#ffb300;font-weight:700;margin-bottom:12px;font-size:16px;"><i class="fa-solid fa-crown"></i> Super Admins</div>
-            <div id="superAdminsContainer"></div>
-            <div style="color:#3b82f6;font-weight:700;margin-top:25px;margin-bottom:12px;font-size:16px;"><i class="fa-solid fa-wrench"></i> Normal Admins & Permissions</div>
-            <div id="normalAdminsContainer"></div>
-        </div>
-    </div>
-
-    <!-- MATCH MANAGEMENT PANEL -->
-    <div class="match-management-view" id="matchManagementView">
-        <div class="mm-header">
-            <div class="mm-header-left"><i class="fa-solid fa-arrow-left mm-back-btn" onclick="closeMatchManagement()"></i><h3 id="mmCatTitle">Match Management</h3></div>
-            <button class="btn-ban-user" style="font-size:11px;padding:6px 12px;" onclick="safeDeleteCategory()">Delete Category</button>
-        </div>
-        <div class="mm-tabs-bar">
-            <div class="mm-sub-tab active" onclick="switchMatchSubTab('upcoming')">Matches</div>
-            <div class="mm-sub-tab" onclick="switchMatchSubTab('ongoing')">Ongoing</div>
-            <div class="mm-sub-tab" onclick="switchMatchSubTab('result')">Results</div>
-        </div>
-        <div class="mm-content-area" id="mmContentArea"></div>
-        <div class="fab-add-btn" onclick="openAddMatchModal()"><i class="fa-solid fa-plus"></i></div>
-    </div>
-
-    <!-- ADD MATCH MODAL -->
-    <div class="modal-overlay" id="addMatchModal">
-        <div class="modal-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                <h3>Create New Match</h3>
-                <i class="fa-solid fa-xmark" style="font-size:20px;cursor:pointer;" onclick="closeAddMatchModal()"></i>
-            </div>
-            <form onsubmit="submitNewMatch(event)">
-                <input type="text" id="newMTitle" class="admin-input" placeholder="Match Title (e.g. Match #01)" style="width:100%;margin-bottom:12px;" required>
-                <div style="display:flex;gap:10px;margin-bottom:12px;">
-                    <input type="number" id="newMFee" class="admin-input" placeholder="Entry Fee (BDT)" required>
-                    <input type="number" id="newMPrize" class="admin-input" placeholder="Prize Pool (BDT)" required>
-                </div>
-                <div style="display:flex;gap:10px;margin-bottom:12px;">
-                    <input type="number" id="newMPerKill" class="admin-input" placeholder="Per Kill (BDT)" value="0">
-                    <input type="text" id="newMMap" class="admin-input" placeholder="Map (e.g. Bermuda)">
-                </div>
-                <input type="text" id="newMDate" class="admin-input" placeholder="Date & Time (e.g. 10 Oct, 08:00 PM)" style="width:100%;margin-bottom:15px;" required>
-                <button type="submit" class="btn-add" style="width:100%;">PUBLISH MATCH</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="toast" class="toast"></div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, get, set, remove, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
+    <script>
+        // --- Firebase Configuration ---
         const firebaseConfig = {
-            apiKey:"AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
-            authDomain:"oxi-esports.firebaseapp.com",
-            projectId:"oxi-esports",
-            storageBucket:"oxi-esports.firebasestorage.app",
-            messagingSenderId:"924353594492",
-            appId:"1:924353594492:web:08329a3d1f67e7a5da35f9",
-            databaseURL:"https://oxi-esports-default-rtdb.firebaseio.com"
+            apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
+            authDomain: "oxi-esports.firebaseapp.com",
+            projectId: "oxi-esports",
+            storageBucket: "oxi-esports.firebasestorage.app",
+            messagingSenderId: "924353594492",
+            appId: "1:924353594492:web:08329a3d1f67e7a5da35f9",
+            databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com"
         };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+        let currentUserCleanEmail = "";
+        let isSuperAdmin = false;
+        let isAdmin = false;
 
-        let activeCategoryName="", activeCategoryId="", currentSubTab="upcoming";
-        let currentAdminRole="none", currentUserCleanEmail="", myPermissions={};
-
-        function emailToKey(email){return email?email.replace(/\./g,','):'';}
-
-        function showToast(msg){
-            const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-            setTimeout(()=>t.classList.remove('show'),2500);
+        // Standardized Email Key Converter
+        function emailToKey(email) { 
+            return email ? email.replace(/\./g, ',') : ''; 
         }
 
-        // ===== AUTH & PERMISSION SYSTEM =====
-        onAuthStateChanged(auth, async(user)=>{
-            if(!user){window.location.href="index.html";return;}
-            currentUserCleanEmail=emailToKey(user.email.toLowerCase().trim());
+        // --- Navigation Logic ---
+        function switchNav(panelId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            const targetPanel = document.getElementById(panelId + '-panel');
+            if(targetPanel) targetPanel.classList.add('active');
+            if(btn) btn.classList.add('active');
+        }
 
-            // Check role
-            const superSnap=await get(ref(db,'superAdmins/'+currentUserCleanEmail));
-            const normSnap=await get(ref(db,'admins/'+currentUserCleanEmail));
-
-            if(superSnap.exists()&&superSnap.val()===true){currentAdminRole="super";}
-            else if(normSnap.exists()&&normSnap.val()===true){currentAdminRole="normal";}
-            else{alert("Unauthorized!");signOut(auth);return;}
-
-            const badge=document.getElementById('adminRoleBadge');
-            const adminPill=document.getElementById('tabPillAdmins');
-            const paymentPill=document.getElementById('tabPillPayment');
-
-            if(currentAdminRole==="super"){
-                badge.innerText="👑 SUPER ADMIN";badge.className="badge-role";
-                adminPill.style.display="inline-block";
-                paymentPill.style.display="inline-block";
-                document.getElementById('tabPillGames').style.display="inline-block";
-                document.getElementById('tabPillUsers').style.display="inline-block";
-                document.getElementById('tabPillBan').style.display="inline-block";
-                document.getElementById('tabPillBanner').style.display="inline-block";
-            }else{
-                badge.innerText="🔧 NORMAL ADMIN";badge.className="badge-role normal";
-                adminPill.style.display="none";
-                // Load permissions for normal admin
-                const permSnap=await get(ref(db,'adminPermissions/'+currentUserCleanEmail));
-                myPermissions=permSnap.exists()?permSnap.val():{games:false,users:false,banned:false,banners:false,payment:false};
-                applyPermissions();
+        // --- Authentication & Access Control ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const emailKey = emailToKey(user.email);
+                currentUserCleanEmail = emailKey;
+                checkAccess(emailKey);
+            } else {
+                window.location.href = 'index.html';
             }
-            loadAllDashboardData();
         });
 
-        function applyPermissions(){
-            const map={tabPillGames:'games',tabPillUsers:'users',tabPillBan:'banned',tabPillBanner:'banners',tabPillPayment:'payment'};
-            let firstVisibleTab=null;
-            for(const[id,perm]of Object.entries(map)){
-                const el=document.getElementById(id);
-                if(myPermissions[perm]){el.style.display="inline-block";if(!firstVisibleTab)firstVisibleTab=id;}
-                else{el.style.display="none";}
-            }
-            if(firstVisibleTab){switchNav(firstVisibleTab.replace('tabPill','').toLowerCase()+'Tab',document.getElementById(firstVisibleTab));}
-        }
-
-        // ===== ADMIN PERMISSION TOGGLE =====
-        window.togglePermission=async function(emailKey,perm,value){
-            await set(ref(db,`adminPermissions/${emailKey}/${perm}`),value);
-            showToast(value?'✅ Permission Enabled':'❌ Permission Disabled');
-        };
-
-        // ===== DATA LOADING =====
-        function loadAllDashboardData(){
-            onValue(ref(db,'users'),(snap)=>{
-                const tbody=document.getElementById('usersTableBody');tbody.innerHTML='';let count=0;
-                if(snap.exists()){Object.entries(snap.val()).forEach(([key,u])=>{count++;
-                    tbody.innerHTML+=`<tr><td class="td-name">${u.name||'User'}</td><td class="td-email">${u.email||key}</td><td class="td-phone">${u.phone||'N/A'}</td><td><span class="td-pass-pill">${u.password||'******'}</span></td><td>৳${(u.balance||0).toFixed(2)}</td><td><button class="btn-ban-user" onclick="banUser('${key}')">BAN USER</button></td></tr>`;
-                });}else{tbody.innerHTML='<tr><td colspan="6" style="text-align:center;">No users registered yet.</td></tr>';}
-                document.getElementById('statTotalUsers').innerText=count;
-            });
-
-            onValue(ref(db,'bannedUsers'),(snap)=>{
-                const tbody=document.getElementById('bannedTableBody');tbody.innerHTML='';let count=0;
-                if(snap.exists()){Object.entries(snap.val()).forEach(([key,val])=>{if(val===true){count++;
-                    tbody.innerHTML+=`<tr><td>${key.replace(/,/g,'.')}</td><td><button class="btn-add" style="background:#00b395;color:#fff;padding:6px 14px;font-size:11px;" onclick="unbanUser('${key}')">UNBAN</button></td></tr>`;
-                });}}document.getElementById('statBannedUsers').innerText=count;
-            });
-
-            onValue(ref(db,'banners'),(snap)=>{
-                const c=document.getElementById('bannersListContainer');c.innerHTML='';let count=0;
-                if(snap.exists()){Object.entries(snap.val()).forEach(([bId,b])=>{count++;
-                    c.innerHTML+=`<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:12px;width:180px;"><img src="${b.imageUrl}" style="width:100%;height:90px;object-fit:cover;border-radius:8px;"><button class="btn-ban-user" style="width:100%;margin-top:8px;" onclick="deleteBanner('${bId}')">DELETE</button></div>`;
-                });}document.getElementById('statBanners').innerText=count;
-            });
-
-            onValue(ref(db,'match_categories'),(snap)=>{
-                const grid=document.getElementById('adminCategoryGrid');grid.innerHTML='';let count=0;
-                if(snap.exists()){Object.entries(snap.val()).forEach(([catId,cat])=>{count++;
-                    const box=document.createElement('div');box.className='cat-box';
-                    box.onclick=()=>openCategoryMatchPanel(cat.title,catId);
-                    box.innerHTML=`<img src="${cat.image}" class="cat-img"><div class="cat-overlay"><h4>${cat.title}</h4><p><i class="fa-solid fa-arrow-right"></i> Open Panel</p></div>`;
-                    grid.appendChild(box);
-                });}document.getElementById('statCategories').innerText=count;
-            });
-
-            if(currentAdminRole==="super")loadAdminLists();
-            get(ref(db,'paymentSettings')).then(s=>{if(s.exists()){const d=s.val();
-                document.getElementById('bkashNum').value=d.bkash||'';
-                document.getElementById('bkashActive').checked=!!d.bkashActive;
-                document.getElementById('nagadNum').value=d.nagad||'';
-                document.getElementById('nagadActive').checked=!!d.nagadActive;
-                document.getElementById('rocketNum').value=d.rocket||'';
-                document.getElementById('rocketActive').checked=!!d.rocketActive;
-            }});
-        }
-
-        // ===== ADMIN LISTS (Super + Normal with Permissions) =====
-        async function loadAdminLists(){
-            onValue(ref(db,'superAdmins'),(snap)=>{
-                const c=document.getElementById('superAdminsContainer');if(!c)return;c.innerHTML='';
-                if(snap.exists()){Object.keys(snap.val()).forEach(key=>{
-                    const email=key.replace(/,/g,'.');const isMe=key===currentUserCleanEmail;
-                    const btn=isMe?`<span style="color:#a09cb0;font-size:12px;"><i class="fa-solid fa-lock"></i> You</span>`:`<button class="btn-remove-admin" onclick="removeAdminUser('super','${key}')">🗑 Remove</button>`;
-                    c.innerHTML+=`<div class="admin-user-card"><div class="auc-row"><div><div class="auc-left-title"><i class="fa-solid fa-crown" style="color:#ffb300;"></i> <span style="color:#ffb300;">${email}</span></div><div class="auc-left-sub">Super Admin${isMe?' (You)':''}</div></div><div>${btn}</div></div></div>`;
-                });}else{c.innerHTML='<p style="font-size:12px;color:var(--text-muted);">No Super Admins</p>';}
-            });
-
-            onValue(ref(db,'admins'),async(snap)=>{
-                const c=document.getElementById('normalAdminsContainer');if(!c)return;c.innerHTML='';
-                if(snap.exists()){
-                    for(const key of Object.keys(snap.val())){
-                        const email=key.replace(/,/g,'.');
-                        const permSnap=await get(ref(db,'adminPermissions/'+key));
-                        const p=permSnap.exists()?permSnap.val():{games:false,users:false,banned:false,banners:false,payment:false};
-                        c.innerHTML+=`
-                        <div class="admin-user-card">
-                            <div class="auc-row">
-                                <div><div class="auc-left-title"><i class="fa-solid fa-wrench" style="color:#fff;"></i> <span style="color:#fff;">${email}</span></div><div class="auc-left-sub">Normal Admin</div></div>
-                                <div><button class="btn-remove-admin" onclick="removeAdminUser('normal','${key}')">🗑 Remove</button></div>
-                            </div>
-                            <div style="font-size:11px;color:var(--cyan);margin-top:10px;font-weight:700;">🔑 Permissions:</div>
-                            <div class="permission-grid">
-                                <div class="permission-item"><label class="switch"><input type="checkbox" ${p.games?'checked':''} onchange="togglePermission('${key}','games',this.checked)"><span class="slider"></span></label><span>🎮 Games</span></div>
-                                <div class="permission-item"><label class="switch"><input type="checkbox" ${p.users?'checked':''} onchange="togglePermission('${key}','users',this.checked)"><span class="slider"></span></label><span>👥 Users</span></div>
-                                <div class="permission-item"><label class="switch"><input type="checkbox" ${p.banned?'checked':''} onchange="togglePermission('${key}','banned',this.checked)"><span class="slider"></span></label><span>🚫 Ban List</span></div>
-                                <div class="permission-item"><label class="switch"><input type="checkbox" ${p.banners?'checked':''} onchange="togglePermission('${key}','banners',this.checked)"><span class="slider"></span></label><span>🖼️ Banners</span></div>
-                                <div class="permission-item"><label class="switch"><input type="checkbox" ${p.payment?'checked':''} onchange="togglePermission('${key}','payment',this.checked)"><span class="slider"></span></label><span>💵 Payment</span></div>
-                            </div>
-                        </div>`;
-                    }
-                }else{c.innerHTML='<p style="font-size:12px;color:var(--text-muted);">No Normal Admins</p>';}
+        function checkAccess(emailKey) {
+            db.ref(`superAdmins/${emailKey}`).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    isSuperAdmin = true;
+                    isAdmin = true;
+                    document.getElementById('admin-role-badge').innerText = 'SUPER ADMIN';
+                    document.getElementById('nav-admins-btn').style.display = 'flex';
+                    initDashboard();
+                } else {
+                    db.ref(`admins/${emailKey}`).once('value', adminSnap => {
+                        if (adminSnap.exists()) {
+                            isSuperAdmin = false;
+                            isAdmin = true;
+                            document.getElementById('admin-role-badge').innerText = 'ADMIN';
+                            applyPermissions(emailKey);
+                            initDashboard();
+                        } else {
+                            alert("Access Denied! Contact Super Admin.");
+                            auth.signOut().then(() => window.location.href = 'index.html');
+                        }
+                    });
+                }
             });
         }
 
-        // ===== ADMIN ACTIONS =====
-        window.promptAddAdmin=async function(role){
-            const email=prompt(`Enter Gmail for new ${role.toUpperCase()} ADMIN:`);
-            if(!email||!email.includes('@'))return alert("Invalid Email!");
-            const key=emailToKey(email.trim().toLowerCase());
-            await set(ref(db,(role==='super'?'superAdmins/':'admins/')+key),true);
-            if(role==='normal'){await set(ref(db,'adminPermissions/'+key),{games:false,users:false,banned:false,banners:false,payment:false});}
-            showToast('✅ Admin Added!');
-        };
+        function applyPermissions(emailKey) {
+            db.ref(`adminPermissions/${emailKey}`).on('value', snapshot => {
+                const perms = snapshot.val() || {};
+                document.getElementById('nav-games-btn').style.display = perms.games ? 'flex' : 'none';
+                document.getElementById('nav-users-btn').style.display = perms.users ? 'flex' : 'none';
+                document.getElementById('nav-banned-btn').style.display = perms.banned ? 'flex' : 'none';
+                document.getElementById('nav-banners-btn').style.display = perms.banners ? 'flex' : 'none';
+                document.getElementById('nav-payment-btn').style.display = perms.payment ? 'flex' : 'none';
+            });
+        }
 
-        window.removeAdminUser=async function(role,key){
-            if(key===currentUserCleanEmail)return alert("❌ আপনি নিজেকে রিমুভ করতে পারবেন না!");
-            if(confirm("Remove this Admin?")){
-                await remove(ref(db,(role==='super'?'superAdmins/':'admins/')+key));
-                if(role==='normal')await remove(ref(db,'adminPermissions/'+key));
-                showToast('✅ Removed');
-            }
-        };
+        // --- Dashboard Initialization ---
+        function initDashboard() {
+            fetchCategories();
+            fetchStats();
+            if (isSuperAdmin) fetchAdmins();
+        }
 
-        // ===== MATCH PANEL =====
-        window.openCategoryMatchPanel=(t,id)=>{activeCategoryName=t;activeCategoryId=id;document.getElementById('mmCatTitle').innerText=t;document.getElementById('matchManagementView').classList.add('active');switchMatchSubTab('upcoming');};
-        window.closeMatchManagement=()=>document.getElementById('matchManagementView').classList.remove('active');
-        window.switchMatchSubTab=(s)=>{currentSubTab=s;document.querySelectorAll('.mm-sub-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');loadMatchesForCategory();};
+        function fetchStats() {
+            db.ref('users').on('value', s => document.getElementById('total-users').innerText = s.numChildren());
+            db.ref('bannedUsers').on('value', s => document.getElementById('total-banned').innerText = s.numChildren());
+            db.ref('banners').on('value', s => document.getElementById('total-banners').innerText = s.numChildren());
+        }
 
-        function loadMatchesForCategory(){
-            const c=document.getElementById('mmContentArea');c.innerHTML='<p style="text-align:center;color:var(--text-muted);padding:30px;">Loading...</p>';
-            const cleanCat=activeCategoryName.replace(/[.#$[\]]/g,"_");
-            onValue(ref(db,'matches/'+cleanCat),(snap)=>{
-                c.innerHTML='';if(!snap.exists()){c.innerHTML='<p style="text-align:center;color:var(--text-muted);padding:40px;">No matches. Tap + to create!</p>';return;}
-                let has=false;
-                Object.entries(snap.val()).forEach(([mId,m])=>{
-                    if((m.status||'upcoming')!==currentSubTab)return;has=true;
-                    const st=m.status||'upcoming';
-                    c.innerHTML+=`<div class="match-card-item"><div class="m-card-header"><span class="m-card-title">${m.title}</span><span class="m-card-badge">${m.date||'Upcoming'}</span></div>
-                    <div class="m-card-body"><div><small>Entry Fee</small><strong>৳${m.entryFee}</strong></div><div><small>Prize</small><strong>৳${m.winPrize}</strong></div><div><small>Per Kill</small><strong>৳${m.perKill||0}</strong></div><div><small>Map</small><strong>${m.map||'Bermuda'}</strong></div></div>
-                    <div class="m-room-box"><input type="text" id="rid_${mId}" placeholder="Room ID" value="${m.roomId||''}"><input type="text" id="rpass_${mId}" placeholder="Room Password" value="${m.roomPassword||''}"><button class="btn-add" style="padding:8px 15px;font-size:12px;" onclick="updateRoomDetails('${mId}')">SAVE</button></div>
-                    <div style="display:flex;gap:10px;">${st==='upcoming'?`<button class="btn-add" style="background:#3b82f6;color:#fff;" onclick="changeMatchStatus('${mId}','ongoing')">→ Ongoing</button>`:''}${st==='ongoing'?`<button class="btn-add" style="background:#00b395;color:#fff;" onclick="changeMatchStatus('${mId}','result')">→ Results</button>`:''}<button class="btn-ban-user" onclick="deleteMatch('${mId}')">DELETE</button></div></div>`;
+        // --- Category Management ---
+        function addCategory() {
+            const title = document.getElementById('cat-title').value.trim();
+            const img = document.getElementById('cat-image').value.trim();
+            if (!title || !img) return alert("Fill all fields");
+
+            db.ref('match_categories').push({
+                title: title,
+                image: img
+            }).then(() => {
+                document.getElementById('cat-title').value = '';
+                document.getElementById('cat-image').value = '';
+            });
+        }
+
+        function fetchCategories() {
+            db.ref('match_categories').on('value', snapshot => {
+                const container = document.getElementById('categories-container');
+                container.innerHTML = '';
+                let count = 0;
+                snapshot.forEach(child => {
+                    count++;
+                    const data = child.val();
+                    const key = child.key;
+                    const div = document.createElement('div');
+                    div.className = 'category-card';
+                    div.innerHTML = `
+                        <img src="${data.image}">
+                        <h3>${data.title}</h3>
+                        <div style="text-align:center; padding-bottom:10px;">
+                            <button class="delete-btn" onclick="event.stopPropagation(); deleteCategory('${key}')">Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
                 });
-                if(!has)c.innerHTML=`<p style="text-align:center;color:var(--text-muted);padding:40px;">No ${currentSubTab} matches!</p>`;
+                document.getElementById('total-categories').innerText = count;
             });
         }
 
-        window.updateRoomDetails=async(mId)=>{const cc=activeCategoryName.replace(/[.#$[\]]/g,"_");await update(ref(db,`matches/${cc}/${mId}`),{roomId:document.getElementById(`rid_${mId}`).value.trim(),roomPassword:document.getElementById(`rpass_${mId}`).value.trim()});showToast('✅ Room Saved!');};
-        window.changeMatchStatus=async(mId,s)=>{const cc=activeCategoryName.replace(/[.#$[\]]/g,"_");await update(ref(db,`matches/${cc}/${mId}`),{status:s});switchMatchSubTab(s);};
-        window.deleteMatch=async(mId)=>{if(confirm("Delete match?")){const cc=activeCategoryName.replace(/[.#$[\]]/g,"_");await remove(ref(db,`matches/${cc}/${mId}`));}};
-        window.openAddMatchModal=()=>document.getElementById('addMatchModal').classList.add('active');
-        window.closeAddMatchModal=()=>document.getElementById('addMatchModal').classList.remove('active');
-        window.submitNewMatch=async(e)=>{e.preventDefault();const cc=activeCategoryName.replace(/[.#$[\]]/g,"_");
-            await push(ref(db,'matches/'+cc),{title:document.getElementById('newMTitle').value.trim(),entryFee:parseFloat(document.getElementById('newMFee').value),winPrize:parseFloat(document.getElementById('newMPrize').value),perKill:parseFloat(document.getElementById('newMPerKill').value||0),map:document.getElementById('newMMap').value.trim()||"Bermuda",date:document.getElementById('newMDate').value.trim(),status:"upcoming"});
-            showToast('✅ Match Published!');closeAddMatchModal();['newMTitle','newMFee','newMPrize','newMDate'].forEach(id=>document.getElementById(id).value='');};
-        window.safeDeleteCategory=async()=>{if(confirm(`Delete "${activeCategoryName}" permanently?`)){await remove(ref(db,'match_categories/'+activeCategoryId));closeMatchManagement();}};
+        function deleteCategory(key) {
+            if (confirm("Delete this category?")) {
+                db.ref(`match_categories/${key}`).remove();
+            }
+        }
 
-        // ===== GENERAL ACTIONS =====
-        window.addCategory=async(e)=>{e.preventDefault();await push(ref(db,'match_categories'),{title:document.getElementById('catTitleInput').value.trim(),image:document.getElementById('catImageInput').value.trim()});document.getElementById('catTitleInput').value='';document.getElementById('catImageInput').value='';showToast('✅ Category Added!');};
-        window.banUser=async(k)=>{if(confirm("Ban user?"))await set(ref(db,'bannedUsers/'+k),true);};
-        window.unbanUser=async(k)=>await remove(ref(db,'bannedUsers/'+k));
-        window.addBanner=async(e)=>{e.preventDefault();await push(ref(db,'banners'),{imageUrl:document.getElementById('bannerUrlInput').value.trim()});document.getElementById('bannerUrlInput').value='';showToast('✅ Banner Added!');};
-        window.deleteBanner=async(k)=>{if(confirm("Delete banner?"))await remove(ref(db,'banners/'+k));};
-        window.savePaymentSettings=async(e)=>{e.preventDefault();await set(ref(db,'paymentSettings'),{bkash:document.getElementById('bkashNum').value.trim(),bkashActive:document.getElementById('bkashActive').checked,nagad:document.getElementById('nagadNum').value.trim(),nagadActive:document.getElementById('nagadActive').checked,rocket:document.getElementById('rocketNum').value.trim(),rocketActive:document.getElementById('rocketActive').checked});showToast('✅ Payment Saved!');};
-        window.switchNav=(id,el)=>{document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-pill').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');el.classList.add('active');};
-        window.logoutAdmin=()=>signOut(auth).then(()=>window.location.href="index.html");
+        // --- Admin Management (Super Admin only) ---
+        function fetchAdmins() {
+            const list = document.getElementById('admin-list-body');
+            db.ref('superAdmins').on('value', s1 => {
+                db.ref('admins').on('value', s2 => {
+                    db.ref('adminPermissions').on('value', s3 => {
+                        const supers = s1.val() || {};
+                        const normals = s2.val() || {};
+                        const perms = s3.val() || {};
+                        list.innerHTML = '';
+                        
+                        Object.keys(supers).forEach(key => renderAdminRow(key, 'Super Admin', {}, true));
+                        Object.keys(normals).forEach(key => renderAdminRow(key, 'Admin', perms[key] || {}, false));
+                    });
+                });
+            });
+        }
+
+        function renderAdminRow(key, role, p, isSuper) {
+            const list = document.getElementById('admin-list-body');
+            const email = key.replace(/,/g, '.');
+            const row = document.createElement('tr');
+            const isSelf = key === currentUserCleanEmail;
+
+            row.innerHTML = `
+                <td>${email}</td>
+                <td>${role}</td>
+                <td>
+                    ${!isSuper ? `
+                    <div class="perm-toggles">
+                        <label><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"> Game</label>
+                        <label><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"> User</label>
+                        <label><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"> Ban</label>
+                        <label><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"> Banner</label>
+                        <label><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"> Pay</label>
+                    </div>` : 'All Access'}
+                </td>
+                <td>
+                    ${!isSelf ? `<button class="delete-btn" onclick="removeAdmin('${key}','${isSuper?'superAdmins':'admins'}')">Remove</button>` : 'Active'}
+                </td>
+            `;
+            list.appendChild(row);
+        }
+
+        function togglePerm(key, field, val) {
+            db.ref(`adminPermissions/${key}/${field}`).set(val);
+        }
+
+        function addNewAdmin() {
+            const email = document.getElementById('new-admin-email').value.trim();
+            const role = document.getElementById('new-admin-role').value;
+            if(!email) return alert("Email required");
+            const key = emailToKey(email);
+            const path = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
+            
+            db.ref(path).set(true).then(() => {
+                if(role === 'admin') {
+                    db.ref(`adminPermissions/${key}`).set({games:true, users:false, banned:false, banners:false, payment:false});
+                }
+                document.getElementById('new-admin-email').value = '';
+            });
+        }
+
+        function removeAdmin(key, path) {
+            if(confirm("Remove this admin?")) {
+                db.ref(`${path}/${key}`).remove();
+                if(path === 'admins') db.ref(`adminPermissions/${key}`).remove();
+            }
+        }
+
+        function logoutAdmin() {
+            auth.signOut();
+        }
+
     </script>
 </body>
 </html>
