@@ -1,3 +1,4 @@
+// Admin Config
 const firebaseConfig = {
     apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
     authDomain: "oxi-esports.firebaseapp.com",
@@ -12,6 +13,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
+// অ্যাডমিন প্যানেলের জন্য ডার্ক থিম পপআপ
 const SwalDark = Swal.mixin({
     customClass: { popup: 'swal-dark-custom' },
     background: '#160d2e',
@@ -22,7 +24,6 @@ const SwalDark = Swal.mixin({
 
 function emailToKey(email) { return email ? email.replace(/\./g, ',') : ''; }
 
-// Auth Check Helper
 function checkAuth() {
     auth.onAuthStateChanged(user => {
         if (!user) window.location.href = "login.html";
