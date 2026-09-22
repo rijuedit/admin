@@ -19,419 +19,242 @@
             --purple: #b026ff;
             --text-light: #e0e0e0;
             --danger: #ff4d4d;
+            --success: #00c853;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; overflow-x: hidden; }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            min-height: 100vh;
-        }
-
-        /* Navbar & Header */
+        /* Header & Navbar */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 5%;
-            background: rgba(22, 13, 46, 0.8);
+            background: rgba(22, 13, 46, 0.9);
             backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
             z-index: 1000;
+            border-bottom: 1px solid rgba(0, 255, 209, 0.1);
         }
-
-        .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-area h1 { color: var(--cyan); font-weight: 800; font-size: 24px; }
-        .badge {
-            background: linear-gradient(45deg, #f39c12, #d35400);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 5px;
-            font-size: 10px;
-            text-transform: uppercase;
-        }
-
-        .logout-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
+        .badge { background: linear-gradient(45deg, #f39c12, #d35400); color: white; padding: 2px 8px; border-radius: 5px; font-size: 10px; text-transform: uppercase; margin-left: 10px; }
+        .logout-btn { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 
         /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px 5%;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(0, 255, 209, 0.1);
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            transition: 0.3s;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px 5%; }
+        .stat-card { background: var(--card-bg); border: 1px solid rgba(0, 255, 209, 0.1); padding: 20px; border-radius: 12px; text-align: center; }
         .stat-card i { font-size: 30px; color: var(--cyan); margin-bottom: 10px; }
         .stat-card h3 { font-size: 28px; margin: 5px 0; }
         .stat-card p { font-size: 12px; color: #888; text-transform: uppercase; }
 
-        /* Navigation Tabs */
-        .nav-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 10px 5%;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+        /* Tabs */
+        .nav-tabs { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 5%; justify-content: center; }
+        .tab-btn { background: rgba(176, 38, 255, 0.1); color: white; border: 1px solid rgba(176, 38, 255, 0.3); padding: 10px 20px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-size: 14px; }
+        .tab-btn.active { background: var(--purple); box-shadow: 0 0 15px var(--purple); }
 
-        .tab-btn {
-            background: rgba(176, 38, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(176, 38, 255, 0.3);
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .tab-content { display: none; padding: 20px 5%; max-width: 1200px; margin: 0 auto; }
+        .tab-content.active { display: block; }
 
-        .tab-btn.active {
-            background: var(--purple);
-            box-shadow: 0 0 15px var(--purple);
-        }
+        /* Tables */
+        .table-container { background: var(--card-bg); border-radius: 15px; overflow: hidden; margin-top: 20px; border: 1px solid rgba(255, 255, 255, 0.05); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: rgba(0, 255, 209, 0.1); color: var(--cyan); padding: 15px; font-size: 14px; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 14px; }
+        
+        /* Action Buttons */
+        .btn-action { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; margin-right: 5px; color: white; }
+        .btn-ban { background: var(--danger); }
+        .btn-unban { background: var(--success); }
+        .btn-add { background: var(--purple); }
 
-        /* Tab Content Section */
-        .tab-content { padding: 20px 5%; max-width: 1200px; margin: 0 auto; }
-
-        /* Payment Settings Premium UI */
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            border-left: 5px solid var(--cyan);
-        }
-
-        .auto-mode-box {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0, 255, 209, 0.1);
-            padding: 10px 20px;
-            border-radius: 10px;
-        }
-
-        .payment-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        .payment-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .payment-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-        }
-
+        /* Payment Setting Specific (From Previous Fix) */
+        .settings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--card-bg); padding: 20px; border-radius: 15px; border-left: 5px solid var(--cyan); }
+        .payment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .payment-card { background: var(--card-bg); border-radius: 15px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05); position: relative; }
+        .payment-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
         .card-bkash::before { background: #e2136e; }
         .card-nagad::before { background: #f7941d; }
         .card-rocket::before { background: #8c3494; }
-
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .gateway-info { display: flex; align-items: center; gap: 12px; }
-        .gateway-info i { font-size: 24px; }
-        .gateway-info h4 { font-size: 18px; font-weight: 600; }
-
-        .input-group {
-            margin-top: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 8px;
-        }
-
-        .input-group input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 15px;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .input-group input:focus {
-            border-color: var(--cyan);
-            box-shadow: 0 0 10px rgba(0, 255, 209, 0.2);
-        }
-
-        /* Toggle Switch Styling */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 26px;
-        }
-
+        .input-group input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; color: white; margin-top: 10px; }
+        
+        /* Toggles */
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px; width: 18px;
-            left: 4px; bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--cyan); }
-        input:checked + .slider:before { transform: translateX(24px); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        .save-btn-container {
-            margin-top: 30px;
-            text-align: center;
-        }
+        /* Categories & Banners Grid */
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .item-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; text-align: center; position: relative; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); }
+        .item-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+        .cat-card img { aspect-ratio: 1/1; }
 
-        .btn-primary {
-            background: linear-gradient(90deg, var(--purple), #8a2be2);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(176, 38, 255, 0.4);
-        }
-
-        /* SWAL Dark Customization */
-        .swal2-popup.swal-dark-custom {
-            background: #160d2e !important;
-            color: #fff !important;
-            border: 1px solid #b026ff !important;
-        }
-
-        /* Category Grid Styling (Top-Up Style) */
-        .cat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-        }
-        .cat-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .cat-card:hover { transform: translateY(-5px); border-color: var(--cyan); }
-        .cat-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .cat-card h4 { padding: 10px; font-size: 14px; }
-
-        /* Hidden Sections */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
+        /* SweetAlert Dark */
+        .swal-dark-custom { background: #160d2e !important; color: #fff !important; border: 1px solid #b026ff !important; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <div class="header">
         <div class="logo-area">
-            <h1>OXI ADMIN</h1>
-            <span class="badge" id="admin-role">Admin</span>
+            <h1>OXI ADMIN <span class="badge" id="admin-role">Admin</span></h1>
         </div>
-        <button class="logout-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
     </div>
 
-    <!-- Stats -->
     <div class="stats-grid">
-        <div class="stat-card">
-            <i class="fas fa-users"></i>
-            <h3 id="stat-users">0</h3>
-            <p>Users</p>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-user-slash"></i>
-            <h3 id="stat-banned">0</h3>
-            <p>Banned</p>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-image"></i>
-            <h3 id="stat-banners">0</h3>
-            <p>Banners</p>
-        </div>
-        <div class="stat-card">
-            <i class="fas fa-gamepad"></i>
-            <h3 id="stat-categories">0</h3>
-            <p>Categories</p>
-        </div>
+        <div class="stat-card"><i class="fas fa-users"></i><h3 id="stat-users">0</h3><p>Users</p></div>
+        <div class="stat-card"><i class="fas fa-user-slash"></i><h3 id="stat-banned">0</h3><p>Banned</p></div>
+        <div class="stat-card"><i class="fas fa-image"></i><h3 id="stat-banners">0</h3><p>Banners</p></div>
+        <div class="stat-card"><i class="fas fa-gamepad"></i><h3 id="stat-categories">0</h3><p>Categories</p></div>
     </div>
 
-    <!-- Navigation -->
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="openTab('games-matches')"><i class="fas fa-gamepad"></i> Games & Matches</button>
-        <button class="tab-btn" onclick="openTab('users-list')"><i class="fas fa-users"></i> Users List</button>
-        <button class="tab-btn" onclick="openTab('banned-list')"><i class="fas fa-ban"></i> Banned List</button>
-        <button class="tab-btn" onclick="openTab('add-money')"><i class="fas fa-hand-holding-usd"></i> Add Money</button>
-        <button class="tab-btn" onclick="openTab('banners-section')"><i class="fas fa-images"></i> Banners</button>
-        <button class="tab-btn" onclick="openTab('payment-settings')"><i class="fas fa-wallet"></i> Payment Settings</button>
-        <button class="tab-btn" id="admins-tab" onclick="openTab('admins-management')" style="display:none;"><i class="fas fa-user-shield"></i> Admins Management</button>
+        <button class="tab-btn active" onclick="openTab('games-matches')">Games & Matches</button>
+        <button class="tab-btn" onclick="openTab('users-list')">Users List</button>
+        <button class="tab-btn" onclick="openTab('banned-list')">Banned List</button>
+        <button class="tab-btn" onclick="openTab('add-money')">Add Money</button>
+        <button class="tab-btn" onclick="openTab('banners-section')">Banners</button>
+        <button class="tab-btn" onclick="openTab('payment-settings')">Payment Settings</button>
+        <button class="tab-btn" id="admins-tab" style="display:none;" onclick="openTab('admins-management')">Admins</button>
     </div>
 
-    <!-- TAB: GAMES & MATCHES -->
+    <!-- 1. GAMES & MATCHES -->
     <div id="games-matches" class="tab-content active">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="color: var(--cyan);"><i class="fas fa-list"></i> Match Categories</h2>
-            <button class="tab-btn" onclick="showAddCategory()" style="background: var(--cyan); color: #000;"><i class="fas fa-plus"></i> Add Category</button>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>Match Categories</h2>
+            <button class="tab-btn" onclick="showAddCategory()" style="background:var(--cyan); color:#000;">+ Add Category</button>
         </div>
-        <div id="category-list" class="cat-grid"></div>
+        <div id="category-list" class="grid-layout cat-grid" style="margin-top:20px;"></div>
     </div>
 
-    <!-- TAB: PAYMENT SETTINGS (PREMIUM REDESIGN) -->
+    <!-- 2. USERS LIST -->
+    <div id="users-list" class="tab-content">
+        <h2>Registered Users</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Wallet</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. BANNED LIST -->
+    <div id="banned-list" class="tab-content">
+        <h2>Banned Accounts</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="banned-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. ADD MONEY (DEPOSITS) -->
+    <div id="add-money" class="tab-content">
+        <h2>Manual Deposit Requests</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>TRX ID</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="deposit-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. BANNERS -->
+    <div id="banners-section" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>App Banners</h2>
+            <button class="tab-btn" onclick="showAddBanner()" style="background:var(--cyan); color:#000;">+ Add Banner</button>
+        </div>
+        <div id="banner-list" class="grid-layout" style="margin-top:20px;"></div>
+    </div>
+
+    <!-- 6. PAYMENT SETTINGS -->
     <div id="payment-settings" class="tab-content">
         <div class="settings-header">
-            <div>
-                <h2 style="color: var(--cyan);"><i class="fas fa-shield-alt"></i> Gateway & Deposit Settings</h2>
-                <p style="font-size: 13px; color: #888;">Configure your payment numbers and verification mode.</p>
-            </div>
-            <div class="auto-mode-box">
-                <span id="auto-status-text" style="font-weight: 600;">Manual Mode</span>
+            <h3>Gateway Settings</h3>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span id="auto-status">Manual Mode</span>
                 <label class="switch">
                     <input type="checkbox" id="auto-mode-toggle" onchange="toggleAutoMode()">
                     <span class="slider"></span>
                 </label>
             </div>
         </div>
-
         <div class="payment-grid">
-            <!-- bKash -->
             <div class="payment-card card-bkash">
-                <div class="card-top">
-                    <div class="gateway-info">
-                        <i class="fas fa-mobile-alt" style="color: #e2136e;"></i>
-                        <h4>bKash Personal</h4>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="bkash-active">
-                        <span class="slider"></span>
-                    </label>
+                <div style="display:flex; justify-content:space-between;">
+                    <h4>bKash</h4>
+                    <label class="switch"><input type="checkbox" id="bkash-active"><span class="slider"></span></label>
                 </div>
-                <div class="input-group">
-                    <label>Mobile Number</label>
-                    <input type="text" id="bkash-number" placeholder="017XXXXXXXX">
-                </div>
+                <input type="text" id="bkash-number" placeholder="Number" class="input-group input">
             </div>
-
-            <!-- Nagad -->
             <div class="payment-card card-nagad">
-                <div class="card-top">
-                    <div class="gateway-info">
-                        <i class="fas fa-mobile-alt" style="color: #f7941d;"></i>
-                        <h4>Nagad Personal</h4>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="nagad-active">
-                        <span class="slider"></span>
-                    </label>
+                <div style="display:flex; justify-content:space-between;">
+                    <h4>Nagad</h4>
+                    <label class="switch"><input type="checkbox" id="nagad-active"><span class="slider"></span></label>
                 </div>
-                <div class="input-group">
-                    <label>Mobile Number</label>
-                    <input type="text" id="nagad-number" placeholder="018XXXXXXXX">
-                </div>
+                <input type="text" id="nagad-number" placeholder="Number" class="input-group input">
             </div>
-
-            <!-- Rocket -->
             <div class="payment-card card-rocket">
-                <div class="card-top">
-                    <div class="gateway-info">
-                        <i class="fas fa-mobile-alt" style="color: #8c3494;"></i>
-                        <h4>Rocket Personal</h4>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" id="rocket-active">
-                        <span class="slider"></span>
-                    </label>
+                <div style="display:flex; justify-content:space-between;">
+                    <h4>Rocket</h4>
+                    <label class="switch"><input type="checkbox" id="rocket-active"><span class="slider"></span></label>
                 </div>
-                <div class="input-group">
-                    <label>Mobile Number</label>
-                    <input type="text" id="rocket-number" placeholder="019XXXXXXXX">
-                </div>
+                <input type="text" id="rocket-number" placeholder="Number" class="input-group input">
             </div>
         </div>
+        <button class="tab-btn" onclick="saveGateways()" style="margin-top:20px; background:var(--purple); width:100%;">Save Configuration</button>
+    </div>
 
-        <div class="save-btn-container">
-            <button class="btn-primary" onclick="saveGatewayNumbers()">
-                <i class="fas fa-save"></i> Save Gateway Configuration
-            </button>
+    <!-- 7. ADMINS MANAGEMENT -->
+    <div id="admins-management" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>System Admins</h2>
+            <button class="tab-btn" onclick="showAddAdmin()" style="background:var(--cyan); color:#000;">+ Add Admin</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body"></tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Remaining Tabs Placeholder (Logic implemented in JS) -->
-    <div id="users-list" class="tab-content"><h2>User Management</h2><div id="user-table-container"></div></div>
-    <div id="banned-list" class="tab-content"><h2>Banned Accounts</h2><div id="banned-table-container"></div></div>
-    <div id="add-money" class="tab-content"><h2>Deposit Requests</h2><div id="deposit-table-container"></div></div>
-    <div id="banners-section" class="tab-content"><h2>App Banners</h2><div id="banner-list-container"></div></div>
-    <div id="admins-management" class="tab-content"><h2>System Admins</h2><div id="admin-table-container"></div></div>
-
     <script>
-        // --- Firebase Config ---
+        // --- Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
             authDomain: "oxi-esports.firebaseapp.com",
@@ -447,99 +270,58 @@
 
         const SwalDark = Swal.mixin({
             customClass: { popup: 'swal-dark-custom' },
-            background: '#160d2e',
-            color: '#fff',
-            confirmButtonColor: '#b026ff',
-            cancelButtonColor: '#ff4d4d'
+            background: '#160d2e', color: '#fff',
+            confirmButtonColor: '#b026ff', cancelButtonColor: '#ff4d4d'
         });
 
+        function emailToKey(email) { return email ? email.replace(/\./g, ',') : ''; }
+
         // --- Auth Check ---
+        let currentAdminEmail = "";
         auth.onAuthStateChanged(user => {
             if (!user) {
                 window.location.href = "login.html";
             } else {
-                checkAdminRole(user.email);
+                currentAdminEmail = user.email;
+                checkAdminPermissions(user.email);
                 loadStats();
-                loadCategories();
-                loadPaymentSettings();
+                loadCategories(); // Default
             }
         });
 
-        function emailToKey(email) { return email.replace(/\./g, ','); }
-
-        function checkAdminRole(email) {
+        function checkAdminPermissions(email) {
             const eKey = emailToKey(email);
             db.ref('superAdmins/' + eKey).once('value', snapshot => {
                 if (snapshot.exists()) {
                     document.getElementById('admin-role').innerText = "Super Admin";
-                    document.getElementById('admins-tab').style.display = "flex";
-                } else {
-                    document.getElementById('admin-role').innerText = "Admin";
+                    document.getElementById('admins-tab').style.display = "block";
                 }
             });
         }
 
-        // --- Tab Logic ---
+        // --- Navigation ---
         function openTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
 
+            if(tabId === 'users-list') loadUsers();
+            if(tabId === 'banned-list') loadBannedUsers();
+            if(tabId === 'add-money') loadDeposits();
+            if(tabId === 'banners-section') loadBanners();
             if(tabId === 'payment-settings') loadPaymentSettings();
-            // Call other loaders as needed
+            if(tabId === 'admins-management') loadAdmins();
         }
 
-        // --- Payment Settings Logic ---
-        function loadPaymentSettings() {
-            db.ref('paymentSettings').once('value', snapshot => {
-                const data = snapshot.val() || {};
-                
-                // Auto Mode
-                const autoActive = data.autoAddMoneyActive || false;
-                document.getElementById('auto-mode-toggle').checked = autoActive;
-                document.getElementById('auto-status-text').innerText = autoActive ? "Auto Mode ON" : "Manual Mode ON";
-                document.getElementById('auto-status-text').style.color = autoActive ? "var(--cyan)" : "#888";
-
-                // Numbers
-                document.getElementById('bkash-number').value = data.bkash || "";
-                document.getElementById('nagad-number').value = data.nagad || "";
-                document.getElementById('rocket-number').value = data.rocket || "";
-
-                // Switches
-                document.getElementById('bkash-active').checked = data.bkashActive || false;
-                document.getElementById('nagad-active').checked = data.nagadActive || false;
-                document.getElementById('rocket-active').checked = data.rocketActive || false;
-            });
+        // --- 1. Categories & Stats ---
+        function loadStats() {
+            db.ref('users').on('value', s => document.getElementById('stat-users').innerText = s.numChildren());
+            db.ref('bannedUsers').on('value', s => document.getElementById('stat-banned').innerText = s.numChildren());
+            db.ref('banners').on('value', s => document.getElementById('stat-banners').innerText = s.numChildren());
+            db.ref('match_categories').on('value', s => document.getElementById('stat-categories').innerText = s.numChildren());
         }
 
-        function toggleAutoMode() {
-            const isActive = document.getElementById('auto-mode-toggle').checked;
-            db.ref('paymentSettings/autoAddMoneyActive').set(isActive)
-            .then(() => {
-                document.getElementById('auto-status-text').innerText = isActive ? "Auto Mode ON" : "Manual Mode ON";
-                document.getElementById('auto-status-text').style.color = isActive ? "var(--cyan)" : "#888";
-                SwalDark.fire('Updated', `Deposit verification is now ${isActive ? 'Automatic' : 'Manual'}`, 'success');
-            });
-        }
-
-        function saveGatewayNumbers() {
-            const settings = {
-                bkash: document.getElementById('bkash-number').value,
-                bkashActive: document.getElementById('bkash-active').checked,
-                nagad: document.getElementById('nagad-number').value,
-                nagadActive: document.getElementById('nagad-active').checked,
-                rocket: document.getElementById('rocket-number').value,
-                rocketActive: document.getElementById('rocket-active').checked,
-                autoAddMoneyActive: document.getElementById('auto-mode-toggle').checked
-            };
-
-            db.ref('paymentSettings').update(settings).then(() => {
-                SwalDark.fire('Saved!', 'Gateway numbers updated successfully.', 'success');
-            });
-        }
-
-        // --- Category Logic ---
         function loadCategories() {
             db.ref('match_categories').on('value', snapshot => {
                 const list = document.getElementById('category-list');
@@ -547,40 +329,245 @@
                 snapshot.forEach(child => {
                     const cat = child.val();
                     list.innerHTML += `
-                        <div class="cat-card" onclick="window.location.href='matches.html?cat=${child.key}'">
-                            <img src="${cat.image}" onerror="this.src='https://via.placeholder.com/150'">
-                            <h4>${cat.title}</h4>
-                        </div>
-                    `;
+                        <div class="item-card cat-card" onclick="window.location.href='matches.html?cat=${child.key}'">
+                            <img src="${cat.image}">
+                            <h4 style="padding:10px;">${cat.title}</h4>
+                        </div>`;
                 });
             });
         }
 
         function showAddCategory() {
             SwalDark.fire({
-                title: 'Add New Category',
-                html: `
-                    <input id="cat-title" class="swal2-input" placeholder="Category Title (e.g. Free Fire)">
-                    <input id="cat-img" class="swal2-input" placeholder="Icon URL (1:1 Ratio Recommended)">
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Create'
-            }).then(result => {
-                if (result.isConfirmed) {
-                    const title = document.getElementById('cat-title').value;
-                    const image = document.getElementById('cat-img').value;
-                    if (title && image) {
-                        db.ref('match_categories').push({ title, image });
-                    }
+                title: 'Add Category',
+                html: '<input id="c-t" class="swal2-input" placeholder="Title"><input id="c-i" class="swal2-input" placeholder="Image URL">',
+                confirmButtonText: 'Add'
+            }).then(r => {
+                const title = document.getElementById('c-t').value;
+                const image = document.getElementById('c-i').value;
+                if(r.isConfirmed && title && image) db.ref('match_categories').push({title, image});
+            });
+        }
+
+        // --- 2. Users Management ---
+        function loadUsers() {
+            db.ref('users').on('value', snapshot => {
+                const tbody = document.getElementById('user-table-body');
+                tbody.innerHTML = "";
+                snapshot.forEach(child => {
+                    const u = child.val();
+                    const phone = u.phone || u.mobile || u.phoneNumber || "N/A";
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${u.name}</td>
+                            <td>${phone}</td>
+                            <td>৳${u.wallet || 0}</td>
+                            <td>
+                                <button class="btn-action btn-add" onclick="modifyWallet('${child.key}', ${u.wallet || 0})">Wallet</button>
+                                <button class="btn-action btn-ban" onclick="banUser('${child.key}', '${u.email}')">Ban</button>
+                            </td>
+                        </tr>`;
+                });
+            });
+        }
+
+        function modifyWallet(userKey, current) {
+            SwalDark.fire({
+                title: 'Adjust Balance',
+                input: 'number',
+                inputLabel: 'Current: ৳' + current,
+                showCancelButton: true
+            }).then(res => {
+                if(res.value) {
+                    db.ref('users/' + userKey + '/wallet').set(Number(res.value));
+                    SwalDark.fire('Success', 'Wallet Updated', 'success');
                 }
             });
         }
 
-        function loadStats() {
-            db.ref('users').on('value', s => document.getElementById('stat-users').innerText = s.numChildren());
-            db.ref('bannedUsers').on('value', s => document.getElementById('stat-banned').innerText = s.numChildren());
-            db.ref('banners').on('value', s => document.getElementById('stat-banners').innerText = s.numChildren());
-            db.ref('match_categories').on('value', s => document.getElementById('stat-categories').innerText = s.numChildren());
+        function banUser(userKey, email) {
+            SwalDark.fire({
+                title: 'Ban User?',
+                input: 'text',
+                inputPlaceholder: 'Reason for ban',
+                showCancelButton: true
+            }).then(res => {
+                if(res.isConfirmed) {
+                    db.ref('bannedUsers/' + userKey).set({ email, reason: res.value || "No reason", bannedAt: Date.now() });
+                    db.ref('users/' + userKey).remove();
+                }
+            });
+        }
+
+        // --- 3. Banned List ---
+        function loadBannedUsers() {
+            db.ref('bannedUsers').on('value', snapshot => {
+                const tbody = document.getElementById('banned-table-body');
+                tbody.innerHTML = "";
+                snapshot.forEach(child => {
+                    const b = child.val();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${b.email}</td>
+                            <td>${b.reason}</td>
+                            <td><button class="btn-action btn-unban" onclick="unbanUser('${child.key}')">Unban</button></td>
+                        </tr>`;
+                });
+            });
+        }
+
+        function unbanUser(key) {
+            db.ref('bannedUsers/' + key).once('value', s => {
+                const data = s.val();
+                db.ref('users/' + key).set({ email: data.email, name: "Restored User", wallet: 0 });
+                db.ref('bannedUsers/' + key).remove();
+            });
+        }
+
+        // --- 4. Deposits ---
+        function loadDeposits() {
+            db.ref('deposit_requests').on('value', snapshot => {
+                const tbody = document.getElementById('deposit-table-body');
+                tbody.innerHTML = "";
+                snapshot.forEach(child => {
+                    const d = child.val();
+                    if(d.status === 'pending') {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${d.userEmail}</td>
+                                <td>৳${d.amount}</td>
+                                <td>${d.gateway}</td>
+                                <td>${d.trxId}</td>
+                                <td>
+                                    <button class="btn-action btn-unban" onclick="approveDeposit('${child.key}')">Approve</button>
+                                    <button class="btn-action btn-ban" onclick="rejectDeposit('${child.key}')">Reject</button>
+                                </td>
+                            </tr>`;
+                    }
+                });
+            });
+        }
+
+        function approveDeposit(key) {
+            db.ref('deposit_requests/' + key).once('value', s => {
+                const d = s.val();
+                db.ref('users/' + d.userKey + '/wallet').transaction(w => (w || 0) + Number(d.amount));
+                db.ref('deposit_requests/' + key).update({ status: 'approved' });
+                SwalDark.fire('Approved', 'Money added to user wallet', 'success');
+            });
+        }
+
+        function rejectDeposit(key) {
+            db.ref('deposit_requests/' + key).update({ status: 'rejected' });
+        }
+
+        // --- 5. Banners ---
+        function loadBanners() {
+            db.ref('banners').on('value', snapshot => {
+                const div = document.getElementById('banner-list');
+                div.innerHTML = "";
+                snapshot.forEach(child => {
+                    const b = child.val();
+                    div.innerHTML += `
+                        <div class="item-card" oncontextmenu="deleteBanner('${child.key}'); return false;">
+                            <img src="${b.image}">
+                            <p style="font-size:10px; color:#888;">Long press to delete</p>
+                        </div>`;
+                });
+            });
+        }
+
+        function showAddBanner() {
+            SwalDark.fire({
+                title: 'Add Banner',
+                html: '<input id="b-i" class="swal2-input" placeholder="Image URL"><input id="b-l" class="swal2-input" placeholder="Action Link (Optional)">',
+                confirmButtonText: 'Upload'
+            }).then(r => {
+                const image = document.getElementById('b-i').value;
+                const link = document.getElementById('b-l').value;
+                if(r.isConfirmed && image) db.ref('banners').push({image, link});
+            });
+        }
+
+        function deleteBanner(key) {
+            SwalDark.fire({ title: 'Delete Banner?', showCancelButton: true }).then(r => {
+                if(r.isConfirmed) db.ref('banners/' + key).remove();
+            });
+        }
+
+        // --- 6. Payment Settings ---
+        function loadPaymentSettings() {
+            db.ref('paymentSettings').once('value', s => {
+                const d = s.val() || {};
+                document.getElementById('bkash-number').value = d.bkash || "";
+                document.getElementById('nagad-number').value = d.nagad || "";
+                document.getElementById('rocket-number').value = d.rocket || "";
+                document.getElementById('bkash-active').checked = d.bkashActive || false;
+                document.getElementById('nagad-active').checked = d.nagadActive || false;
+                document.getElementById('rocket-active').checked = d.rocketActive || false;
+                document.getElementById('auto-mode-toggle').checked = d.autoAddMoneyActive || false;
+                document.getElementById('auto-status').innerText = d.autoAddMoneyActive ? "Auto Mode" : "Manual Mode";
+            });
+        }
+
+        function toggleAutoMode() {
+            const val = document.getElementById('auto-mode-toggle').checked;
+            db.ref('paymentSettings/autoAddMoneyActive').set(val);
+            document.getElementById('auto-status').innerText = val ? "Auto Mode" : "Manual Mode";
+        }
+
+        function saveGateways() {
+            const data = {
+                bkash: document.getElementById('bkash-number').value,
+                nagad: document.getElementById('nagad-number').value,
+                rocket: document.getElementById('rocket-number').value,
+                bkashActive: document.getElementById('bkash-active').checked,
+                nagadActive: document.getElementById('nagad-active').checked,
+                rocketActive: document.getElementById('rocket-active').checked,
+                autoAddMoneyActive: document.getElementById('auto-mode-toggle').checked
+            };
+            db.ref('paymentSettings').update(data).then(() => SwalDark.fire('Saved', 'Payment settings updated', 'success'));
+        }
+
+        // --- 7. Admins ---
+        function loadAdmins() {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = "";
+            
+            // Load Normal Admins
+            db.ref('admins').on('value', snapshot => {
+                snapshot.forEach(child => {
+                    const email = child.key.replace(/,/g, '.');
+                    tbody.innerHTML += `<tr><td>${email}</td><td>Admin</td><td><button class="btn-action btn-ban" onclick="removeAdmin('admins', '${child.key}')">Remove</button></td></tr>`;
+                });
+            });
+            // Load Super Admins
+            db.ref('superAdmins').on('value', snapshot => {
+                snapshot.forEach(child => {
+                    const email = child.key.replace(/,/g, '.');
+                    const isSelf = email === currentAdminEmail;
+                    tbody.innerHTML += `<tr><td>${email}</td><td>Super Admin</td><td>${isSelf ? '' : `<button class="btn-action btn-ban" onclick="removeAdmin('superAdmins', '${child.key}')">Remove</button>`}</td></tr>`;
+                });
+            });
+        }
+
+        function showAddAdmin() {
+            SwalDark.fire({
+                title: 'Add Admin',
+                html: `
+                    <input id="a-e" class="swal2-input" placeholder="Email">
+                    <select id="a-r" class="swal2-input"><option value="admins">Admin</option><option value="superAdmins">Super Admin</option></select>
+                `,
+                confirmButtonText: 'Add'
+            }).then(r => {
+                const email = document.getElementById('a-e').value;
+                const role = document.getElementById('a-r').value;
+                if(r.isConfirmed && email) db.ref(role + '/' + emailToKey(email)).set(true);
+            });
+        }
+
+        function removeAdmin(path, key) {
+            db.ref(path + '/' + key).remove();
         }
 
         function logoutAdmin() {
