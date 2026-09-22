@@ -8,6 +8,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- SweetAlert2 for Beautiful Popups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -66,10 +70,9 @@
         .category-card h3 { padding: 12px; text-align: center; font-size: 16px; color: white; }
         .delete-btn { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
 
-        /* --- Admin Management Reference UI Styles --- */
+        /* Admin Management Styles */
         .info-box { background: #11052c; border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 13px; line-height: 1.8; color: #d1c4e9; border: 1px solid #25164d; }
         .admin-action-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        
         .btn-add-super { background: var(--success); color: #000; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add-normal { background: var(--info); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
@@ -77,18 +80,16 @@
         .admin-cards-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
         
         .admin-item-card { background: #180c38; border: 1px solid #2d1854; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        
         .admin-email { font-size: 15px; font-weight: 600; color: #ffb703; margin-bottom: 3px;}
         .normal-email { color: var(--info); }
         .admin-subtext { font-size: 11px; color: var(--text-dim); }
         
         .card-actions { display: flex; gap: 10px; align-items: center; }
         .btn-perm { background: #651fff; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-        .btn-perm:hover { background: #5e35b1; }
         .btn-remove { background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         .you-tag { background: #25164d; color: #b0a3c4; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
 
-        /* Switches for Payment & Permissions */
+        /* Switches */
         .switch-container { display: flex; align-items: center; justify-content: space-between; background: #0b021a; padding: 15px 20px; border-radius: 10px; border: 1px solid #3d2b63; margin-bottom: 15px; }
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -97,7 +98,7 @@
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* --- Modal Styles --- */
+        /* Modal Styles */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); display: none; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(3px); }
         .modal-content { background: #150a2e; border: 1px solid #3d2b63; border-radius: 15px; width: 90%; max-width: 400px; padding: 25px; animation: fadeIn 0.3s ease; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #25164d; padding-bottom: 15px;}
@@ -106,6 +107,10 @@
         .close-btn:hover { color: var(--danger); }
         .perm-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #25164d; font-size: 14px; }
         .perm-row:last-child { border-bottom: none; }
+
+        /* Custom SweetAlert Style */
+        .my-custom-swal { border: 1px solid #3d2b63 !important; border-radius: 15px !important; }
+        .swal2-input { background: #0b021a !important; color: white !important; border: 1px solid #3d2b63 !important; }
 
     </style>
 </head>
@@ -166,8 +171,7 @@
     </div>
 
     <div class="main-content">
-
-        <!-- 1. Games & Matches Panel -->
+        <!-- 1. Games Panel -->
         <div id="games-panel" class="tab-panel active">
             <div class="section-header"><i class="fas fa-plus-circle"></i> Create New Match Category</div>
             <div class="input-card">
@@ -177,37 +181,28 @@
                     <button class="action-btn" onclick="addCategory()">ADD CATEGORY</button>
                 </div>
             </div>
-
             <div class="section-header"><i class="fas fa-list-ul"></i> Match Categories</div>
             <div id="categories-container" class="category-grid"></div>
         </div>
 
-        <!-- 2. Admin Management Panel -->
+        <!-- 2. Admins Panel -->
         <div id="admins-panel" class="tab-panel">
             <div class="section-header"><i class="fas fa-crown"></i> Admin Management</div>
-
             <div class="info-box">
                 <p>💡 <b>Super Admin:</b> সব কাজ + Wallet manage + Admin manage করতে পারবে</p>
                 <p>💡 <b>Normal Admin:</b> নির্দিষ্ট পারমিশন অনুযায়ী কাজ করতে পারবে (Match/User/Ban/Banner/Payment)</p>
             </div>
-
             <div class="admin-action-btns">
-                <button class="btn-add-super" onclick="promptAddAdmin('super')">
-                    <i class="fas fa-plus"></i> Add Super Admin
-                </button>
-                <button class="btn-add-normal" onclick="promptAddAdmin('normal')">
-                    <i class="fas fa-plus"></i> Add Normal Admin
-                </button>
+                <button class="btn-add-super" onclick="promptAddAdmin('super')"><i class="fas fa-plus"></i> Add Super Admin</button>
+                <button class="btn-add-normal" onclick="promptAddAdmin('normal')"><i class="fas fa-plus"></i> Add Normal Admin</button>
             </div>
-
             <div class="sub-section-title"><i class="fas fa-crown" style="color:#ffb703;"></i> Super Admins</div>
             <div id="super-admins-list" class="admin-cards-list"></div>
-
             <div class="sub-section-title"><i class="fas fa-wrench" style="color:var(--info);"></i> Normal Admins</div>
             <div id="normal-admins-list" class="admin-cards-list"></div>
         </div>
 
-        <!-- 3. Payment Gateway -->
+        <!-- 3. Payment Panel -->
         <div id="payment-panel" class="tab-panel">
             <div class="section-header"><i class="fas fa-robot"></i> Auto Add Money & Payment Method Settings</div>
             <div class="input-card">
@@ -244,7 +239,7 @@
         <div id="banners-panel" class="tab-panel"><div class="section-header"><i class="fas fa-image"></i> App Home Banners</div></div>
     </div>
 
-    <!-- Permissions Modal Popup -->
+    <!-- Permissions Modal -->
     <div id="perm-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -252,13 +247,20 @@
                 <button class="close-btn" onclick="closePermModal()">&times;</button>
             </div>
             <p id="modal-email-title" style="color:var(--text-dim); font-size:12px; margin-bottom:15px;"></p>
-            <div id="modal-body">
-                <!-- Toggles will be injected here via JS -->
-            </div>
+            <div id="modal-body"></div>
         </div>
     </div>
 
     <script>
+        // --- Custom SweetAlert Config ---
+        const Popup = Swal.mixin({
+            background: '#150a2e',
+            color: '#ffffff',
+            confirmButtonColor: '#9d00ff',
+            cancelButtonColor: '#ff1744',
+            customClass: { popup: 'my-custom-swal' }
+        });
+
         // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
@@ -269,7 +271,6 @@
             appId: "1:924353594492:web:08329a3d1f67e7a5da35f9",
             databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
@@ -289,9 +290,8 @@
 
         auth.onAuthStateChanged(user => {
             if (user) {
-                const key = emailToKey(user.email);
-                currentUserCleanEmail = key;
-                checkAdminRole(key);
+                currentUserCleanEmail = emailToKey(user.email);
+                checkAdminRole(currentUserCleanEmail);
             } else {
                 window.location.href = 'index.html';
             }
@@ -312,8 +312,9 @@
                             applyNormalAdminPermissions(key);
                             initDashboard();
                         } else {
-                            alert("Access Denied! You are not an Admin.");
-                            auth.signOut().then(() => window.location.href = 'index.html');
+                            Popup.fire('Access Denied!', 'You are not an Admin.', 'error').then(() => {
+                                auth.signOut().then(() => window.location.href = 'index.html');
+                            });
                         }
                     });
                 }
@@ -344,23 +345,47 @@
             db.ref('banners').on('value', s => document.getElementById('total-banners').innerText = s.numChildren());
         }
 
-        // --- Admin Management ---
+        // --- Beautiful SweetAlert Admin Prompts ---
         function promptAddAdmin(role) {
             const roleName = role === 'super' ? 'Super Admin' : 'Normal Admin';
-            const email = prompt(`Enter ${roleName} Email Address:`);
-            if (!email) return;
+            
+            Popup.fire({
+                title: `Add ${roleName}`,
+                text: "Enter the email address for the new admin:",
+                input: 'email',
+                inputPlaceholder: 'example@gmail.com',
+                showCancelButton: true,
+                confirmButtonText: 'Add Admin'
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    const cleanEmail = result.value.trim();
+                    const key = emailToKey(cleanEmail);
+                    const targetPath = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
 
-            const cleanEmail = email.trim();
-            if (!cleanEmail) return alert("Email required!");
-
-            const key = emailToKey(cleanEmail);
-            const targetPath = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
-
-            db.ref(targetPath).set(true).then(() => {
-                if (role === 'normal') {
-                    db.ref(`adminPermissions/${key}`).set({ games: true, users: false, banned: false, banners: false, payment: false });
+                    db.ref(targetPath).set(true).then(() => {
+                        if (role === 'normal') {
+                            db.ref(`adminPermissions/${key}`).set({ games: true, users: false, banned: false, banners: false, payment: false });
+                        }
+                        Popup.fire('Success!', `${roleName} added successfully.`, 'success');
+                    });
                 }
-                alert(`${roleName} added successfully!`);
+            });
+        }
+
+        function removeAdmin(key, path) {
+            Popup.fire({
+                title: 'Are you sure?',
+                text: "You want to remove this Admin from the panel?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Remove!',
+                cancelButtonColor: '#25164d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.ref(`${path}/${key}`).remove();
+                    if (path === 'admins') db.ref(`adminPermissions/${key}`).remove();
+                    Popup.fire('Removed!', 'Admin has been removed.', 'success');
+                }
             });
         }
 
@@ -372,9 +397,7 @@
                 db.ref('admins').on('value', s2 => {
                     const supers = s1.val() || {};
                     const normals = s2.val() || {};
-
-                    superContainer.innerHTML = '';
-                    normalContainer.innerHTML = '';
+                    superContainer.innerHTML = ''; normalContainer.innerHTML = '';
 
                     Object.keys(supers).forEach(key => {
                         const email = key.replace(/,/g, '.');
@@ -388,8 +411,7 @@
                             </div>
                             <div class="card-actions">
                                 ${isSelf ? '<span class="you-tag"><i class="fas fa-lock"></i> You</span>' : `<button class="btn-remove" onclick="removeAdmin('${key}', 'superAdmins')"><i class="fas fa-trash"></i> Remove</button>`}
-                            </div>
-                        `;
+                            </div>`;
                         superContainer.appendChild(card);
                     });
 
@@ -410,8 +432,7 @@
                                 <div class="card-actions">
                                     <button class="btn-perm" onclick="openPermModal('${key}', '${email}')"><i class="fas fa-sliders-h"></i> Permissions</button>
                                     ${isSelf ? '<span class="you-tag"><i class="fas fa-lock"></i> You</span>' : `<button class="btn-remove" onclick="removeAdmin('${key}', 'admins')"><i class="fas fa-trash"></i></button>`}
-                                </div>
-                            `;
+                                </div>`;
                             normalContainer.appendChild(card);
                         });
                     }
@@ -419,65 +440,31 @@
             });
         }
 
-        // --- Permission Modal Logic ---
         function openPermModal(key, email) {
             document.getElementById('modal-email-title').innerText = "Managing: " + email;
             const body = document.getElementById('modal-body');
-            
             db.ref(`adminPermissions/${key}`).once('value', snap => {
                 const p = snap.val() || {};
                 body.innerHTML = `
-                    <div class="perm-row">
-                        <span><i class="fas fa-gamepad" style="color:var(--accent); width:20px;"></i> Games & Matches</span>
-                        <label class="switch"><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"><span class="slider"></span></label>
-                    </div>
-                    <div class="perm-row">
-                        <span><i class="fas fa-users-cog" style="color:var(--accent); width:20px;"></i> Users List</span>
-                        <label class="switch"><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"><span class="slider"></span></label>
-                    </div>
-                    <div class="perm-row">
-                        <span><i class="fas fa-ban" style="color:var(--accent); width:20px;"></i> Banned List</span>
-                        <label class="switch"><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"><span class="slider"></span></label>
-                    </div>
-                    <div class="perm-row">
-                        <span><i class="fas fa-image" style="color:var(--accent); width:20px;"></i> Banners</span>
-                        <label class="switch"><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"><span class="slider"></span></label>
-                    </div>
-                    <div class="perm-row">
-                        <span><i class="fas fa-wallet" style="color:var(--accent); width:20px;"></i> Payment Settings</span>
-                        <label class="switch"><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"><span class="slider"></span></label>
-                    </div>
+                    <div class="perm-row"><span><i class="fas fa-gamepad" style="color:var(--accent); width:20px;"></i> Games & Matches</span><label class="switch"><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-users-cog" style="color:var(--accent); width:20px;"></i> Users List</span><label class="switch"><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-ban" style="color:var(--accent); width:20px;"></i> Banned List</span><label class="switch"><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-image" style="color:var(--accent); width:20px;"></i> Banners</span><label class="switch"><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-wallet" style="color:var(--accent); width:20px;"></i> Payment Settings</span><label class="switch"><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"><span class="slider"></span></label></div>
                 `;
                 document.getElementById('perm-modal').style.display = 'flex';
             });
         }
+        function closePermModal() { document.getElementById('perm-modal').style.display = 'none'; }
+        function togglePerm(key, field, value) { db.ref(`adminPermissions/${key}/${field}`).set(value); }
 
-        function closePermModal() {
-            document.getElementById('perm-modal').style.display = 'none';
-        }
-
-        function togglePerm(key, field, value) {
-            db.ref(`adminPermissions/${key}/${field}`).set(value);
-        }
-
-        function removeAdmin(key, path) {
-            if (confirm("Are you sure you want to remove this admin?")) {
-                db.ref(`${path}/${key}`).remove();
-                if (path === 'admins') db.ref(`adminPermissions/${key}`).remove();
-            }
-        }
-
-        // --- Other Utilities ---
         function loadPaymentSettings() {
             db.ref('paymentSettings').on('value', snapshot => {
                 const data = snapshot.val() || {};
                 document.getElementById('auto-gateway-toggle').checked = !!data.autoAddMoneyActive;
-                document.getElementById('bkash-num').value = data.bkash || '';
-                document.getElementById('bkash-toggle').checked = !!data.bkashActive;
-                document.getElementById('nagad-num').value = data.nagad || '';
-                document.getElementById('nagad-toggle').checked = !!data.nagadActive;
-                document.getElementById('rocket-num').value = data.rocket || '';
-                document.getElementById('rocket-toggle').checked = !!data.rocketActive;
+                document.getElementById('bkash-num').value = data.bkash || ''; document.getElementById('bkash-toggle').checked = !!data.bkashActive;
+                document.getElementById('nagad-num').value = data.nagad || ''; document.getElementById('nagad-toggle').checked = !!data.nagadActive;
+                document.getElementById('rocket-num').value = data.rocket || ''; document.getElementById('rocket-toggle').checked = !!data.rocketActive;
             });
         }
 
@@ -488,15 +475,16 @@
                 nagad: document.getElementById('nagad-num').value.trim(), nagadActive: document.getElementById('nagad-toggle').checked,
                 rocket: document.getElementById('rocket-num').value.trim(), rocketActive: document.getElementById('rocket-toggle').checked
             };
-            db.ref('paymentSettings').set(settings).then(() => alert("Payment Settings Saved!"));
+            db.ref('paymentSettings').set(settings).then(() => Popup.fire('Saved!', 'Payment Settings Updated.', 'success'));
         }
 
         function addCategory() {
             const title = document.getElementById('cat-title').value.trim();
             const img = document.getElementById('cat-image').value.trim();
-            if (!title || !img) return alert("Fill all fields!");
+            if (!title || !img) return Popup.fire('Oops!', 'Please fill all fields.', 'error');
             db.ref('match_categories').push({ title, image: img }).then(() => {
                 document.getElementById('cat-title').value = ''; document.getElementById('cat-image').value = '';
+                Popup.fire('Added!', 'Category added successfully.', 'success');
             });
         }
 
@@ -519,7 +507,18 @@
             });
         }
 
-        function deleteCategory(key) { if (confirm("Delete this category?")) db.ref(`match_categories/${key}`).remove(); }
+        function deleteCategory(key) {
+            Popup.fire({
+                title: 'Delete Category?', text: "You cannot undo this action!", icon: 'warning',
+                showCancelButton: true, confirmButtonText: 'Yes, Delete', cancelButtonColor: '#25164d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.ref(`match_categories/${key}`).remove();
+                    Popup.fire('Deleted!', 'Category has been deleted.', 'success');
+                }
+            });
+        }
+
         function logoutAdmin() { auth.signOut(); }
     </script>
 </body>
