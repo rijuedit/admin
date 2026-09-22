@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OXI ADMIN - Dashboard</title>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -42,9 +43,10 @@
         .role-badge {
             background: linear-gradient(45deg, #ff9800, #ff5722);
             font-size: 10px;
-            padding: 2px 8px;
+            padding: 3px 8px;
             border-radius: 10px;
             font-weight: bold;
+            color: #fff;
         }
 
         .logout-btn {
@@ -74,7 +76,6 @@
             border-radius: 15px;
             text-align: center;
             border: 1px solid #25164d;
-            transition: 0.3s;
         }
 
         .stat-card i { font-size: 24px; color: var(--accent); margin-bottom: 10px; }
@@ -112,7 +113,7 @@
             box-shadow: 0 0 15px rgba(157, 0, 255, 0.4);
         }
 
-        /* Content Area */
+        /* Main Content Panels */
         .main-content { padding: 30px 5%; }
         .tab-panel { display: none; animation: fadeIn 0.4s ease; }
         .tab-panel.active { display: block; }
@@ -120,7 +121,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Form Controls */
-        .section-header { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--accent); }
+        .section-header { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--accent); font-size: 18px; }
         .input-group {
             background: var(--card-bg);
             padding: 25px;
@@ -133,7 +134,7 @@
             align-items: center;
         }
 
-        input {
+        input, select {
             background: #0b021a;
             border: 1px solid #3d2b63;
             padding: 12px 15px;
@@ -152,12 +153,15 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.2s;
         }
 
-        /* List Items & Grids */
+        .action-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+        /* Category Grid */
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
@@ -167,29 +171,31 @@
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid #25164d;
-            cursor: pointer;
             position: relative;
         }
 
-        .category-card img { width: 100%; height: 150px; object-fit: cover; }
-        .category-card h3 { padding: 15px; text-align: center; font-size: 16px; }
+        .category-card img { width: 100%; height: 140px; object-fit: cover; }
+        .category-card h3 { padding: 12px; text-align: center; font-size: 16px; color: white; }
+        
         .delete-btn {
             background: var(--danger);
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
+            font-weight: bold;
         }
 
         /* Admin Table */
-        table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 10px; overflow: hidden; }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #25164d; }
+        table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 10px; overflow: hidden; margin-top: 15px; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #25164d; font-size: 14px; }
         th { background: #1c0e3d; color: var(--accent); }
 
-        .perm-toggles { display: flex; gap: 10px; font-size: 11px; }
-        .perm-toggles label { background: #25164d; padding: 2px 8px; border-radius: 5px; cursor: pointer; }
+        .perm-toggles { display: flex; gap: 8px; font-size: 11px; flex-wrap: wrap; }
+        .perm-toggles label { background: #25164d; padding: 4px 8px; border-radius: 5px; cursor: pointer; user-select: none; }
+        .perm-toggles input { min-width: auto; margin-right: 4px; }
 
     </style>
 </head>
@@ -198,13 +204,14 @@
     <header>
         <div class="logo-area">
             <h2>OXI ADMIN</h2>
-            <span class="role-badge" id="admin-role-badge">SUPER ADMIN</span>
+            <span class="role-badge" id="admin-role-badge">LOADING...</span>
         </div>
         <button class="logout-btn" onclick="logoutAdmin()">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </header>
 
+    <!-- Top Dashboard Stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <i class="fas fa-users"></i>
@@ -228,6 +235,7 @@
         </div>
     </div>
 
+    <!-- Admin Navigation Tabs -->
     <div class="nav-tabs" id="admin-nav">
         <button class="tab-btn active" onclick="switchNav('games', this)" id="nav-games-btn">
             <i class="fas fa-gamepad"></i> Games & Matches
@@ -249,8 +257,10 @@
         </button>
     </div>
 
+    <!-- Main Content Sections -->
     <div class="main-content">
-        <!-- Games Panel -->
+
+        <!-- 1. Games & Matches Panel -->
         <div id="games-panel" class="tab-panel active">
             <div class="section-header"><i class="fas fa-plus-circle"></i> Create New Match Category</div>
             <div class="input-group">
@@ -261,16 +271,16 @@
 
             <div class="section-header"><i class="fas fa-list-ul"></i> Select Category Box to Manage Matches</div>
             <div id="categories-container" class="category-grid">
-                <!-- Categories will load here -->
+                <!-- Dynamic Category Cards will load here -->
             </div>
         </div>
 
-        <!-- Admins Management Panel -->
+        <!-- 2. Admin Access Management Panel -->
         <div id="admins-panel" class="tab-panel">
             <div class="section-header"><i class="fas fa-user-shield"></i> Manage Administrative Access</div>
             <div class="input-group">
                 <input type="email" id="new-admin-email" placeholder="Admin Email Address">
-                <select id="new-admin-role" style="background:#0b021a; border:1px solid #3d2b63; color:white; padding:10px; border-radius:8px;">
+                <select id="new-admin-role">
                     <option value="admin">Normal Admin</option>
                     <option value="super">Super Admin</option>
                 </select>
@@ -282,21 +292,37 @@
                     <tr>
                         <th>Email Address</th>
                         <th>Role</th>
-                        <th>Permissions (for Admins)</th>
+                        <th>Permissions (for Normal Admins)</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="admin-list-body">
-                    <!-- Admins will load here -->
+                    <!-- Admin List Rows -->
                 </tbody>
             </table>
         </div>
 
-        <!-- Users, Banned, Banners, Payment panels will be built out next... -->
-        <div id="users-panel" class="tab-panel"><h2>User List Management</h2><p>Working on this section...</p></div>
-        <div id="banned-panel" class="tab-panel"><h2>Banned Users</h2><p>Working on this section...</p></div>
-        <div id="banners-panel" class="tab-panel"><h2>Home Banners</h2><p>Working on this section...</p></div>
-        <div id="payment-panel" class="tab-panel"><h2>Payment Gateway Settings</h2><p>Working on this section...</p></div>
+        <!-- Placeholder Sections for Remaining Features -->
+        <div id="users-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-users"></i> Registered Users</div>
+            <p style="color:var(--text-dim);">User management interface loading...</p>
+        </div>
+
+        <div id="banned-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-ban"></i> Banned Accounts</div>
+            <p style="color:var(--text-dim);">Banned users list loading...</p>
+        </div>
+
+        <div id="banners-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-image"></i> App Home Banners</div>
+            <p style="color:var(--text-dim);">Banner slider management loading...</p>
+        </div>
+
+        <div id="payment-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-wallet"></i> Payment Gateway & Auto Add Money</div>
+            <p style="color:var(--text-dim);">Payment numbers and Auto Gateway settings loading...</p>
+        </div>
+
     </div>
 
     <script>
@@ -310,58 +336,57 @@
             appId: "1:924353594492:web:08329a3d1f67e7a5da35f9",
             databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com"
         };
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
         let currentUserCleanEmail = "";
         let isSuperAdmin = false;
-        let isAdmin = false;
 
-        // Standardized Email Key Converter
-        function emailToKey(email) { 
-            return email ? email.replace(/\./g, ',') : ''; 
+        // Convert email to Firebase Key (replace . with ,)
+        function emailToKey(email) {
+            return email ? email.replace(/\./g, ',') : '';
         }
 
-        // --- Navigation Logic ---
-        function switchNav(panelId, btn) {
+        // Tab Switching Function
+        function switchNav(panelName, btn) {
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            
-            const targetPanel = document.getElementById(panelId + '-panel');
-            if(targetPanel) targetPanel.classList.add('active');
-            if(btn) btn.classList.add('active');
+
+            const selectedPanel = document.getElementById(panelName + '-panel');
+            if (selectedPanel) selectedPanel.classList.add('active');
+            if (btn) btn.classList.add('active');
         }
 
-        // --- Authentication & Access Control ---
+        // Authentication Check
         auth.onAuthStateChanged(user => {
             if (user) {
-                const emailKey = emailToKey(user.email);
-                currentUserCleanEmail = emailKey;
-                checkAccess(emailKey);
+                const key = emailToKey(user.email);
+                currentUserCleanEmail = key;
+                checkAdminRole(key);
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        function checkAccess(emailKey) {
-            db.ref(`superAdmins/${emailKey}`).once('value', snapshot => {
+        // Verify Admin/SuperAdmin Role
+        function checkAdminRole(key) {
+            db.ref(`superAdmins/${key}`).once('value', snapshot => {
                 if (snapshot.exists()) {
                     isSuperAdmin = true;
-                    isAdmin = true;
                     document.getElementById('admin-role-badge').innerText = 'SUPER ADMIN';
                     document.getElementById('nav-admins-btn').style.display = 'flex';
                     initDashboard();
                 } else {
-                    db.ref(`admins/${emailKey}`).once('value', adminSnap => {
+                    db.ref(`admins/${key}`).once('value', adminSnap => {
                         if (adminSnap.exists()) {
                             isSuperAdmin = false;
-                            isAdmin = true;
                             document.getElementById('admin-role-badge').innerText = 'ADMIN';
-                            applyPermissions(emailKey);
+                            applyNormalAdminPermissions(key);
                             initDashboard();
                         } else {
-                            alert("Access Denied! Contact Super Admin.");
+                            alert("Access Denied! You are not an Admin.");
                             auth.signOut().then(() => window.location.href = 'index.html');
                         }
                     });
@@ -369,8 +394,9 @@
             });
         }
 
-        function applyPermissions(emailKey) {
-            db.ref(`adminPermissions/${emailKey}`).on('value', snapshot => {
+        // Dynamic Permissions for Normal Admins
+        function applyNormalAdminPermissions(key) {
+            db.ref(`adminPermissions/${key}`).on('value', snapshot => {
                 const perms = snapshot.val() || {};
                 document.getElementById('nav-games-btn').style.display = perms.games ? 'flex' : 'none';
                 document.getElementById('nav-users-btn').style.display = perms.users ? 'flex' : 'none';
@@ -380,24 +406,29 @@
             });
         }
 
-        // --- Dashboard Initialization ---
+        // Initialize Dashboard Data
         function initDashboard() {
-            fetchCategories();
             fetchStats();
-            if (isSuperAdmin) fetchAdmins();
+            fetchCategories();
+            if (isSuperAdmin) fetchAdminsList();
         }
 
+        // Fetch Overview Stats
         function fetchStats() {
             db.ref('users').on('value', s => document.getElementById('total-users').innerText = s.numChildren());
             db.ref('bannedUsers').on('value', s => document.getElementById('total-banned').innerText = s.numChildren());
             db.ref('banners').on('value', s => document.getElementById('total-banners').innerText = s.numChildren());
         }
 
-        // --- Category Management ---
+        // Category Management
         function addCategory() {
             const title = document.getElementById('cat-title').value.trim();
             const img = document.getElementById('cat-image').value.trim();
-            if (!title || !img) return alert("Fill all fields");
+
+            if (!title || !img) {
+                alert("Please enter both Category Name and Image URL!");
+                return;
+            }
 
             db.ref('match_categories').push({
                 title: title,
@@ -405,7 +436,7 @@
             }).then(() => {
                 document.getElementById('cat-title').value = '';
                 document.getElementById('cat-image').value = '';
-            });
+            }).catch(err => alert("Error adding category: " + err.message));
         }
 
         function fetchCategories() {
@@ -413,105 +444,121 @@
                 const container = document.getElementById('categories-container');
                 container.innerHTML = '';
                 let count = 0;
+
                 snapshot.forEach(child => {
                     count++;
                     const data = child.val();
                     const key = child.key;
+
                     const div = document.createElement('div');
                     div.className = 'category-card';
                     div.innerHTML = `
-                        <img src="${data.image}">
+                        <img src="${data.image}" alt="${data.title}">
                         <h3>${data.title}</h3>
-                        <div style="text-align:center; padding-bottom:10px;">
-                            <button class="delete-btn" onclick="event.stopPropagation(); deleteCategory('${key}')">Delete</button>
+                        <div style="text-align:center; padding-bottom:12px;">
+                            <button class="delete-btn" onclick="deleteCategory('${key}')">Delete</button>
                         </div>
                     `;
                     container.appendChild(div);
                 });
+
                 document.getElementById('total-categories').innerText = count;
             });
         }
 
         function deleteCategory(key) {
-            if (confirm("Delete this category?")) {
+            if (confirm("Are you sure you want to delete this category?")) {
                 db.ref(`match_categories/${key}`).remove();
             }
         }
 
-        // --- Admin Management (Super Admin only) ---
-        function fetchAdmins() {
-            const list = document.getElementById('admin-list-body');
+        // Super Admin: Admin Management
+        function fetchAdminsList() {
+            const body = document.getElementById('admin-list-body');
             db.ref('superAdmins').on('value', s1 => {
                 db.ref('admins').on('value', s2 => {
                     db.ref('adminPermissions').on('value', s3 => {
                         const supers = s1.val() || {};
                         const normals = s2.val() || {};
                         const perms = s3.val() || {};
-                        list.innerHTML = '';
-                        
-                        Object.keys(supers).forEach(key => renderAdminRow(key, 'Super Admin', {}, true));
-                        Object.keys(normals).forEach(key => renderAdminRow(key, 'Admin', perms[key] || {}, false));
+                        body.innerHTML = '';
+
+                        Object.keys(supers).forEach(k => renderAdminRow(k, 'Super Admin', {}, true));
+                        Object.keys(normals).forEach(k => renderAdminRow(k, 'Admin', perms[k] || {}, false));
                     });
                 });
             });
         }
 
         function renderAdminRow(key, role, p, isSuper) {
-            const list = document.getElementById('admin-list-body');
+            const body = document.getElementById('admin-list-body');
             const email = key.replace(/,/g, '.');
-            const row = document.createElement('tr');
             const isSelf = key === currentUserCleanEmail;
 
+            const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${email}</td>
-                <td>${role}</td>
+                <td><b>${email}</b></td>
+                <td><span style="color:${isSuper?'#ff9800':'#00ffcc'}">${role}</span></td>
                 <td>
                     ${!isSuper ? `
                     <div class="perm-toggles">
-                        <label><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"> Game</label>
-                        <label><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"> User</label>
-                        <label><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"> Ban</label>
-                        <label><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"> Banner</label>
-                        <label><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"> Pay</label>
-                    </div>` : 'All Access'}
+                        <label><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"> Games</label>
+                        <label><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"> Users</label>
+                        <label><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"> Banned</label>
+                        <label><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"> Banners</label>
+                        <label><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"> Payment</label>
+                    </div>` : 'Full Control'}
                 </td>
                 <td>
-                    ${!isSelf ? `<button class="delete-btn" onclick="removeAdmin('${key}','${isSuper?'superAdmins':'admins'}')">Remove</button>` : 'Active'}
+                    ${!isSelf ? `<button class="delete-btn" onclick="removeAdmin('${key}','${isSuper?'superAdmins':'admins'}')">Remove</button>` : '<span style="color:gray;">Logged In</span>'}
                 </td>
             `;
-            list.appendChild(row);
+            body.appendChild(row);
         }
 
-        function togglePerm(key, field, val) {
-            db.ref(`adminPermissions/${key}/${field}`).set(val);
+        function togglePerm(key, field, value) {
+            db.ref(`adminPermissions/${key}/${field}`).set(value);
         }
 
         function addNewAdmin() {
             const email = document.getElementById('new-admin-email').value.trim();
             const role = document.getElementById('new-admin-role').value;
-            if(!email) return alert("Email required");
+
+            if (!email) {
+                alert("Please enter a valid email address!");
+                return;
+            }
+
             const key = emailToKey(email);
-            const path = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
-            
-            db.ref(path).set(true).then(() => {
-                if(role === 'admin') {
-                    db.ref(`adminPermissions/${key}`).set({games:true, users:false, banned:false, banners:false, payment:false});
+            const targetPath = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
+
+            db.ref(targetPath).set(true).then(() => {
+                if (role === 'admin') {
+                    db.ref(`adminPermissions/${key}`).set({
+                        games: true,
+                        users: false,
+                        banned: false,
+                        banners: false,
+                        payment: false
+                    });
                 }
                 document.getElementById('new-admin-email').value = '';
+                alert("New Admin added successfully!");
             });
         }
 
         function removeAdmin(key, path) {
-            if(confirm("Remove this admin?")) {
+            if (confirm("Are you sure you want to remove this admin?")) {
                 db.ref(`${path}/${key}`).remove();
-                if(path === 'admins') db.ref(`adminPermissions/${key}`).remove();
+                if (path === 'admins') {
+                    db.ref(`adminPermissions/${key}`).remove();
+                }
             }
         }
 
         function logoutAdmin() {
             auth.signOut();
         }
-
     </script>
 </body>
 </html>
