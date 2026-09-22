@@ -105,11 +105,11 @@
             border-radius: 8px;
         }
 
+        /* Mode Toggle Switches (As in Screenshot 1) */
         .mode-toggle-group {
             display: flex;
             gap: 12px;
         }
-
         .mode-btn {
             flex: 1;
             padding: 12px;
@@ -126,31 +126,28 @@
             justify-content: center;
             gap: 10px;
         }
-
         .mode-btn.active-auto {
             background-color: #0284c7;
             border-color: #38bdf8;
             color: #fff;
         }
-
         .mode-btn.active-manual {
             background-color: #ef4444;
             border-color: #f87171;
             color: #fff;
         }
 
+        /* Custom Dark SweetAlert Styling */
         .swal2-popup.swal-dark {
             background-color: #1e293b !important;
             color: #f8fafc !important;
             border: 1px solid #334155 !important;
             border-radius: 12px !important;
         }
-
         .swal2-title, .swal2-html-container {
             color: #f8fafc !important;
         }
-
-        .swal2-input, .swal2-select {
+        .swal2-input {
             background-color: #0f172a !important;
             color: #ffffff !important;
             border: 1px solid #334155 !important;
@@ -211,35 +208,13 @@
                 
                 <!-- Section 1: Games & Matches -->
                 <div id="section-games" class="content-section">
-                    
-                    <!-- View 1: Categories List -->
-                    <div id="categoryView">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4><i class="fas fa-gamepad text-info me-2"></i>Match Categories</h4>
-                            <button class="btn btn-info btn-sm text-white fw-bold" onclick="addCategoryPrompt()">
-                                <i class="fas fa-plus me-1"></i>Add Category
-                            </button>
-                        </div>
-                        <div class="category-grid" id="categoryContainer"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4><i class="fas fa-gamepad text-info me-2"></i>Match Categories</h4>
+                        <button class="btn btn-info btn-sm text-white fw-bold" onclick="addCategoryPrompt()">
+                            <i class="fas fa-plus me-1"></i>Add Category
+                        </button>
                     </div>
-
-                    <!-- View 2: Matches inside Selected Category -->
-                    <div id="matchView" class="d-none">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="d-flex align-items-center gap-2">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="backToCategories()">
-                                    <i class="fas fa-arrow-left me-1"></i>Back
-                                </button>
-                                <h4 class="mb-0 text-info" id="selectedCatTitle">Matches</h4>
-                            </div>
-                            <button class="btn btn-success btn-sm fw-bold" onclick="createMatchPrompt()">
-                                <i class="fas fa-plus me-1"></i>Create Match
-                            </button>
-                        </div>
-
-                        <div id="matchesContainer" class="row g-3"></div>
-                    </div>
-
+                    <div class="category-grid" id="categoryContainer"></div>
                 </div>
 
                 <!-- Section 2: Users List -->
@@ -283,7 +258,7 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Payment Settings -->
+                <!-- Section 4: Payment Settings (Matching Image 1) -->
                 <div id="section-payment" class="content-section d-none">
                     <h4 class="mb-4"><i class="fas fa-wallet text-info me-2"></i>Payment Settings</h4>
                     <div class="card p-4" style="max-width: 600px;">
@@ -322,7 +297,7 @@
                             </div>
                         </div>
 
-                        <!-- Auto / Manual Toggle -->
+                        <!-- Auto / Manual Toggle (Exact Match to Image 1) -->
                         <div class="mb-4">
                             <div class="mode-toggle-group">
                                 <div id="btnAutoMode" class="mode-btn active-auto" onclick="setDepositMode('auto')">
@@ -415,7 +390,6 @@
         let currentUserCleanEmail = '';
         let isSuperAdmin = false;
         let currentDepositMode = 'auto';
-        let selectedCategoryKey = null;
 
         const SwalDark = Swal.mixin({
             customClass: { popup: 'swal-dark' },
@@ -488,216 +462,6 @@
             if (targetSection) targetSection.classList.remove('d-none');
         }
 
-        // --- CATEGORY & MATCH MANAGEMENT ---
-        function loadCategories() {
-            db.ref('match_categories').on('value', (snap) => {
-                const container = document.getElementById('categoryContainer');
-                container.innerHTML = '';
-                if (!snap.exists()) {
-                    container.innerHTML = '<p class="text-muted">No categories available.</p>';
-                    return;
-                }
-                snap.forEach((child) => {
-                    const cat = child.val();
-                    const key = child.key;
-                    container.innerHTML += `
-                        <div class="category-card p-2 text-center">
-                            <img src="${cat.image || 'https://via.placeholder.com/220x120'}" class="category-img mb-2 rounded">
-                            <h6 class="fw-bold text-white mb-2">${cat.title}</h6>
-                            <div class="d-flex gap-1">
-                                <button class="btn btn-primary btn-sm w-100" onclick="openCategoryMatches('${key}', '${cat.title}')"><i class="fas fa-list me-1"></i>Matches</button>
-                                <button class="btn btn-outline-danger btn-sm" onclick="deleteCategory('${key}')"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function openCategoryMatches(catKey, catTitle) {
-            selectedCategoryKey = catKey;
-            document.getElementById('selectedCatTitle').innerText = catTitle + ' - Matches';
-            document.getElementById('categoryView').classList.add('d-none');
-            document.getElementById('matchView').classList.remove('d-none');
-            loadMatchesForCategory(catKey);
-        }
-
-        function backToCategories() {
-            selectedCategoryKey = null;
-            document.getElementById('matchView').classList.add('d-none');
-            document.getElementById('categoryView').classList.remove('d-none');
-        }
-
-        function loadMatchesForCategory(catKey) {
-            db.ref('matches').orderByChild('categoryKey').equalTo(catKey).on('value', (snap) => {
-                const container = document.getElementById('matchesContainer');
-                container.innerHTML = '';
-                if (!snap.exists()) {
-                    container.innerHTML = '<div class="col-12"><p class="text-muted">No matches created under this category yet.</p></div>';
-                    return;
-                }
-                snap.forEach((child) => {
-                    const m = child.val();
-                    const mKey = child.key;
-                    const joinedCount = m.joinedUsers ? Object.keys(m.joinedUsers).length : 0;
-
-                    container.innerHTML += `
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card p-3 h-100 border-secondary">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="badge bg-info">${m.type || 'SOLO'}</span>
-                                    <span class="badge bg-warning text-dark">${joinedCount} / ${m.totalSpots || 48} Joined</span>
-                                </div>
-                                <h5 class="fw-bold text-white mb-2">${m.title}</h5>
-                                <div class="small text-muted mb-2">
-                                    <div><i class="far fa-clock me-1 text-info"></i>${m.matchTime || 'N/A'}</div>
-                                    <div><i class="fas fa-map-marker-alt me-1 text-danger"></i>Map: ${m.map || 'Bermuda'}</div>
-                                </div>
-                                <div class="row g-1 text-center bg-dark p-2 rounded mb-3 small">
-                                    <div class="col-4 border-end border-secondary">
-                                        <span class="d-block text-muted">Prize</span>
-                                        <span class="fw-bold text-success">৳${m.prizePool || 0}</span>
-                                    </div>
-                                    <div class="col-4 border-end border-secondary">
-                                        <span class="d-block text-muted">Per Kill</span>
-                                        <span class="fw-bold text-warning">৳${m.perKill || 0}</span>
-                                    </div>
-                                    <div class="col-4">
-                                        <span class="d-block text-muted">Entry Fee</span>
-                                        <span class="fw-bold text-danger">৳${m.entryFee || 0}</span>
-                                    </div>
-                                </div>
-
-                                <div class="bg-dark p-2 rounded mb-3 small border border-secondary">
-                                    <div class="fw-bold text-info"><i class="fas fa-key me-1"></i>Room Details:</div>
-                                    <div>ID: <strong class="text-white">${m.roomId || 'Not set'}</strong></div>
-                                    <div>PASS: <strong class="text-white">${m.roomPassword || 'Not set'}</strong></div>
-                                </div>
-
-                                <div class="d-flex gap-2 mt-auto">
-                                    <button class="btn btn-outline-info btn-sm flex-fill" onclick="setRoomDetailsPrompt('${mKey}', '${m.roomId || ''}', '${m.roomPassword || ''}')">
-                                        <i class="fas fa-key me-1"></i>Room ID
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteMatchPrompt('${mKey}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function createMatchPrompt() {
-            if (!selectedCategoryKey) return;
-
-            SwalDark.fire({
-                title: 'Create Tournament Match',
-                html: `
-                    <input id="mTitle" class="swal2-input" placeholder="Match Title (e.g. Match #01)">
-                    <input id="mTime" class="swal2-input" placeholder="Match Time (e.g. 10 Nov - 08:00 PM)">
-                    <input id="mEntry" type="number" class="swal2-input" placeholder="Entry Fee (৳)">
-                    <input id="mPrize" type="number" class="swal2-input" placeholder="Total Prize Pool (৳)">
-                    <input id="mPerKill" type="number" class="swal2-input" placeholder="Per Kill Bonus (৳)">
-                    <input id="mSpots" type="number" class="swal2-input" placeholder="Total Spots (e.g. 48)" value="48">
-                    <input id="mMap" class="swal2-input" placeholder="Map Name (e.g. Bermuda)">
-                    <select id="mType" class="swal2-select w-100 mt-2">
-                        <option value="SOLO">SOLO</option>
-                        <option value="DUO">DUO</option>
-                        <option value="SQUAD">SQUAD</option>
-                    </select>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Create Match',
-                preConfirm: () => {
-                    const title = document.getElementById('mTitle').value.trim();
-                    const matchTime = document.getElementById('mTime').value.trim();
-                    const entryFee = parseFloat(document.getElementById('mEntry').value) || 0;
-                    const prizePool = parseFloat(document.getElementById('mPrize').value) || 0;
-                    const perKill = parseFloat(document.getElementById('mPerKill').value) || 0;
-                    const totalSpots = parseInt(document.getElementById('mSpots').value) || 48;
-                    const map = document.getElementById('mMap').value.trim() || 'Bermuda';
-                    const type = document.getElementById('mType').value;
-
-                    if (!title) Swal.showValidationMessage('Title is required');
-                    return { categoryKey: selectedCategoryKey, title, matchTime, entryFee, prizePool, perKill, totalSpots, map, type, status: 'upcoming' };
-                }
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    db.ref('matches').push(res.value).then(() => {
-                        SwalDark.fire('Created!', 'Match created successfully!', 'success');
-                    });
-                }
-            });
-        }
-
-        function setRoomDetailsPrompt(mKey, currentRoomId, currentPass) {
-            SwalDark.fire({
-                title: 'Set Room ID & Password',
-                html: `
-                    <input id="rId" class="swal2-input" placeholder="Room ID" value="${currentRoomId}">
-                    <input id="rPass" class="swal2-input" placeholder="Room Password" value="${currentPass}">
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Update Room',
-                preConfirm: () => {
-                    return {
-                        roomId: document.getElementById('rId').value.trim(),
-                        roomPassword: document.getElementById('rPass').value.trim()
-                    };
-                }
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    db.ref(`matches/${mKey}`).update(res.value).then(() => {
-                        SwalDark.fire('Updated!', 'Room details saved!', 'success');
-                    });
-                }
-            });
-        }
-
-        function deleteMatchPrompt(mKey) {
-            SwalDark.fire({
-                title: 'Delete Match?',
-                text: 'Are you sure you want to delete this match?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Delete'
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    db.ref(`matches/${mKey}`).remove();
-                }
-            });
-        }
-
-        function addCategoryPrompt() {
-            SwalDark.fire({
-                title: 'Add Category',
-                html: `
-                    <input id="catTitle" class="swal2-input" placeholder="Category Title (e.g. CS 4v4)">
-                    <input id="catImage" class="swal2-input" placeholder="Image URL">
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Add',
-                preConfirm: () => {
-                    const title = document.getElementById('catTitle').value.trim();
-                    const image = document.getElementById('catImage').value.trim();
-                    if (!title) Swal.showValidationMessage('Title is required');
-                    return { title, image };
-                }
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    db.ref('match_categories').push(res.value);
-                }
-            });
-        }
-
-        function deleteCategory(key) {
-            SwalDark.fire({ title: 'Delete Category?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete' }).then((res) => {
-                if (res.isConfirmed) db.ref('match_categories/' + key).remove();
-            });
-        }
-
         // --- PAYMENT SETTINGS ---
         function setDepositMode(mode) {
             currentDepositMode = mode;
@@ -748,9 +512,61 @@
                 SwalDark.fire({
                     icon: 'success',
                     title: 'Settings Saved',
-                    timer: 1500,
+                    text: 'Payment settings updated successfully!',
+                    timer: 1800,
                     showConfirmButton: false
                 });
+            }).catch(err => SwalDark.fire('Error', err.message, 'error'));
+        }
+
+        // --- CATEGORIES ---
+        function loadCategories() {
+            db.ref('match_categories').on('value', (snap) => {
+                const container = document.getElementById('categoryContainer');
+                container.innerHTML = '';
+                if (!snap.exists()) {
+                    container.innerHTML = '<p class="text-muted">No categories available.</p>';
+                    return;
+                }
+                snap.forEach((child) => {
+                    const cat = child.val();
+                    const key = child.key;
+                    container.innerHTML += `
+                        <div class="category-card p-2 text-center">
+                            <img src="${cat.image || 'https://via.placeholder.com/220x120'}" class="category-img mb-2 rounded">
+                            <h6 class="fw-bold text-white mb-2">${cat.title}</h6>
+                            <button class="btn btn-outline-danger btn-sm w-100" onclick="deleteCategory('${key}')"><i class="fas fa-trash me-1"></i>Delete</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function addCategoryPrompt() {
+            SwalDark.fire({
+                title: 'Add Category',
+                html: `
+                    <input id="catTitle" class="swal2-input" placeholder="Category Title (e.g. CS 4v4)">
+                    <input id="catImage" class="swal2-input" placeholder="Image URL">
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Add',
+                preConfirm: () => {
+                    const title = document.getElementById('catTitle').value.trim();
+                    const image = document.getElementById('catImage').value.trim();
+                    if (!title) Swal.showValidationMessage('Title is required');
+                    return { title, image };
+                }
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    db.ref('match_categories').push(res.value);
+                }
+            });
+        }
+
+        function deleteCategory(key) {
+            SwalDark.fire({ title: 'Delete Category?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete' }).then((res) => {
+                if (res.isConfirmed) db.ref('match_categories/' + key).remove();
             });
         }
 
