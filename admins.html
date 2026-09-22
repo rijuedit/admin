@@ -2,74 +2,388 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admins - OXI ADMIN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Admins - OXI ADMIN</title>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <!-- SweetAlert2 & FontAwesome & Fonts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        :root { --bg: #0b061a; --card: #160d2e; --cyan: #00ffd1; --purple: #b026ff; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
-        .back-btn { background: var(--card); color: var(--cyan); border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 20px; }
-        .table-container { background: var(--card); border-radius: 12px; overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: rgba(176,38,255,0.2); padding: 15px; text-align: left; }
-        td { padding: 15px; border-bottom: 1px solid #333; }
-        .btn-del { background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        :root {
+            --bg-dark: #0b061a;
+            --card-bg: #160d2e;
+            --cyan: #00ffd1;
+            --purple: #b026ff;
+            --text-light: #e0e0e0;
+            --danger: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 30px 5%;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: rgba(0, 255, 209, 0.1);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
+        }
+
+        .add-admin-btn {
+            background: linear-gradient(90deg, var(--purple), #8a2be2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
+            transition: 0.3s;
+        }
+
+        .add-admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
+        }
+
+        /* Main Container Card */
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(176, 38, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+        }
+
+        .card-header h2 {
+            color: var(--cyan);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-count-badge {
+            background: rgba(0, 255, 209, 0.15);
+            color: var(--cyan);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Table Styling */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0, 0, 0, 0.3);
+            color: #888;
+            padding: 16px 20px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(0, 255, 209, 0.2);
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Role Badges */
+        .role-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+
+        .role-super {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.3);
+        }
+
+        .role-normal {
+            background: rgba(0, 255, 209, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 255, 209, 0.3);
+        }
+
+        .you-tag {
+            background: rgba(176, 38, 255, 0.2);
+            color: #d175ff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            margin-left: 8px;
+            border: 1px solid rgba(176, 38, 255, 0.4);
+        }
+
+        /* Remove Button */
+        .btn-remove {
+            background: rgba(255, 77, 77, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(255, 77, 77, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-remove:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 0 12px rgba(255, 77, 77, 0.5);
+        }
+
+        /* Custom SweetAlert Dark UI */
+        .swal-dark-custom {
+            background: #160d2e !important;
+            color: #fff !important;
+            border: 1px solid #b026ff !important;
+            border-radius: 15px !important;
+        }
+
+        .swal2-input, .swal2-select {
+            background: rgba(0,0,0,0.4) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+        }
+        .swal2-input:focus, .swal2-select:focus {
+            border-color: var(--cyan) !important;
+        }
     </style>
 </head>
 <body>
-    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2>System Admins</h2>
-        <button class="back-btn" style="background:var(--purple); color:#fff; border:none;" onclick="addAdmin()">+ Add Admin</button>
+
+    <!-- Top Navigation Bar -->
+    <div class="top-bar">
+        <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <button class="add-admin-btn" onclick="showAddAdminModal()"><i class="fas fa-user-plus"></i> Add New Admin</button>
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead><tr><th>Email</th><th>Role</th><th>Action</th></tr></thead>
-            <tbody id="admin-list"></tbody>
-        </table>
+    <!-- Main Table Card -->
+    <div class="content-card">
+        <div class="card-header">
+            <h2><i class="fas fa-user-shield"></i> System Admins</h2>
+            <span class="admin-count-badge" id="total-admins">0 Admins</span>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Admin Email</th>
+                        <th>Role</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body">
+                    <!-- Loaded via JavaScript -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
+    <!-- Configuration & Logic Script -->
     <script src="config.js"></script>
     <script>
         checkAuth();
-        const me = auth.currentUser ? emailToKey(auth.currentUser.email) : "";
 
-        function load() {
-            const tbody = document.getElementById('admin-list');
-            tbody.innerHTML = "";
+        let loggedInEmail = "";
+
+        // Wait for auth to get logged-in user
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                loggedInEmail = user.email;
+                loadAllAdmins();
+            }
+        });
+
+        function loadAllAdmins() {
+            const tbody = document.getElementById('admin-table-body');
             
-            db.ref('superAdmins').on('value', s => {
-                s.forEach(c => {
-                    tbody.innerHTML += `<tr><td>${c.key.replace(/,/g,'.')}</td><td>Super Admin</td><td>${c.key===me ? '' : `<button class="btn-del" onclick="remove('superAdmins','${c.key}')">Remove</button>`}</td></tr>`;
+            // Listen to both nodes simultaneously
+            db.ref().on('value', snapshot => {
+                tbody.innerHTML = "";
+                let count = 0;
+
+                const superAdmins = snapshot.child('superAdmins').val() || {};
+                const normalAdmins = snapshot.child('admins').val() || {};
+
+                // 1. Render Super Admins
+                Object.keys(superAdmins).forEach(key => {
+                    count++;
+                    const email = key.replace(/,/g, '.');
+                    const isSelf = (email.toLowerCase() === loggedInEmail.toLowerCase());
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <i class="fas fa-envelope" style="color:#888; margin-right:8px;"></i>
+                                <b>${email}</b>
+                                ${isSelf ? '<span class="you-tag">YOU</span>' : ''}
+                            </td>
+                            <td><span class="role-badge role-super"><i class="fas fa-crown"></i> Super Admin</span></td>
+                            <td style="text-align: right;">
+                                ${isSelf ? '<span style="font-size:12px; color:#666; italic;">Protected</span>' : 
+                                `<button class="btn-remove" onclick="removeAdmin('superAdmins', '${key}', '${email}')"><i class="fas fa-trash-alt"></i> Remove</button>`}
+                            </td>
+                        </tr>
+                    `;
                 });
-            });
-            db.ref('admins').on('value', s => {
-                s.forEach(c => {
-                    tbody.innerHTML += `<tr><td>${c.key.replace(/,/g,'.')}</td><td>Admin</td><td><button class="btn-del" onclick="remove('admins','${c.key}')">Remove</button></td></tr>`;
+
+                // 2. Render Normal Admins
+                Object.keys(normalAdmins).forEach(key => {
+                    count++;
+                    const email = key.replace(/,/g, '.');
+                    const isSelf = (email.toLowerCase() === loggedInEmail.toLowerCase());
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <i class="fas fa-envelope" style="color:#888; margin-right:8px;"></i>
+                                <b>${email}</b>
+                                ${isSelf ? '<span class="you-tag">YOU</span>' : ''}
+                            </td>
+                            <td><span class="role-badge role-normal"><i class="fas fa-shield-alt"></i> Admin</span></td>
+                            <td style="text-align: right;">
+                                ${isSelf ? '<span style="font-size:12px; color:#666; italic;">Protected</span>' : 
+                                `<button class="btn-remove" onclick="removeAdmin('admins', '${key}', '${email}')"><i class="fas fa-trash-alt"></i> Remove</button>`}
+                            </td>
+                        </tr>
+                    `;
                 });
+
+                document.getElementById('total-admins').innerText = `${count} Admins Total`;
             });
         }
 
-        function addAdmin() {
+        // Add Admin Modal
+        function showAddAdminModal() {
             SwalDark.fire({
-                title: 'Add Admin',
-                html: `<input id="ae" class="swal2-input" placeholder="Email"><select id="ar" class="swal2-input"><option value="admins">Admin</option><option value="superAdmins">Super Admin</option></select>`,
-                confirmButtonText: 'Add'
-            }).then(r => {
-                const email = document.getElementById('ae').value;
-                const role = document.getElementById('ar').value;
-                if(r.isConfirmed && email) db.ref(role + '/' + emailToKey(email)).set(true);
+                title: '<span style="color:var(--cyan);"><i class="fas fa-user-plus"></i> Add System Admin</span>',
+                html: `
+                    <div style="text-align:left; margin-top:15px;">
+                        <label style="font-size:12px; color:#aaa;">Admin Email Address</label>
+                        <input id="new-admin-email" type="email" class="swal2-input" placeholder="admin@example.com" style="margin-top:5px;">
+                    </div>
+                    <div style="text-align:left; margin-top:15px;">
+                        <label style="font-size:12px; color:#aaa;">Assign Admin Role</label>
+                        <select id="new-admin-role" class="swal2-select" style="width:100%; margin-top:5px;">
+                            <option value="admins">Normal Admin</option>
+                            <option value="superAdmins">Super Admin</option>
+                        </select>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Grant Access',
+                confirmButtonColor: '#b026ff',
+                cancelButtonColor: '#444'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const email = document.getElementById('new-admin-email').value.trim();
+                    const role = document.getElementById('new-admin-role').value;
+
+                    if (!email || !email.includes('@')) {
+                        SwalDark.fire('Invalid Email', 'Please enter a valid email address.', 'error');
+                        return;
+                    }
+
+                    const key = emailToKey(email);
+                    db.ref(`${role}/${key}`).set(true).then(() => {
+                        SwalDark.fire('Success!', `${email} has been added as ${role === 'superAdmins' ? 'Super Admin' : 'Admin'}.`, 'success');
+                    });
+                }
             });
         }
 
-        function remove(path, key) {
-            db.ref(path + '/' + key).remove();
+        // Remove Admin Function
+        function removeAdmin(path, key, email) {
+            SwalDark.fire({
+                title: 'Revoke Access?',
+                text: `Are you sure you want to remove ${email} from admins?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Remove',
+                confirmButtonColor: '#ff4d4d',
+                cancelButtonColor: '#444'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref(`${path}/${key}`).remove().then(() => {
+                        SwalDark.fire('Removed!', 'Admin access has been revoked.', 'success');
+                    });
+                }
+            });
         }
-        load();
     </script>
 </body>
 </html>
