@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Settings - OXI ADMIN</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg: #0b061a; --card: #160d2e; --cyan: #00ffd1; --purple: #b026ff; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
+        .back-btn { background: var(--card); color: var(--cyan); border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .settings-container { max-width: 900px; margin: 0 auto; }
+        .gateway-card { background: var(--card); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 5px solid var(--purple); }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; }
+        input:focus { border-color: var(--cyan); }
+        .switch { position: relative; width: 50px; height: 25px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 17px; width: 17px; left: 4px; bottom: 4px; background: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: var(--cyan); }
+        input:checked + .slider:before { transform: translateX(25px); }
+        .save-btn { background: var(--purple); color: #fff; width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px; }
+        .auto-box { background: rgba(0,255,209,0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--cyan); }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+    <div class="settings-container">
+        <h2><i class="fas fa-wallet"></i> Payment Gateway Settings</h2>
+
+        <div class="auto-box">
+            <div>
+                <h4 style="margin:0;">Automatic Verification</h4>
+                <small id="auto-text" style="color: var(--cyan);">Manual Mode Active</small>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="auto-mode" onchange="updateAutoMode()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="gateway-card">
+            <div class="row">
+                <h4>bKash Personal</h4>
+                <label class="switch"><input type="checkbox" id="bk-active"><span class="slider"></span></label>
+            </div>
+            <input type="text" id="bk-num" placeholder="Enter bKash Number">
+        </div>
+
+        <div class="gateway-card" style="border-left-color: #f7941d;">
+            <div class="row">
+                <h4>Nagad Personal</h4>
+                <label class="switch"><input type="checkbox" id="ng-active"><span class="slider"></span></label>
+            </div>
+            <input type="text" id="ng-num" placeholder="Enter Nagad Number">
+        </div>
+
+        <div class="gateway-card" style="border-left-color: #8c3494;">
+            <div class="row">
+                <h4>Rocket Personal</h4>
+                <label class="switch"><input type="checkbox" id="rk-active"><span class="slider"></span></label>
+            </div>
+            <input type="text" id="rk-num" placeholder="Enter Rocket Number">
+        </div>
+
+        <button class="save-btn" onclick="saveSettings()">SAVE ALL SETTINGS</button>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        checkAuth();
+        db.ref('paymentSettings').on('value', s => {
+            const d = s.val() || {};
+            document.getElementById('bk-num').value = d.bkash || "";
+            document.getElementById('ng-num').value = d.nagad || "";
+            document.getElementById('rk-num').value = d.rocket || "";
+            document.getElementById('bk-active').checked = d.bkashActive;
+            document.getElementById('ng-active').checked = d.nagadActive;
+            document.getElementById('rk-active').checked = d.rocketActive;
+            document.getElementById('auto-mode').checked = d.autoAddMoneyActive;
+            document.getElementById('auto-text').innerText = d.autoAddMoneyActive ? "Auto Mode Active" : "Manual Mode Active";
+        });
+
+        function updateAutoMode() {
+            const val = document.getElementById('auto-mode').checked;
+            db.ref('paymentSettings/autoAddMoneyActive').set(val);
+        }
+
+        function saveSettings() {
+            const data = {
+                bkash: document.getElementById('bk-num').value,
+                nagad: document.getElementById('ng-num').value,
+                rocket: document.getElementById('rk-num').value,
+                bkashActive: document.getElementById('bk-active').checked,
+                nagadActive: document.getElementById('ng-active').checked,
+                rocketActive: document.getElementById('rk-active').checked,
+                autoAddMoneyActive: document.getElementById('auto-mode').checked
+            };
+            db.ref('paymentSettings').update(data).then(() => {
+                SwalDark.fire('Success', 'Settings Saved!', 'success');
+            });
+        }
+    </script>
+</body>
+</html>
