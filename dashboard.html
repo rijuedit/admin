@@ -18,14 +18,13 @@
             --accent: #00ffcc;
             --text: #ffffff;
             --text-dim: #b0a3c4;
-            --danger: #ff3366;
-            --success: #00c853;
+            --danger: #ff1744;
+            --success: #00e676;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text); overflow-x: hidden; }
 
-        /* Header */
         header {
             background: var(--card-bg);
             padding: 15px 5%;
@@ -62,7 +61,6 @@
             gap: 5px;
         }
 
-        /* Stats Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -82,7 +80,6 @@
         .stat-card h3 { font-size: 28px; color: var(--text); }
         .stat-card p { color: var(--text-dim); font-size: 12px; text-transform: uppercase; }
 
-        /* Navigation Tabs */
         .nav-tabs {
             display: flex;
             gap: 15px;
@@ -113,25 +110,28 @@
             box-shadow: 0 0 15px rgba(157, 0, 255, 0.4);
         }
 
-        /* Main Content Panels */
         .main-content { padding: 30px 5%; }
         .tab-panel { display: none; animation: fadeIn 0.4s ease; }
         .tab-panel.active { display: block; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Form Controls */
         .section-header { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--accent); font-size: 18px; }
-        .input-group {
+
+        .input-card {
             background: var(--card-bg);
             padding: 25px;
             border-radius: 15px;
             border: 1px solid #25164d;
             margin-bottom: 25px;
+        }
+
+        .input-group {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             align-items: center;
+            margin-bottom: 15px;
         }
 
         input, select {
@@ -156,9 +156,6 @@
             transition: 0.2s;
         }
 
-        .action-btn:hover { opacity: 0.9; transform: scale(1.02); }
-
-        /* Category Grid */
         .category-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -176,7 +173,7 @@
 
         .category-card img { width: 100%; height: 140px; object-fit: cover; }
         .category-card h3 { padding: 12px; text-align: center; font-size: 16px; color: white; }
-        
+
         .delete-btn {
             background: var(--danger);
             color: white;
@@ -188,14 +185,182 @@
             font-weight: bold;
         }
 
-        /* Admin Table */
-        table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 10px; overflow: hidden; margin-top: 15px; }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #25164d; font-size: 14px; }
-        th { background: #1c0e3d; color: var(--accent); }
+        /* --- Admin Management Reference UI Styles --- */
+        .info-box {
+            background: #11052c;
+            border-left: 4px solid var(--primary);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #d1c4e9;
+            border: 1px solid #25164d;
+        }
 
-        .perm-toggles { display: flex; gap: 8px; font-size: 11px; flex-wrap: wrap; }
+        .admin-action-btns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn-add-super {
+            background: #00e676;
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-add-super:hover { background: #00c853; }
+
+        .btn-add-normal {
+            background: #1e88e5;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-add-normal:hover { background: #1565c0; }
+
+        .sub-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+        }
+
+        .admin-cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .admin-item-card {
+            background: #180c38;
+            border: 1px solid #2d1854;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-item-card.normal-card {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .admin-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-email {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffb703;
+        }
+
+        .admin-subtext {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .btn-remove {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-remove:hover { opacity: 0.9; }
+
+        .you-tag {
+            background: #25164d;
+            color: #b0a3c4;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-perm-row {
+            background: #11052c;
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid #25164d;
+        }
+
+        .perm-title {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .perm-toggles { display: flex; gap: 10px; font-size: 11px; flex-wrap: wrap; }
         .perm-toggles label { background: #25164d; padding: 4px 8px; border-radius: 5px; cursor: pointer; user-select: none; }
-        .perm-toggles input { min-width: auto; margin-right: 4px; }
+        .perm-toggles input { margin-right: 4px; }
+
+        /* Payment Switches */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0b021a;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 1px solid #3d2b63;
+            margin-bottom: 15px;
+        }
+
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(24px); }
 
     </style>
 </head>
@@ -211,7 +376,6 @@
         </button>
     </header>
 
-    <!-- Top Dashboard Stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <i class="fas fa-users"></i>
@@ -235,7 +399,6 @@
         </div>
     </div>
 
-    <!-- Admin Navigation Tabs -->
     <div class="nav-tabs" id="admin-nav">
         <button class="tab-btn active" onclick="switchNav('games', this)" id="nav-games-btn">
             <i class="fas fa-gamepad"></i> Games & Matches
@@ -257,70 +420,107 @@
         </button>
     </div>
 
-    <!-- Main Content Sections -->
     <div class="main-content">
 
         <!-- 1. Games & Matches Panel -->
         <div id="games-panel" class="tab-panel active">
             <div class="section-header"><i class="fas fa-plus-circle"></i> Create New Match Category</div>
-            <div class="input-group">
-                <input type="text" id="cat-title" placeholder="Category Name (e.g. BR Match)">
-                <input type="text" id="cat-image" placeholder="Square Image URL (1:1 Ratio)">
-                <button class="action-btn" onclick="addCategory()">ADD CATEGORY</button>
+            <div class="input-card">
+                <div class="input-group">
+                    <input type="text" id="cat-title" placeholder="Category Name (e.g. BR Match)">
+                    <input type="text" id="cat-image" placeholder="Square Image URL (1:1 Ratio)">
+                    <button class="action-btn" onclick="addCategory()">ADD CATEGORY</button>
+                </div>
             </div>
 
-            <div class="section-header"><i class="fas fa-list-ul"></i> Select Category Box to Manage Matches</div>
-            <div id="categories-container" class="category-grid">
-                <!-- Dynamic Category Cards will load here -->
-            </div>
+            <div class="section-header"><i class="fas fa-list-ul"></i> Match Categories</div>
+            <div id="categories-container" class="category-grid"></div>
         </div>
 
-        <!-- 2. Admin Access Management Panel -->
+        <!-- 2. Admin Management Panel (Replication of your Screenshot) -->
         <div id="admins-panel" class="tab-panel">
-            <div class="section-header"><i class="fas fa-user-shield"></i> Manage Administrative Access</div>
-            <div class="input-group">
-                <input type="email" id="new-admin-email" placeholder="Admin Email Address">
-                <select id="new-admin-role">
-                    <option value="admin">Normal Admin</option>
-                    <option value="super">Super Admin</option>
-                </select>
-                <button class="action-btn" onclick="addNewAdmin()">ADD ADMIN</button>
+            <div class="section-header"><i class="fas fa-crown"></i> Admin Management</div>
+
+            <!-- Role Information Box -->
+            <div class="info-box">
+                <p>💡 <b>Super Admin:</b> সব কাজ + Wallet manage + Admin manage করতে পারবে</p>
+                <p>💡 <b>Normal Admin:</b> নির্দিষ্ট পারমিশন অনুযায়ী কাজ করতে পারবে (Match/User/Ban/Banner/Payment)</p>
             </div>
-            
-            <table>
-                <thead>
-                    <tr>
-                        <th>Email Address</th>
-                        <th>Role</th>
-                        <th>Permissions (for Normal Admins)</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-list-body">
-                    <!-- Admin List Rows -->
-                </tbody>
-            </table>
+
+            <!-- Action Buttons -->
+            <div class="admin-action-btns">
+                <button class="btn-add-super" onclick="promptAddAdmin('super')">
+                    <i class="fas fa-plus"></i> Add Super Admin
+                </button>
+                <button class="btn-add-normal" onclick="promptAddAdmin('normal')">
+                    <i class="fas fa-plus"></i> Add Normal Admin
+                </button>
+            </div>
+
+            <!-- Super Admins List -->
+            <div class="sub-section-title"><i class="fas fa-crown" style="color:#ffb703;"></i> Super Admins</div>
+            <div id="super-admins-list" class="admin-cards-list"></div>
+
+            <!-- Normal Admins List -->
+            <div class="sub-section-title"><i class="fas fa-wrench" style="color:#2196f3;"></i> Normal Admins</div>
+            <div id="normal-admins-list" class="admin-cards-list"></div>
         </div>
 
-        <!-- Placeholder Sections for Remaining Features -->
+        <!-- 3. Payment Gateway & Auto Add Money Settings -->
+        <div id="payment-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-robot"></i> Auto Add Money & Payment Method Settings</div>
+            <div class="input-card">
+                <div class="switch-container">
+                    <div>
+                        <b style="color:var(--accent); font-size: 16px;">AUTO ADD MONEY SERVICE</b>
+                        <p style="color:var(--text-dim); font-size: 12px;"> Enable/Disable instant automatic balance adding via TrxID</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-gateway-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <hr style="border-color:#25164d; margin: 20px 0;">
+
+                <div class="input-group">
+                    <b style="width: 120px; color:#ff4081;"><i class="fas fa-mobile-alt"></i> bKash:</b>
+                    <input type="text" id="bkash-num" placeholder="Enter bKash Personal Number">
+                    <label class="switch"><input type="checkbox" id="bkash-toggle"><span class="slider"></span></label>
+                </div>
+
+                <div class="input-group">
+                    <b style="width: 120px; color:#ff9800;"><i class="fas fa-mobile-alt"></i> Nagad:</b>
+                    <input type="text" id="nagad-num" placeholder="Enter Nagad Personal Number">
+                    <label class="switch"><input type="checkbox" id="nagad-toggle"><span class="slider"></span></label>
+                </div>
+
+                <div class="input-group">
+                    <b style="width: 120px; color:#9c27b0;"><i class="fas fa-mobile-alt"></i> Rocket:</b>
+                    <input type="text" id="rocket-num" placeholder="Enter Rocket Personal Number">
+                    <label class="switch"><input type="checkbox" id="rocket-toggle"><span class="slider"></span></label>
+                </div>
+
+                <button class="action-btn" onclick="savePaymentSettings()" style="width: 100%; margin-top: 15px;">
+                    SAVE PAYMENT SETTINGS
+                </button>
+            </div>
+        </div>
+
+        <!-- Placeholder Sections -->
         <div id="users-panel" class="tab-panel">
             <div class="section-header"><i class="fas fa-users"></i> Registered Users</div>
-            <p style="color:var(--text-dim);">User management interface loading...</p>
+            <p style="color:var(--text-dim);">User list loading...</p>
         </div>
 
         <div id="banned-panel" class="tab-panel">
             <div class="section-header"><i class="fas fa-ban"></i> Banned Accounts</div>
-            <p style="color:var(--text-dim);">Banned users list loading...</p>
+            <p style="color:var(--text-dim);">Banned list loading...</p>
         </div>
 
         <div id="banners-panel" class="tab-panel">
             <div class="section-header"><i class="fas fa-image"></i> App Home Banners</div>
-            <p style="color:var(--text-dim);">Banner slider management loading...</p>
-        </div>
-
-        <div id="payment-panel" class="tab-panel">
-            <div class="section-header"><i class="fas fa-wallet"></i> Payment Gateway & Auto Add Money</div>
-            <p style="color:var(--text-dim);">Payment numbers and Auto Gateway settings loading...</p>
+            <p style="color:var(--text-dim);">Banner slider loading...</p>
         </div>
 
     </div>
@@ -344,12 +544,10 @@
         let currentUserCleanEmail = "";
         let isSuperAdmin = false;
 
-        // Convert email to Firebase Key (replace . with ,)
         function emailToKey(email) {
             return email ? email.replace(/\./g, ',') : '';
         }
 
-        // Tab Switching Function
         function switchNav(panelName, btn) {
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -359,7 +557,6 @@
             if (btn) btn.classList.add('active');
         }
 
-        // Authentication Check
         auth.onAuthStateChanged(user => {
             if (user) {
                 const key = emailToKey(user.email);
@@ -370,7 +567,6 @@
             }
         });
 
-        // Verify Admin/SuperAdmin Role
         function checkAdminRole(key) {
             db.ref(`superAdmins/${key}`).once('value', snapshot => {
                 if (snapshot.exists()) {
@@ -394,7 +590,6 @@
             });
         }
 
-        // Dynamic Permissions for Normal Admins
         function applyNormalAdminPermissions(key) {
             db.ref(`adminPermissions/${key}`).on('value', snapshot => {
                 const perms = snapshot.val() || {};
@@ -406,37 +601,170 @@
             });
         }
 
-        // Initialize Dashboard Data
         function initDashboard() {
             fetchStats();
             fetchCategories();
+            loadPaymentSettings();
             if (isSuperAdmin) fetchAdminsList();
         }
 
-        // Fetch Overview Stats
         function fetchStats() {
             db.ref('users').on('value', s => document.getElementById('total-users').innerText = s.numChildren());
             db.ref('bannedUsers').on('value', s => document.getElementById('total-banned').innerText = s.numChildren());
             db.ref('banners').on('value', s => document.getElementById('total-banners').innerText = s.numChildren());
         }
 
-        // Category Management
+        // --- Admin Management Logic (Refactored) ---
+        function promptAddAdmin(role) {
+            const roleName = role === 'super' ? 'Super Admin' : 'Normal Admin';
+            const email = prompt(`Enter ${roleName} Email Address:`);
+            if (!email) return;
+
+            const cleanEmail = email.trim();
+            if (!cleanEmail) return alert("Email required!");
+
+            const key = emailToKey(cleanEmail);
+            const targetPath = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
+
+            db.ref(targetPath).set(true).then(() => {
+                if (role === 'normal') {
+                    db.ref(`adminPermissions/${key}`).set({
+                        games: true,
+                        users: false,
+                        banned: false,
+                        banners: false,
+                        payment: false
+                    });
+                }
+                alert(`${roleName} added successfully!`);
+            }).catch(err => alert("Error: " + err.message));
+        }
+
+        function fetchAdminsList() {
+            const superContainer = document.getElementById('super-admins-list');
+            const normalContainer = document.getElementById('normal-admins-list');
+
+            db.ref('superAdmins').on('value', s1 => {
+                db.ref('admins').on('value', s2 => {
+                    db.ref('adminPermissions').on('value', s3 => {
+                        const supers = s1.val() || {};
+                        const normals = s2.val() || {};
+                        const perms = s3.val() || {};
+
+                        superContainer.innerHTML = '';
+                        normalContainer.innerHTML = '';
+
+                        // Render Super Admins
+                        Object.keys(supers).forEach(key => {
+                            const email = key.replace(/,/g, '.');
+                            const isSelf = key === currentUserCleanEmail;
+
+                            const card = document.createElement('div');
+                            card.className = 'admin-item-card';
+                            card.innerHTML = `
+                                <div>
+                                    <div class="admin-email"><i class="fas fa-crown" style="color:#ffb703;"></i> ${email}</div>
+                                    <span class="admin-subtext">Super Admin ${isSelf ? '(You)' : ''}</span>
+                                </div>
+                                <div>
+                                    ${isSelf ? '<span class="you-tag"><i class="fas fa-lock"></i> You</span>' : `<button class="btn-remove" onclick="removeAdmin('${key}', 'superAdmins')"><i class="fas fa-trash"></i> Remove</button>`}
+                                </div>
+                            `;
+                            superContainer.appendChild(card);
+                        });
+
+                        // Render Normal Admins
+                        const normalKeys = Object.keys(normals);
+                        if (normalKeys.length === 0) {
+                            normalContainer.innerHTML = '<p style="color:var(--text-dim); padding:10px;">No Normal Admins added yet.</p>';
+                        } else {
+                            normalKeys.forEach(key => {
+                                const email = key.replace(/,/g, '.');
+                                const isSelf = key === currentUserCleanEmail;
+                                const p = perms[key] || {};
+
+                                const card = document.createElement('div');
+                                card.className = 'admin-item-card normal-card';
+                                card.innerHTML = `
+                                    <div class="admin-card-top">
+                                        <div>
+                                            <div class="admin-email" style="color:#ffffff;"><i class="fas fa-wrench" style="color:#2196f3;"></i> ${email}</div>
+                                            <span class="admin-subtext">Normal Admin</span>
+                                        </div>
+                                        <div>
+                                            ${isSelf ? '<span class="you-tag"><i class="fas fa-lock"></i> You</span>' : `<button class="btn-remove" onclick="removeAdmin('${key}', 'admins')"><i class="fas fa-trash"></i> Remove</button>`}
+                                        </div>
+                                    </div>
+                                    <div class="admin-perm-row">
+                                        <span class="perm-title"><i class="fas fa-sliders-h"></i> Permissions:</span>
+                                        <div class="perm-toggles">
+                                            <label><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"> Games</label>
+                                            <label><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"> Users</label>
+                                            <label><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"> Banned</label>
+                                            <label><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"> Banners</label>
+                                            <label><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"> Payment</label>
+                                        </div>
+                                    </div>
+                                `;
+                                normalContainer.appendChild(card);
+                            });
+                        }
+                    });
+                });
+            });
+        }
+
+        function togglePerm(key, field, value) {
+            db.ref(`adminPermissions/${key}/${field}`).set(value);
+        }
+
+        function removeAdmin(key, path) {
+            if (confirm("Are you sure you want to remove this admin?")) {
+                db.ref(`${path}/${key}`).remove();
+                if (path === 'admins') db.ref(`adminPermissions/${key}`).remove();
+            }
+        }
+
+        // --- Payment Settings Logic ---
+        function loadPaymentSettings() {
+            db.ref('paymentSettings').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                document.getElementById('auto-gateway-toggle').checked = !!data.autoAddMoneyActive;
+                document.getElementById('bkash-num').value = data.bkash || '';
+                document.getElementById('bkash-toggle').checked = !!data.bkashActive;
+                document.getElementById('nagad-num').value = data.nagad || '';
+                document.getElementById('nagad-toggle').checked = !!data.nagadActive;
+                document.getElementById('rocket-num').value = data.rocket || '';
+                document.getElementById('rocket-toggle').checked = !!data.rocketActive;
+            });
+        }
+
+        function savePaymentSettings() {
+            const settings = {
+                autoAddMoneyActive: document.getElementById('auto-gateway-toggle').checked,
+                bkash: document.getElementById('bkash-num').value.trim(),
+                bkashActive: document.getElementById('bkash-toggle').checked,
+                nagad: document.getElementById('nagad-num').value.trim(),
+                nagadActive: document.getElementById('nagad-toggle').checked,
+                rocket: document.getElementById('rocket-num').value.trim(),
+                rocketActive: document.getElementById('rocket-toggle').checked
+            };
+
+            db.ref('paymentSettings').set(settings).then(() => {
+                alert("Payment Settings Saved!");
+            });
+        }
+
+        // --- Category Logic ---
         function addCategory() {
             const title = document.getElementById('cat-title').value.trim();
             const img = document.getElementById('cat-image').value.trim();
+            if (!title || !img) return alert("Fill all fields!");
 
-            if (!title || !img) {
-                alert("Please enter both Category Name and Image URL!");
-                return;
-            }
-
-            db.ref('match_categories').push({
-                title: title,
-                image: img
-            }).then(() => {
+            db.ref('match_categories').push({ title, image: img }).then(() => {
                 document.getElementById('cat-title').value = '';
                 document.getElementById('cat-image').value = '';
-            }).catch(err => alert("Error adding category: " + err.message));
+            });
         }
 
         function fetchCategories() {
@@ -453,7 +781,7 @@
                     const div = document.createElement('div');
                     div.className = 'category-card';
                     div.innerHTML = `
-                        <img src="${data.image}" alt="${data.title}">
+                        <img src="${data.image}">
                         <h3>${data.title}</h3>
                         <div style="text-align:center; padding-bottom:12px;">
                             <button class="delete-btn" onclick="deleteCategory('${key}')">Delete</button>
@@ -467,92 +795,8 @@
         }
 
         function deleteCategory(key) {
-            if (confirm("Are you sure you want to delete this category?")) {
+            if (confirm("Delete this category?")) {
                 db.ref(`match_categories/${key}`).remove();
-            }
-        }
-
-        // Super Admin: Admin Management
-        function fetchAdminsList() {
-            const body = document.getElementById('admin-list-body');
-            db.ref('superAdmins').on('value', s1 => {
-                db.ref('admins').on('value', s2 => {
-                    db.ref('adminPermissions').on('value', s3 => {
-                        const supers = s1.val() || {};
-                        const normals = s2.val() || {};
-                        const perms = s3.val() || {};
-                        body.innerHTML = '';
-
-                        Object.keys(supers).forEach(k => renderAdminRow(k, 'Super Admin', {}, true));
-                        Object.keys(normals).forEach(k => renderAdminRow(k, 'Admin', perms[k] || {}, false));
-                    });
-                });
-            });
-        }
-
-        function renderAdminRow(key, role, p, isSuper) {
-            const body = document.getElementById('admin-list-body');
-            const email = key.replace(/,/g, '.');
-            const isSelf = key === currentUserCleanEmail;
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><b>${email}</b></td>
-                <td><span style="color:${isSuper?'#ff9800':'#00ffcc'}">${role}</span></td>
-                <td>
-                    ${!isSuper ? `
-                    <div class="perm-toggles">
-                        <label><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"> Games</label>
-                        <label><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"> Users</label>
-                        <label><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"> Banned</label>
-                        <label><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"> Banners</label>
-                        <label><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"> Payment</label>
-                    </div>` : 'Full Control'}
-                </td>
-                <td>
-                    ${!isSelf ? `<button class="delete-btn" onclick="removeAdmin('${key}','${isSuper?'superAdmins':'admins'}')">Remove</button>` : '<span style="color:gray;">Logged In</span>'}
-                </td>
-            `;
-            body.appendChild(row);
-        }
-
-        function togglePerm(key, field, value) {
-            db.ref(`adminPermissions/${key}/${field}`).set(value);
-        }
-
-        function addNewAdmin() {
-            const email = document.getElementById('new-admin-email').value.trim();
-            const role = document.getElementById('new-admin-role').value;
-
-            if (!email) {
-                alert("Please enter a valid email address!");
-                return;
-            }
-
-            const key = emailToKey(email);
-            const targetPath = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
-
-            db.ref(targetPath).set(true).then(() => {
-                if (role === 'admin') {
-                    db.ref(`adminPermissions/${key}`).set({
-                        games: true,
-                        users: false,
-                        banned: false,
-                        banners: false,
-                        payment: false
-                    });
-                }
-                document.getElementById('new-admin-email').value = '';
-                alert("New Admin added successfully!");
-            });
-        }
-
-        function removeAdmin(key, path) {
-            if (confirm("Are you sure you want to remove this admin?")) {
-                db.ref(`${path}/${key}`).remove();
-                if (path === 'admins') {
-                    db.ref(`adminPermissions/${key}`).remove();
-                }
             }
         }
 
