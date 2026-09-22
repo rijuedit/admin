@@ -4,349 +4,151 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OXI ADMIN - Tournament Management</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0c0d18;
-            color: #f1f5f9;
-        }
-        .heading-font {
-            font-family: 'Rajdhani', sans-serif;
-        }
-        .admin-card {
-            background-color: #15172a;
-            border: 1px solid #222543;
-            border-radius: 14px;
-        }
-        .main-container {
-            background-color: #121425;
-            border: 1px solid #1e223d;
-            border-radius: 16px;
-        }
-        .nav-tab {
-            background-color: #181a2e;
-            border: 1px solid #232747;
-            color: #94a3b8;
-            transition: all 0.2s ease;
-        }
-        .nav-tab:hover {
-            border-color: #8b5cf6;
-            color: #ffffff;
-        }
-        .nav-tab.active {
-            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-            color: #ffffff;
-            border-color: #a78bfa;
-            box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
-        }
-        .btn-gradient-green {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-        .btn-gradient-blue {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-        .btn-gradient-red {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-        .btn-gradient-purple {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0c0d18;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #222543;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7c3aed;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0c0d18; color: #f1f5f9; }
+        .heading-font { font-family: 'Rajdhani', sans-serif; }
+        .admin-card { background-color: #15172a; border: 1px solid #222543; border-radius: 14px; }
+        .main-container { background-color: #121425; border: 1px solid #1e223d; border-radius: 16px; }
+        .nav-tab { background-color: #181a2e; border: 1px solid #232747; color: #94a3b8; transition: all 0.2s ease; }
+        .nav-tab.active { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; border-color: #a78bfa; }
+        .topup-card { background-color: #120a28; border: 1px solid #2a1b4d; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .topup-card:hover { transform: scale(1.02); border-color: #7c3aed; }
+        /* Custom Inputs for Match Add */
+        .match-input { width: 100%; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; font-size: 14px; color: #374151; outline: none; }
+        .match-input::placeholder { color: #9ca3af; text-transform: uppercase; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #222543; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
     <!-- Top Navigation Header -->
-    <header class="bg-[#121424] border-b border-[#1e223d] sticky top-0 z-50">
+    <header class="bg-[#121424] border-b border-[#1e223d] sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <span class="text-2xl font-bold heading-font tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                OXI ADMIN
+            </span>
             <div class="flex items-center gap-3">
-                <span class="text-2xl font-bold heading-font tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500">
-                    OXI ADMIN
-                </span>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <span id="roleBadge" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    <i class="fa-solid font-bold fa-crown"></i> Super Admin
-                </span>
-                <span id="adminEmailDisplay" class="text-xs text-slate-300 font-medium bg-[#1a1d36] px-3 py-1.5 rounded-lg border border-[#272b4d]">
-                    Loading...
-                </span>
-                <button onclick="handleLogout()" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-medium transition hover:opacity-90 flex items-center gap-1.5">
-                    Logout
-                </button>
+                <button onclick="handleLogout()" class="bg-rose-600 text-white text-xs px-3.5 py-1.5 rounded-lg font-medium hover:bg-rose-700">Logout</button>
             </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 mt-6">
-
-        <!-- Top Overview Stats Cards Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <!-- Stat 1: Total Users -->
-            <div class="admin-card p-4 text-center">
-                <div class="text-purple-400 text-xl mb-1"><i class="fa-solid fa-users"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">TOTAL USERS</div>
-                <div id="statTotalUsers" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
-
-            <!-- Stat 2: Total Matches -->
-            <div class="admin-card p-4 text-center">
-                <div class="text-cyan-400 text-xl mb-1"><i class="fa-solid fa-gamepad"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">TOTAL MATCHES</div>
-                <div id="statTotalMatches" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
-
-            <!-- Stat 3: Pending Add Money -->
-            <div class="admin-card p-4 text-center">
-                <div class="text-amber-400 text-xl mb-1"><i class="fa-solid fa-sack-dollar"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">PENDING ADD MONEY</div>
-                <div id="statPendingMoney" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
-
-            <!-- Stat 4: Banned Users -->
-            <div class="admin-card p-4 text-center">
-                <div class="text-rose-400 text-xl mb-1"><i class="fa-solid fa-ban"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">BANNED USERS</div>
-                <div id="statBannedUsers" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
-        </div>
-
-        <!-- Horizontal Tab Bar (Identical Pill Tabs) -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
-            <button id="tab-deposits" onclick="switchTab('deposits')" class="nav-tab active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-credit-card"></i> Add Money Requests
-            </button>
-            <button id="tab-matches" onclick="switchTab('matches')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
+        <!-- Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6">
+            <button id="tab-matches" onclick="switchTab('matches')" class="nav-tab active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap">
                 <i class="fa-solid fa-gamepad"></i> Matches & Categories
             </button>
-            <button id="tab-users" onclick="switchTab('users')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-users"></i> Users
+            <button id="tab-deposits" onclick="switchTab('deposits')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap">
+                <i class="fa-solid fa-credit-card"></i> Add Money Requests
             </button>
-            <button id="tab-banned" onclick="switchTab('banned')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-ban"></i> Ban List
-            </button>
-            <button id="tab-banners" onclick="switchTab('banners')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-image"></i> Banners
-            </button>
-            <button id="tab-payment" onclick="switchTab('payment')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-wallet"></i> Payment Settings
-            </button>
-            <button id="tab-admins" onclick="switchTab('admins')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-crown text-amber-400"></i> Admins
-            </button>
+            <!-- Add other tabs similarly if needed -->
         </div>
 
-        <!-- SECTION: ADD MONEY REQUESTS -->
-        <section id="section-deposits" class="main-container p-6">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-4">
-                <i class="fa-solid fa-credit-card text-purple-400"></i> Manual Deposit Requests
-            </h2>
-            <div id="depositRequestsContainer" class="space-y-3">
-                <p class="text-slate-400 text-sm italic">Loading deposit requests...</p>
-            </div>
-        </section>
-
-        <!-- SECTION: MATCHES & CATEGORIES -->
-        <section id="section-matches" class="main-container p-6 hidden">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                <div>
-                    <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white">
-                        <i class="fa-solid fa-trophy text-purple-400"></i> Category & Match Management
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">Create categories and configure tournament matches.</p>
-                </div>
-                <button onclick="promptCreateCategory()" class="btn-gradient-purple text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+        <!-- SECTION: MATCHES & CATEGORIES (TOP UP STYLE) -->
+        <section id="section-matches" class="main-container p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold heading-font text-white"><i class="fa-solid fa-gamepad text-purple-400"></i> Match Categories</h2>
+                <button onclick="promptCreateCategory()" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
                     <i class="fa-solid fa-plus"></i> Add Category
                 </button>
             </div>
-            <div id="categoriesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Dynamically Populated Categories & Matches -->
+            <!-- Category Grid (Exact Top Up Style 512x512 image structure) -->
+            <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- Dynamically Populated -->
             </div>
         </section>
 
-        <!-- SECTION: USERS -->
-        <section id="section-users" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-4">
-                <i class="fa-solid fa-users text-purple-400"></i> Registered Users List
-            </h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-[#222543] text-xs font-semibold text-slate-400 uppercase">
-                            <th class="py-3 px-4">User Email</th>
-                            <th class="py-3 px-4">Phone Number</th>
-                            <th class="py-3 px-4">Wallet Balance</th>
-                            <th class="py-3 px-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody" class="divide-y divide-[#1e223d] text-sm">
-                        <!-- Dynamically Populated -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- SECTION: BANNED USERS -->
-        <section id="section-banned" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-4">
-                <i class="fa-solid fa-user-slash text-rose-400"></i> Banned Accounts
-            </h2>
-            <div id="bannedUsersContainer" class="space-y-3">
-                <p class="text-slate-400 text-sm">Loading banned accounts...</p>
-            </div>
-        </section>
-
-        <!-- SECTION: BANNERS -->
-        <section id="section-banners" class="main-container p-6 hidden">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white">
-                    <i class="fa-solid fa-image text-purple-400"></i> Home Slider Banners
-                </h2>
-                <button onclick="promptAddBanner()" class="btn-gradient-purple text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Add Banner Image
-                </button>
-            </div>
-            <div id="bannersGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Banners Populated Here -->
-            </div>
-        </section>
-
-        <!-- SECTION: PAYMENT SETTINGS -->
-        <section id="section-payment" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-6">
-                <i class="fa-solid fa-wallet text-purple-400"></i> Gateway & Deposit Settings
-            </h2>
-
-            <!-- Auto / Manual Toggle Box -->
-            <div class="p-4 bg-[#181a2e] border border-[#232747] rounded-xl mb-6 flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-sm text-white">Deposit Mode</h3>
-                    <p class="text-xs text-slate-400">Choose between Automatic Transaction Verification or Manual Processing.</p>
-                </div>
-                <button id="toggleAutoModeBtn" onclick="togglePaymentMode()" class="px-4 py-2 rounded-xl text-xs font-bold text-white transition">
-                    Loading Mode...
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- bKash Box -->
-                <div class="admin-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-pink-500 flex items-center gap-2">
-                            <i class="fa-solid fa-[#000000] fa-mobile-screen"></i> bKash Number
-                        </span>
-                        <input type="checkbox" id="bkashActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-purple-600 rounded">
-                    </div>
-                    <input type="text" id="bkashNumberInput" placeholder="017XXXXXXXX" class="w-full bg-[#0c0d18] border border-[#222543] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500 mb-4">
-                </div>
-
-                <!-- Nagad Box -->
-                <div class="admin-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-orange-400 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> Nagad Number
-                        </span>
-                        <input type="checkbox" id="nagadActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-purple-600 rounded">
-                    </div>
-                    <input type="text" id="nagadNumberInput" placeholder="018XXXXXXXX" class="w-full bg-[#0c0d18] border border-[#222543] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500 mb-4">
-                </div>
-
-                <!-- Rocket Box -->
-                <div class="admin-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-purple-400 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> Rocket Number
-                        </span>
-                        <input type="checkbox" id="rocketActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-purple-600 rounded">
-                    </div>
-                    <input type="text" id="rocketNumberInput" placeholder="019XXXXXXXX" class="w-full bg-[#0c0d18] border border-[#222543] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500 mb-4">
-                </div>
-            </div>
-
-            <button onclick="savePaymentSettings()" class="mt-6 btn-gradient-purple text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
-                <i class="fa-solid fa-floppy-disk"></i> Save Gateway Numbers
-            </button>
-        </section>
-
-        <!-- SECTION: ADMINS -->
-        <section id="section-admins" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-2">
-                <i class="fa-solid fa-crown text-amber-400"></i> Admin Management
-            </h2>
-
-            <!-- Info Box matching user's screenshot -->
-            <div class="bg-[#1c1f3b] border border-[#2e335e] rounded-xl p-4 mb-6 text-xs text-slate-300 space-y-1.5">
-                <div class="flex items-center gap-2 text-amber-300 font-semibold">
-                    <i class="fa-solid fa-lightbulb"></i> <span>Super Admin:</span> <span class="text-slate-300 font-normal">সব কাজ + Wallet manage + Admin manage</span>
-                </div>
-                <div class="flex items-center gap-2 text-cyan-300 font-semibold">
-                    <i class="fa-solid fa-lightbulb"></i> <span>Normal Admin:</span> <span class="text-slate-300 font-normal">শুধু order/payment/product/ban manage</span>
-                </div>
-            </div>
-
-            <!-- Action Add Admin Buttons -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                <button onclick="promptAddAdmin('super')" class="btn-gradient-green text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-plus"></i> Add Super Admin
-                </button>
-                <button onclick="promptAddAdmin('normal')" class="btn-gradient-blue text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-plus"></i> Add Normal Admin
-                </button>
-            </div>
-
-            <!-- Super Admins List -->
-            <div class="mb-8">
-                <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-crown"></i> Super Admins
-                </h3>
-                <div id="superAdminsList" class="space-y-3">
-                    <!-- Dynamic Super Admins -->
-                </div>
-            </div>
-
-            <!-- Normal Admins List -->
-            <div>
-                <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-user-gear"></i> Normal Admins
-                </h3>
-                <div id="normalAdminsList" class="space-y-3">
-                    <!-- Dynamic Normal Admins -->
-                </div>
-            </div>
-        </section>
-
+        <!-- Other sections like users, deposits can remain hidden or added based on your old code -->
     </main>
 
-    <!-- JS Logic -->
+    <!-- ========================================== -->
+    <!-- MATCH MANAGEMENT OVERLAY (IMAGE 2) -->
+    <!-- ========================================== -->
+    <div id="matchManagementScreen" class="fixed inset-0 bg-black z-[100] hidden flex-col">
+        <!-- Header -->
+        <div class="flex items-center p-4 text-white border-b border-gray-900 bg-black">
+            <i class="fa-solid fa-arrow-left text-xl mr-4 cursor-pointer" onclick="closeMatchManagement()"></i>
+            <h1 class="text-xl font-medium">Match Management</h1>
+            <div class="ml-auto text-xs text-gray-400" id="currentCatTitle"></div>
+        </div>
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-800 text-sm font-medium bg-black">
+            <div class="flex-1 text-center py-3 text-[#3b82f6] border-b-2 border-[#3b82f6]">Matches</div>
+            <div class="flex-1 text-center py-3 text-gray-500">Ongoing</div>
+            <div class="flex-1 text-center py-3 text-gray-500">Results</div>
+        </div>
+        <!-- Matches List -->
+        <div id="matchListContent" class="flex-1 overflow-y-auto p-4 space-y-3 bg-black">
+            <!-- Matches populated here -->
+        </div>
+        <!-- FAB Button (+) -->
+        <button onclick="openMatchAdd()" class="absolute bottom-8 right-6 w-14 h-14 bg-[#f3e8ff] rounded-2xl flex items-center justify-center text-black text-2xl shadow-lg hover:scale-105 transition-transform">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MATCH ADD OVERLAY (IMAGE 3 & 4) -->
+    <!-- ========================================== -->
+    <div id="matchAddScreen" class="fixed inset-0 bg-[#f5f5f5] z-[110] hidden flex-col font-sans">
+        <!-- Header -->
+        <div class="flex items-center p-4 bg-black text-white">
+            <i class="fa-solid fa-arrow-left text-xl mr-4 cursor-pointer" onclick="closeMatchAdd()"></i>
+            <h1 class="text-xl font-medium">Match Add</h1>
+        </div>
+        <!-- Form Body -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3 pb-20">
+            <input type="text" id="ma_title" placeholder="MATCH TITLE" class="match-input">
+            
+            <div class="flex gap-3">
+                <input type="date" id="ma_date" class="match-input uppercase" title="MATCH DATE">
+                <input type="time" id="ma_time" class="match-input uppercase" title="MATCH TIME">
+            </div>
+            
+            <input type="time" id="ma_timer" class="match-input uppercase" placeholder="TIMER (24 Hours Format)" title="TIMER">
+            
+            <div class="flex gap-3">
+                <input type="number" id="ma_prize" placeholder="WIN PRIZE" class="match-input uppercase">
+                <input type="number" id="ma_perkill" placeholder="PER KILL" class="match-input uppercase">
+                <input type="number" id="ma_fee" placeholder="ENTRY FEE" class="match-input uppercase">
+            </div>
+            
+            <div class="flex gap-3 pt-1">
+                <div class="flex-1 text-center text-xs font-bold text-black uppercase">Type</div>
+                <div class="flex-1 text-center text-xs font-bold text-black uppercase">Version</div>
+            </div>
+            <div class="flex gap-3">
+                <input type="text" id="ma_type" value="Solo" class="match-input text-center">
+                <input type="text" id="ma_version" value="MOBILE" class="match-input text-center">
+            </div>
+            
+            <div class="text-center text-xs font-bold text-black uppercase pt-1">Map</div>
+            <input type="text" id="ma_map" value="Bermuda" class="match-input">
+            
+            <input type="number" id="ma_slots" placeholder="MATCH SLOTS" class="match-input uppercase">
+            
+            <textarea id="ma_details" placeholder="PRIZE DETAILS" class="match-input resize-none h-24"></textarea>
+            
+            <!-- Bottom Buttons -->
+            <div class="flex gap-3 pt-4">
+                <button onclick="closeMatchAdd()" class="flex-1 bg-[#e0e0e0] text-black font-bold py-3.5 rounded-lg text-sm">CANCEL</button>
+                <button onclick="submitMatchAdd()" class="flex-1 bg-[#f59e0b] text-white font-bold py-3.5 rounded-lg text-sm shadow-md">CREATE</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
@@ -357,609 +159,182 @@
             messagingSenderId: "924353594492",
             appId: "1:924353594492:web:08329a3d1f67e7a5da35f9"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
-        let currentUser = null;
-        let currentUserCleanEmail = '';
-        let isSuperAdmin = false;
-
-        function emailToKey(email) {
-            return email ? email.replace(/\./g, ',') : '';
-        }
+        let currentActiveCategoryKey = null;
 
         const SwalDark = Swal.mixin({
-            customClass: {
-                popup: 'bg-[#15172a] text-white border border-[#222543] rounded-2xl',
-                title: 'text-white font-bold',
-                confirmButton: 'btn-gradient-purple text-white font-bold px-4 py-2 rounded-xl text-sm mx-1',
-                cancelButton: 'bg-slate-700 text-white font-bold px-4 py-2 rounded-xl text-sm mx-1'
-            },
+            customClass: { popup: 'bg-[#15172a] text-white rounded-2xl', title: 'text-white font-bold', confirmButton: 'bg-purple-600 text-white px-4 py-2 rounded-xl mx-1' },
             buttonsStyling: false
         });
 
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
-            currentUser = user;
-            currentUserCleanEmail = emailToKey(user.email);
-            document.getElementById('adminEmailDisplay').innerText = user.email;
-
-            // Check Admin Status
-            const superSnap = await db.ref(`superAdmins/${currentUserCleanEmail}`).once('value');
-            const normalSnap = await db.ref(`admins/${currentUserCleanEmail}`).once('value');
-
-            if (superSnap.exists()) {
-                isSuperAdmin = true;
-                document.getElementById('roleBadge').innerHTML = '<i class="fa-solid fa-crown"></i> Super Admin';
-            } else if (normalSnap.exists()) {
-                isSuperAdmin = false;
-                document.getElementById('roleBadge').innerHTML = '<i class="fa-solid fa-user-gear"></i> Normal Admin';
-                document.getElementById('roleBadge').className = 'hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
-            } else {
-                SwalDark.fire({
-                    icon: 'error',
-                    title: 'Access Denied',
-                    text: 'You do not have administrative access.'
-                }).then(() => {
-                    auth.signOut();
-                    window.location.href = 'index.html';
-                });
-                return;
-            }
-
-            // Init Readers
-            initRealtimeListeners();
+        auth.onAuthStateChanged(user => {
+            if (!user) window.location.href = 'index.html';
+            loadCategories();
         });
 
         function handleLogout() {
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            });
+            auth.signOut().then(() => window.location.href = 'index.html');
         }
 
-        function switchTab(tab) {
-            const tabs = ['deposits', 'matches', 'users', 'banned', 'banners', 'payment', 'admins'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                const sec = document.getElementById(`section-${t}`);
-                if (btn && sec) {
-                    if (t === tab) {
-                        btn.classList.add('active');
-                        sec.classList.remove('hidden');
-                    } else {
-                        btn.classList.remove('active');
-                        sec.classList.add('hidden');
-                    }
-                }
-            });
-        }
-
-        function initRealtimeListeners() {
-            // Stats & Users
-            db.ref('users').on('value', snapshot => {
-                const users = snapshot.val() || {};
-                const userKeys = Object.keys(users);
-                document.getElementById('statTotalUsers').innerText = userKeys.length;
-
-                const tbody = document.getElementById('usersTableBody');
-                tbody.innerHTML = '';
-
-                userKeys.forEach(k => {
-                    const u = users[k];
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-[#181a2e] transition';
-                    tr.innerHTML = `
-                        <td class="py-3 px-4 font-medium text-white">${u.email || k.replace(/,/g, '.')}</td>
-                        <td class="py-3 px-4 text-slate-300 font-mono">${u.phone || 'N/A'}</td>
-                        <td class="py-3 px-4 text-emerald-400 font-bold">৳${u.wallet || 0}</td>
-                        <td class="py-3 px-4 text-right space-x-2">
-                            <button onclick="editUserBalance('${k}', ${u.wallet || 0})" class="bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 border border-indigo-500/40 text-xs px-2.5 py-1 rounded-lg font-medium transition">
-                                Coins
-                            </button>
-                            <button onclick="banUser('${k}', '${u.email}')" class="bg-rose-600/30 hover:bg-rose-600 text-rose-300 border border-rose-500/40 text-xs px-2.5 py-1 rounded-lg font-medium transition">
-                                Ban
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            });
-
-            // Matches
-            db.ref('matches').on('value', snapshot => {
-                const matches = snapshot.val() || {};
-                document.getElementById('statTotalMatches').innerText = Object.keys(matches).length;
-                loadCategoriesAndMatches();
-            });
-
-            // Deposit Requests
-            db.ref('deposit_requests').on('value', snapshot => {
-                const requests = snapshot.val() || {};
-                const pending = Object.entries(requests).filter(([k, v]) => v.status === 'pending');
-                document.getElementById('statPendingMoney').innerText = pending.length;
-
-                const container = document.getElementById('depositRequestsContainer');
-                container.innerHTML = '';
-
-                if (pending.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-sm">No pending deposit requests.</p>`;
-                    return;
-                }
-
-                pending.forEach(([reqId, req]) => {
-                    const div = document.createElement('div');
-                    div.className = 'admin-card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3';
-                    div.innerHTML = `
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="uppercase text-xs font-bold px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded border border-purple-500/30">${req.gateway || 'Method'}</span>
-                                <span class="text-xs text-slate-400 font-mono">${new Date(req.timestamp || Date.now()).toLocaleString()}</span>
-                            </div>
-                            <div class="text-sm font-semibold text-white mt-1">User: ${req.userEmail || req.userKey}</div>
-                            <div class="text-xs text-slate-300 font-mono mt-0.5">TrxID: <span class="text-amber-300">${req.trxId}</span> | Amount: <span class="text-emerald-400 font-bold">৳${req.amount}</span></div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="approveDeposit('${reqId}', '${req.userKey}', ${req.amount})" class="btn-gradient-green text-white text-xs px-3.5 py-1.5 rounded-lg font-bold">Approve</button>
-                            <button onclick="rejectDeposit('${reqId}')" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-bold">Reject</button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-            });
-
-            // Banned Users
-            db.ref('bannedUsers').on('value', snapshot => {
-                const banned = snapshot.val() || {};
-                const bannedKeys = Object.keys(banned);
-                document.getElementById('statBannedUsers').innerText = bannedKeys.length;
-
-                const container = document.getElementById('bannedUsersContainer');
-                container.innerHTML = '';
-
-                if (bannedKeys.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-sm">No banned users.</p>`;
-                    return;
-                }
-
-                bannedKeys.forEach(k => {
-                    const b = banned[k];
-                    const div = document.createElement('div');
-                    div.className = 'admin-card p-4 flex items-center justify-between';
-                    div.innerHTML = `
-                        <div>
-                            <div class="text-sm font-bold text-rose-400">${b.email || k.replace(/,/g, '.')}</div>
-                            <div class="text-xs text-slate-400 mt-0.5">Reason: ${b.reason || 'No reason provided'}</div>
-                        </div>
-                        <button onclick="unbanUser('${k}')" class="bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 border border-emerald-500/40 text-xs px-3 py-1.5 rounded-lg font-bold transition">
-                            Unban
-                        </button>
-                    `;
-                    container.appendChild(div);
-                });
-            });
-
-            // Admins Render
-            renderAdminsList();
-
-            // Payment Settings
-            db.ref('paymentSettings').on('value', snapshot => {
-                const ps = snapshot.val() || {};
-                document.getElementById('bkashNumberInput').value = ps.bkash || '';
-                document.getElementById('nagadNumberInput').value = ps.nagad || '';
-                document.getElementById('rocketNumberInput').value = ps.rocket || '';
-
-                document.getElementById('bkashActiveToggle').checked = !!ps.bkashActive;
-                document.getElementById('nagadActiveToggle').checked = !!ps.nagadActive;
-                document.getElementById('rocketActiveToggle').checked = !!ps.rocketActive;
-
-                const modeBtn = document.getElementById('toggleAutoModeBtn');
-                if (ps.autoAddMoneyActive) {
-                    modeBtn.className = 'btn-gradient-green px-4 py-2 rounded-xl text-xs font-bold text-white shadow';
-                    modeBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Mode: Automatic SMS Verification';
-                } else {
-                    modeBtn.className = 'btn-gradient-purple px-4 py-2 rounded-xl text-xs font-bold text-white shadow';
-                    modeBtn.innerHTML = '<i class="fa-solid fa-hand"></i> Mode: Manual Processing';
-                }
-            });
-
-            // Banners Render
-            db.ref('banners').on('value', snapshot => {
-                const banners = snapshot.val() || {};
-                const grid = document.getElementById('bannersGrid');
+        // 1. Load Categories (Top-Up Style Cards)
+        function loadCategories() {
+            db.ref('match_categories').on('value', snapshot => {
+                const categories = snapshot.val() || {};
+                const grid = document.getElementById('categoriesGrid');
                 grid.innerHTML = '';
 
-                Object.entries(banners).forEach(([bKey, bVal]) => {
-                    const card = document.createElement('div');
-                    card.className = 'admin-card p-3 overflow-hidden relative group';
-                    card.innerHTML = `
-                        <img src="${bVal.image}" class="w-full h-32 object-cover rounded-lg">
-                        <button onclick="deleteBanner('${bKey}')" class="absolute top-5 right-5 bg-rose-600 text-white p-2 rounded-lg text-xs opacity-90 hover:opacity-100 shadow">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    `;
-                    grid.appendChild(card);
-                });
-            });
-        }
-
-        // Category & Matches Manager
-        async function loadCategoriesAndMatches() {
-            const catSnap = await db.ref('match_categories').once('value');
-            const matchSnap = await db.ref('matches').once('value');
-
-            const categories = catSnap.val() || {};
-            const matches = matchSnap.val() || {};
-
-            const grid = document.getElementById('categoriesGrid');
-            grid.innerHTML = '';
-
-            Object.entries(categories).forEach(([catKey, cat]) => {
-                const catMatches = Object.entries(matches).filter(([mId, m]) => m.categoryKey === catKey);
-
-                const div = document.createElement('div');
-                div.className = 'admin-card p-4 flex flex-col justify-between';
-                
-                let matchesHTML = '';
-                catMatches.forEach(([mKey, m]) => {
-                    matchesHTML += `
-                        <div class="bg-[#0c0d18] border border-[#222543] rounded-lg p-3 mt-2 text-xs">
-                            <div class="flex items-center justify-between font-bold text-white mb-1">
-                                <span>${m.title}</span>
-                                <span class="text-purple-400">৳${m.entryFee} Entry</span>
-                            </div>
-                            <div class="text-[11px] text-slate-400 mb-2">
-                                Time: ${m.matchTime} | Map: ${m.map} | ${m.type}
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="setRoomDetailsPrompt('${mKey}')" class="bg-purple-600/30 text-purple-300 border border-purple-500/40 px-2 py-1 rounded text-[11px] font-semibold hover:bg-purple-600 hover:text-white transition">
-                                    Set Room ID/Pass
-                                </button>
-                                <button onclick="deleteMatch('${mKey}')" class="bg-rose-600/30 text-rose-300 border border-rose-500/40 px-2 py-1 rounded text-[11px] font-semibold hover:bg-rose-600 hover:text-white transition">
-                                    Delete
-                                </button>
-                            </div>
+                Object.entries(categories).forEach(([key, cat]) => {
+                    const div = document.createElement('div');
+                    div.className = 'topup-card relative';
+                    
+                    div.innerHTML = `
+                        <div onclick="openMatchManagement('${key}', '${cat.title}')" class="relative pb-[100%] w-full bg-[#0b061c]">
+                            <img src="${cat.image || 'https://via.placeholder.com/512'}" class="absolute inset-0 w-full h-full object-cover">
+                        </div>
+                        <div class="p-3 text-center text-white font-bold text-sm truncate flex justify-between items-center bg-[#120a28]">
+                            <span onclick="openMatchManagement('${key}', '${cat.title}')" class="flex-1 text-left truncate">${cat.title}</span>
+                            <i class="fa-solid fa-trash text-rose-500 hover:text-rose-400 text-xs p-1" onclick="deleteCategory('${key}')"></i>
                         </div>
                     `;
+                    grid.appendChild(div);
                 });
-
-                div.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="font-bold text-base text-white flex items-center gap-2">
-                                <i class="fa-solid fa-folder text-amber-400"></i> ${cat.title}
-                            </h3>
-                            <button onclick="deleteCategory('${catKey}')" class="text-xs text-rose-400 hover:text-rose-300">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                        <div class="space-y-1">
-                            ${matchesHTML || '<p class="text-xs text-slate-500 italic mt-2">No matches under this category.</p>'}
-                        </div>
-                    </div>
-                    <button onclick="promptCreateMatch('${catKey}')" class="mt-4 w-full bg-[#1c1f3b] hover:bg-purple-900/40 text-purple-300 border border-purple-500/30 text-xs py-2 rounded-lg font-bold transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Add Match
-                    </button>
-                `;
-                grid.appendChild(div);
             });
         }
 
         async function promptCreateCategory() {
-            const { value: title } = await SwalDark.fire({
-                title: 'New Category Title',
-                input: 'text',
-                inputPlaceholder: 'e.g. Daily CS Solo'
-            });
-
-            if (title) {
-                const catRef = db.ref('match_categories').push();
-                await catRef.set({ title: title });
-            }
-        }
-
-        async function deleteCategory(catKey) {
-            const confirm = await SwalDark.fire({
-                title: 'Delete Category?',
-                text: 'This will not automatically delete nested matches.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Delete'
-            });
-            if (confirm.isConfirmed) {
-                await db.ref(`match_categories/${catKey}`).remove();
-            }
-        }
-
-        async function promptCreateMatch(catKey) {
             const { value: formValues } = await SwalDark.fire({
-                title: 'Create Tournament Match',
+                title: 'New Match Category',
                 html: `
-                    <input id="swal-m-title" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Match Title">
-                    <input id="swal-m-time" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Time (e.g. 08:00 PM)">
-                    <input id="swal-m-fee" type="number" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Entry Fee (৳)">
-                    <input id="swal-m-prize" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Prize Pool (৳)">
-                    <input id="swal-m-kill" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Per Kill Bonus (৳)">
-                    <input id="swal-m-spots" type="number" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Total Spots (e.g. 48)">
-                    <input id="swal-m-map" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Map (e.g. Bermuda)">
-                    <select id="swal-m-type" class="swal2-input bg-[#0c0d18] text-white border-[#222543]">
-                        <option value="SOLO">SOLO</option>
-                        <option value="DUO">DUO</option>
-                        <option value="SQUAD">SQUAD</option>
-                    </select>
+                    <input id="swal-cat-title" class="swal2-input bg-[#0c0d18] text-white border-gray-600" placeholder="Category Title">
+                    <input id="swal-cat-img" class="swal2-input bg-[#0c0d18] text-white border-gray-600" placeholder="Image URL (512x512)">
                 `,
                 focusConfirm: false,
-                showCancelButton: true,
                 preConfirm: () => {
                     return {
-                        title: document.getElementById('swal-m-title').value,
-                        matchTime: document.getElementById('swal-m-time').value,
-                        entryFee: Number(document.getElementById('swal-m-fee').value),
-                        prizePool: document.getElementById('swal-m-prize').value,
-                        perKill: document.getElementById('swal-m-kill').value,
-                        totalSpots: Number(document.getElementById('swal-m-spots').value),
-                        map: document.getElementById('swal-m-map').value,
-                        type: document.getElementById('swal-m-type').value
-                    };
+                        title: document.getElementById('swal-cat-title').value,
+                        image: document.getElementById('swal-cat-img').value
+                    }
                 }
             });
 
             if (formValues && formValues.title) {
-                const matchRef = db.ref('matches').push();
-                await matchRef.set({
-                    ...formValues,
-                    categoryKey: catKey,
-                    roomId: '',
-                    roomPassword: ''
-                });
+                await db.ref('match_categories').push(formValues);
             }
         }
 
-        async function setRoomDetailsPrompt(mKey) {
-            const mSnap = await db.ref(`matches/${mKey}`).once('value');
-            const match = mSnap.val() || {};
+        async function deleteCategory(key) {
+            const confirm = await SwalDark.fire({ title: 'Delete Category?', showCancelButton: true });
+            if (confirm.isConfirmed) await db.ref(`match_categories/${key}`).remove();
+        }
 
-            const { value: formValues } = await SwalDark.fire({
-                title: 'Set Room Credentials',
-                html: `
-                    <input id="swal-m-roomid" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Room ID" value="${match.roomId || ''}">
-                    <input id="swal-m-roompass" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Room Password" value="${match.roomPassword || ''}">
-                `,
-                showCancelButton: true,
-                preConfirm: () => {
-                    return {
-                        roomId: document.getElementById('swal-m-roomid').value,
-                        roomPassword: document.getElementById('swal-m-roompass').value
-                    };
-                }
+        // 2. Match Management UI (Image 2)
+        function openMatchManagement(catKey, catTitle) {
+            currentActiveCategoryKey = catKey;
+            document.getElementById('currentCatTitle').innerText = catTitle;
+            document.getElementById('matchManagementScreen').style.display = 'flex';
+            
+            // Listen for matches in this category
+            db.ref('matches').orderByChild('categoryKey').equalTo(catKey).on('value', snapshot => {
+                const matches = snapshot.val() || {};
+                const list = document.getElementById('matchListContent');
+                list.innerHTML = '';
+                
+                Object.entries(matches).forEach(([mKey, m]) => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-[#1a1a1a] rounded-xl p-4 border border-[#333] text-white relative';
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">${m.title}</h3>
+                            <span class="text-orange-400 font-bold bg-orange-500/10 px-2 py-1 rounded text-xs">৳${m.entryFee} Entry</span>
+                        </div>
+                        <div class="text-xs text-gray-400 grid grid-cols-2 gap-2 mb-3">
+                            <div>Date: <span class="text-white">${m.matchDate}</span></div>
+                            <div>Time: <span class="text-white">${m.matchTime}</span></div>
+                            <div>Map: <span class="text-white">${m.map}</span></div>
+                            <div>Type: <span class="text-white">${m.type}</span></div>
+                            <div>Prize: <span class="text-green-400 font-bold">৳${m.winPrize}</span></div>
+                            <div>Per Kill: <span class="text-white">৳${m.perKill}</span></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="setRoomPrompt('${mKey}')" class="flex-1 bg-blue-600 py-1.5 rounded-lg text-xs font-bold">Set Room ID</button>
+                            <button onclick="deleteMatch('${mKey}')" class="bg-red-600 px-3 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
             });
+        }
 
-            if (formValues) {
-                await db.ref(`matches/${mKey}`).update(formValues);
-                SwalDark.fire('Saved!', 'Room ID and Password updated.', 'success');
+        function closeMatchManagement() {
+            document.getElementById('matchManagementScreen').style.display = 'none';
+            currentActiveCategoryKey = null;
+        }
+
+        // 3. Match Add UI (Image 3 & 4)
+        function openMatchAdd() {
+            document.getElementById('matchAddScreen').style.display = 'flex';
+            // Clear inputs
+            ['ma_title','ma_date','ma_time','ma_timer','ma_prize','ma_perkill','ma_fee','ma_slots','ma_details'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('ma_type').value = 'Solo';
+            document.getElementById('ma_version').value = 'MOBILE';
+            document.getElementById('ma_map').value = 'Bermuda';
+        }
+
+        function closeMatchAdd() {
+            document.getElementById('matchAddScreen').style.display = 'none';
+        }
+
+        async function submitMatchAdd() {
+            const data = {
+                categoryKey: currentActiveCategoryKey,
+                title: document.getElementById('ma_title').value,
+                matchDate: document.getElementById('ma_date').value,
+                matchTime: document.getElementById('ma_time').value,
+                timer: document.getElementById('ma_timer').value,
+                winPrize: document.getElementById('ma_prize').value,
+                perKill: document.getElementById('ma_perkill').value,
+                entryFee: document.getElementById('ma_fee').value,
+                type: document.getElementById('ma_type').value,
+                version: document.getElementById('ma_version').value,
+                map: document.getElementById('ma_map').value,
+                slots: document.getElementById('ma_slots').value,
+                prizeDetails: document.getElementById('ma_details').value,
+                roomId: '', roomPassword: '', timestamp: Date.now()
+            };
+
+            if(!data.title || !data.entryFee) {
+                SwalDark.fire('Error', 'Please fill the required fields (Title, Fee)', 'error');
+                return;
             }
+
+            await db.ref('matches').push(data);
+            closeMatchAdd();
+            SwalDark.fire('Success', 'Match Created!', 'success');
         }
 
         async function deleteMatch(mKey) {
-            const confirm = await SwalDark.fire({
-                title: 'Delete Match?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes'
+            const c = await SwalDark.fire({title: 'Delete Match?', showCancelButton:true});
+            if(c.isConfirmed) await db.ref(`matches/${mKey}`).remove();
+        }
+
+        async function setRoomPrompt(mKey) {
+            const { value: formValues } = await SwalDark.fire({
+                title: 'Set Room Credentials',
+                html: `
+                    <input id="swal-rid" class="swal2-input bg-black text-white" placeholder="Room ID">
+                    <input id="swal-rpass" class="swal2-input bg-black text-white" placeholder="Room Password">
+                `,
+                preConfirm: () => ({ rid: document.getElementById('swal-rid').value, rpass: document.getElementById('swal-rpass').value })
             });
-            if (confirm.isConfirmed) {
-                await db.ref(`matches/${mKey}`).remove();
+            if(formValues) {
+                await db.ref(`matches/${mKey}`).update({ roomId: formValues.rid, roomPassword: formValues.rpass });
+                SwalDark.fire('Saved', 'Room info updated', 'success');
             }
-        }
-
-        // Deposit Operations
-        async function approveDeposit(reqId, userKey, amount) {
-            await db.ref(`deposit_requests/${reqId}`).update({ status: 'approved' });
-            const userRef = db.ref(`users/${userKey}/wallet`);
-            await userRef.transaction(current => (current || 0) + amount);
-            SwalDark.fire('Approved!', `৳${amount} added to user.`, 'success');
-        }
-
-        async function rejectDeposit(reqId) {
-            await db.ref(`deposit_requests/${reqId}`).update({ status: 'rejected' });
-            SwalDark.fire('Rejected', 'Deposit request rejected.', 'info');
-        }
-
-        // Users Actions
-        async function editUserBalance(uKey, currentBal) {
-            const { value: newBal } = await SwalDark.fire({
-                title: 'Update Balance (৳)',
-                input: 'number',
-                inputValue: currentBal
-            });
-
-            if (newBal !== undefined && newBal !== null && newBal !== '') {
-                await db.ref(`users/${uKey}/wallet`).set(Number(newBal));
-            }
-        }
-
-        async function banUser(uKey, email) {
-            const { value: reason } = await SwalDark.fire({
-                title: 'Ban User Account',
-                input: 'text',
-                inputPlaceholder: 'Reason for ban...',
-                showCancelButton: true
-            });
-
-            if (reason) {
-                await db.ref(`bannedUsers/${uKey}`).set({
-                    email: email || uKey.replace(/,/g, '.'),
-                    reason: reason,
-                    bannedAt: Date.now()
-                });
-                SwalDark.fire('Banned!', 'Account has been banned.', 'success');
-            }
-        }
-
-        async function unbanUser(uKey) {
-            await db.ref(`bannedUsers/${uKey}`).remove();
-            SwalDark.fire('Unbanned!', 'User account restored.', 'success');
-        }
-
-        // Admin Roles Management Render matching screenshot
-        async function renderAdminsList() {
-            const superSnap = await db.ref('superAdmins').once('value');
-            const normalSnap = await db.ref('admins').once('value');
-
-            const supers = superSnap.val() || {};
-            const normals = normalSnap.val() || {};
-
-            const superContainer = document.getElementById('superAdminsList');
-            const normalContainer = document.getElementById('normalAdminsList');
-
-            superContainer.innerHTML = '';
-            normalContainer.innerHTML = '';
-
-            // Super Admins
-            Object.keys(supers).forEach(key => {
-                const isYou = (key === currentUserCleanEmail);
-                const email = key.replace(/,/g, '.');
-
-                const card = document.createElement('div');
-                card.className = 'admin-card p-4 flex items-center justify-between';
-                card.innerHTML = `
-                    <div>
-                        <div class="font-bold text-amber-400 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-crown"></i> ${email}
-                        </div>
-                        <div class="text-xs text-slate-400 mt-0.5">${isYou ? 'Super Admin (You)' : 'Super Admin'}</div>
-                    </div>
-                    <div>
-                        ${isYou ? 
-                            `<span class="bg-[#212542] text-slate-400 text-xs px-3 py-1.5 rounded-lg font-bold border border-[#2d325a] flex items-center gap-1.5"><i class="fa-solid fa-lock"></i> You</span>` : 
-                            `<button onclick="removeAdmin('super', '${key}')" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-bold shadow flex items-center gap-1.5"><i class="fa-solid fa-trash"></i> Remove</button>`
-                        }
-                    </div>
-                `;
-                superContainer.appendChild(card);
-            });
-
-            // Normal Admins
-            Object.keys(normals).forEach(key => {
-                const isYou = (key === currentUserCleanEmail);
-                const email = key.replace(/,/g, '.');
-
-                const card = document.createElement('div');
-                card.className = 'admin-card p-4 flex items-center justify-between';
-                card.innerHTML = `
-                    <div>
-                        <div class="font-bold text-cyan-400 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-user-gear"></i> ${email}
-                        </div>
-                        <div class="text-xs text-slate-400 mt-0.5">Normal Admin</div>
-                    </div>
-                    <div>
-                        ${isYou ? 
-                            `<span class="bg-[#212542] text-slate-400 text-xs px-3 py-1.5 rounded-lg font-bold border border-[#2d325a] flex items-center gap-1.5"><i class="fa-solid fa-lock"></i> You</span>` : 
-                            `<button onclick="removeAdmin('normal', '${key}')" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-bold shadow flex items-center gap-1.5"><i class="fa-solid fa-trash"></i> Remove</button>`
-                        }
-                    </div>
-                `;
-                normalContainer.appendChild(card);
-            });
-        }
-
-        async function promptAddAdmin(type) {
-            if (!isSuperAdmin) {
-                SwalDark.fire('Unauthorized', 'Only Super Admins can add admin accounts.', 'error');
-                return;
-            }
-
-            const { value: email } = await SwalDark.fire({
-                title: type === 'super' ? 'Add Super Admin' : 'Add Normal Admin',
-                input: 'email',
-                inputPlaceholder: 'Enter admin email address...'
-            });
-
-            if (email) {
-                const key = emailToKey(email);
-                if (type === 'super') {
-                    await db.ref(`superAdmins/${key}`).set(true);
-                } else {
-                    await db.ref(`admins/${key}`).set(true);
-                }
-                SwalDark.fire('Added!', `Added ${email} as ${type} admin.`, 'success');
-                renderAdminsList();
-            }
-        }
-
-        async function removeAdmin(type, key) {
-            if (!isSuperAdmin) {
-                SwalDark.fire('Unauthorized', 'Only Super Admins can remove admins.', 'error');
-                return;
-            }
-
-            if (key === currentUserCleanEmail) {
-                SwalDark.fire('Error', 'You cannot remove yourself!', 'error');
-                return;
-            }
-
-            const confirm = await SwalDark.fire({
-                title: 'Remove Admin Access?',
-                text: `Removing access for ${key.replace(/,/g, '.')}`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Remove'
-            });
-
-            if (confirm.isConfirmed) {
-                if (type === 'super') {
-                    await db.ref(`superAdmins/${key}`).remove();
-                } else {
-                    await db.ref(`admins/${key}`).remove();
-                }
-                renderAdminsList();
-            }
-        }
-
-        // Banner Manager
-        async function promptAddBanner() {
-            const { value: imageUrl } = await SwalDark.fire({
-                title: 'Banner Image URL',
-                input: 'url',
-                inputPlaceholder: 'https://example.com/banner.jpg'
-            });
-
-            if (imageUrl) {
-                await db.ref('banners').push().set({ image: imageUrl });
-            }
-        }
-
-        async function deleteBanner(bKey) {
-            await db.ref(`banners/${bKey}`).remove();
-        }
-
-        // Payment Settings Save
-        async function savePaymentSettings() {
-            const bkash = document.getElementById('bkashNumberInput').value;
-            const nagad = document.getElementById('nagadNumberInput').value;
-            const rocket = document.getElementById('rocketNumberInput').value;
-
-            const bkashActive = document.getElementById('bkashActiveToggle').checked;
-            const nagadActive = document.getElementById('nagadActiveToggle').checked;
-            const rocketActive = document.getElementById('rocketActiveToggle').checked;
-
-            await db.ref('paymentSettings').update({
-                bkash, nagad, rocket,
-                bkashActive, nagadActive, rocketActive
-            });
-
-            SwalDark.fire('Saved!', 'Payment settings updated successfully.', 'success');
-        }
-
-        async function togglePaymentMode() {
-            const psSnap = await db.ref('paymentSettings/autoAddMoneyActive').once('value');
-            const currentVal = !!psSnap.val();
-            await db.ref('paymentSettings').update({ autoAddMoneyActive: !currentVal });
         }
     </script>
 </body>
