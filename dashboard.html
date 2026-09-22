@@ -15,6 +15,8 @@
             --bg-dark: #0f172a;
             --card-bg: #1e293b;
             --accent-color: #38bdf8;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
         }
@@ -61,73 +63,41 @@
             color: var(--text-main);
         }
 
-        /* Admin Category Card (Image 4) */
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 1rem;
-        }
-
-        .admin-cat-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 10px;
-        }
-
-        .admin-cat-card img {
-            height: 130px;
-            object-fit: cover;
-            width: 100%;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .admin-cat-card h6 {
-            color: #ffffff;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        /* Payment Settings Card (Image 1) */
-        .payment-box {
-            background-color: #243043;
-            border: 1px solid #334155;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 500px;
-        }
-        
-        .payment-box .form-control {
+        .form-control, .form-select {
             background-color: #0f172a !important;
-            border: 1px solid #38bdf8 !important;
+            border: 1px solid #334155 !important;
             color: #ffffff !important;
         }
 
-        .payment-box .input-group-text {
-            background-color: #0f172a !important;
-            border: 1px solid #38bdf8 !important;
-            border-left: none !important;
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color) !important;
+            box-shadow: 0 0 0 0.25rem rgba(56, 189, 248, 0.25) !important;
         }
 
-        .mode-btn {
-            background-color: #0f172a;
-            color: #ffffff;
+        /* Original Category Grid Layout */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .category-card {
+            background: #1e293b;
             border: 1px solid #334155;
-            transition: all 0.2s;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .mode-btn.active-blue {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-            color: white;
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
-        .mode-btn.active-red {
-            background-color: #ef4444;
-            border-color: #ef4444;
-            color: white;
+        .category-img {
+            height: 130px;
+            object-fit: cover;
+            width: 100%;
         }
 
         .banner-img {
@@ -135,6 +105,41 @@
             object-fit: cover;
             width: 100%;
             border-radius: 8px;
+        }
+
+        /* Auto / Manual Toggle Mode */
+        .mode-toggle-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .mode-btn.active-auto {
+            background-color: #0284c7;
+            border-color: #38bdf8;
+            color: #fff;
+        }
+
+        .mode-btn.active-manual {
+            background-color: #ef4444;
+            border-color: #f87171;
+            color: #fff;
         }
 
         .swal2-popup.swal-dark {
@@ -150,6 +155,7 @@
 </head>
 <body>
 
+    <!-- Header Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark px-3 sticky-top">
         <a class="navbar-brand fw-bold text-info" href="#"><i class="fas fa-gamepad me-2"></i>OXI E-Sports Admin</a>
         <div class="ms-auto d-flex align-items-center">
@@ -180,7 +186,7 @@
                     <div id="categoryView">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h4><i class="fas fa-gamepad text-info me-2"></i>Match Categories</h4>
-                            <button class="btn btn-info btn-sm text-white fw-bold" onclick="addCategoryPrompt()">+ Add Category</button>
+                            <button class="btn btn-info btn-sm text-white fw-bold" onclick="addCategoryPrompt()"><i class="fas fa-plus me-1"></i>Add Category</button>
                         </div>
                         <div class="category-grid" id="categoryContainer"></div>
                     </div>
@@ -191,13 +197,13 @@
                                 <button class="btn btn-outline-secondary btn-sm" onclick="backToCategories()"><i class="fas fa-arrow-left me-1"></i>Back</button>
                                 <h4 class="mb-0 text-info" id="selectedCatTitle">Matches</h4>
                             </div>
-                            <button class="btn btn-success btn-sm fw-bold" onclick="createMatchPrompt()">+ Create Match</button>
+                            <button class="btn btn-success btn-sm fw-bold" onclick="createMatchPrompt()"><i class="fas fa-plus me-1"></i>Create Match</button>
                         </div>
                         <div id="matchesContainer" class="row g-3"></div>
                     </div>
                 </div>
 
-                <!-- Section 2: Users List -->
+                <!-- Section 2: Users List (NO DELETE BUTTON) -->
                 <div id="section-users" class="content-section d-none">
                     <h4 class="mb-4"><i class="fas fa-users text-info me-2"></i>Registered Users</h4>
                     <div class="card p-3">
@@ -206,9 +212,9 @@
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Phone</th>
+                                        <th>Phone Number</th>
                                         <th>Email</th>
-                                        <th>Wallet</th>
+                                        <th>Wallet Balance</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -238,44 +244,55 @@
                     </div>
                 </div>
 
-                <!-- Section 4: Payment Settings (Matching Image 1 perfectly) -->
+                <!-- Section 4: Payment Settings (Clean & Clear Input Layout) -->
                 <div id="section-payment" class="content-section d-none">
-                    <h4 class="mb-4"><i class="fas fa-folder text-info me-2"></i>Payment Settings</h4>
-                    <div class="payment-box">
-                        <label class="form-label text-light fw-bold text-uppercase mb-3" style="font-size: 0.9rem;">PAYMENT NUMBER</label>
+                    <h4 class="mb-4"><i class="fas fa-wallet text-info me-2"></i>Payment Settings</h4>
+                    <div class="card p-4" style="max-width: 550px;">
                         
-                        <div class="input-group mb-3">
-                            <input type="text" id="bkashNum" class="form-control" placeholder="bKash Number">
-                            <div class="input-group-text">
-                                <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="bkashActive"></div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-bold"><i class="fas fa-mobile-alt me-2 text-danger"></i>bKash Number</label>
+                            <div class="input-group">
+                                <input type="text" id="bkashNum" class="form-control" placeholder="Enter bKash Number">
+                                <div class="input-group-text bg-dark border-secondary">
+                                    <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="bkashActive"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="input-group mb-3">
-                            <input type="text" id="nagadNum" class="form-control" placeholder="Nagad Number">
-                            <div class="input-group-text">
-                                <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="nagadActive"></div>
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-bold"><i class="fas fa-mobile-alt me-2 text-warning"></i>Nagad Number</label>
+                            <div class="input-group">
+                                <input type="text" id="nagadNum" class="form-control" placeholder="Enter Nagad Number">
+                                <div class="input-group-text bg-dark border-secondary">
+                                    <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="nagadActive"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="input-group mb-4">
-                            <input type="text" id="rocketNum" class="form-control" placeholder="Rocket Number">
-                            <div class="input-group-text">
-                                <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="rocketActive"></div>
+                        <div class="mb-4">
+                            <label class="form-label text-light fw-bold"><i class="fas fa-mobile-alt me-2 text-info"></i>Rocket Number</label>
+                            <div class="input-group">
+                                <input type="text" id="rocketNum" class="form-control" placeholder="Enter Rocket Number">
+                                <div class="input-group-text bg-dark border-secondary">
+                                    <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="rocketActive"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2 mb-4">
-                            <button id="btnAutoMode" class="btn mode-btn flex-fill fw-bold" onclick="setDepositMode('auto')">
-                                <i class="far fa-circle" id="iconAuto"></i> Auto
-                            </button>
-                            <button id="btnManualMode" class="btn mode-btn flex-fill fw-bold" onclick="setDepositMode('manual')">
-                                <i class="far fa-circle" id="iconManual"></i> Manual
-                            </button>
+                        <div class="mb-4">
+                            <label class="form-label text-light fw-bold d-block mb-2">DEPOSIT MODE</label>
+                            <div class="mode-toggle-group">
+                                <div id="btnAutoMode" class="mode-btn active-auto" onclick="setDepositMode('auto')">
+                                    <i class="far fa-dot-circle" id="iconAuto"></i> Auto
+                                </div>
+                                <div id="btnManualMode" class="mode-btn" onclick="setDepositMode('manual')">
+                                    <i class="far fa-circle" id="iconManual"></i> Manual
+                                </div>
+                            </div>
                         </div>
 
-                        <button class="btn text-white w-100 py-2 fw-bold" style="background-color: #000000; border: 1px solid #334155;" onclick="savePaymentSettings()">
-                            UPDATE NUMBER
+                        <button class="btn btn-primary w-100 py-3 fw-bold text-uppercase" onclick="savePaymentSettings()">
+                            <i class="fas fa-save me-2"></i>Update Number Settings
                         </button>
                     </div>
                 </div>
@@ -309,7 +326,7 @@
                 <div id="section-banners" class="content-section d-none">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4><i class="fas fa-images text-info me-2"></i>Home Banner Management</h4>
-                        <button class="btn btn-info btn-sm text-white fw-bold" onclick="addBannerPrompt()">+ Add Banner</button>
+                        <button class="btn btn-info btn-sm text-white fw-bold" onclick="addBannerPrompt()"><i class="fas fa-plus me-1"></i>Add Banner</button>
                     </div>
                     <div class="row g-3" id="bannerContainer"></div>
                 </div>
@@ -381,17 +398,17 @@
         // --- PAYMENT SETTINGS ---
         function setDepositMode(mode) {
             currentDepositMode = mode;
-            const btnAuto = document.getElementById('btnAutoMode');
-            const btnManual = document.getElementById('btnManualMode');
+            const autoBtn = document.getElementById('btnAutoMode');
+            const manualBtn = document.getElementById('btnManualMode');
             if (mode === 'auto') {
-                btnAuto.className = 'btn mode-btn flex-fill fw-bold active-blue';
+                autoBtn.className = 'mode-btn active-auto';
                 document.getElementById('iconAuto').className = 'far fa-dot-circle';
-                btnManual.className = 'btn mode-btn flex-fill fw-bold';
+                manualBtn.className = 'mode-btn';
                 document.getElementById('iconManual').className = 'far fa-circle';
             } else {
-                btnManual.className = 'btn mode-btn flex-fill fw-bold active-red';
+                manualBtn.className = 'mode-btn active-manual';
                 document.getElementById('iconManual').className = 'far fa-dot-circle';
-                btnAuto.className = 'btn mode-btn flex-fill fw-bold';
+                autoBtn.className = 'mode-btn';
                 document.getElementById('iconAuto').className = 'far fa-circle';
             }
         }
@@ -421,21 +438,24 @@
             }).then(() => SwalDark.fire({ icon: 'success', title: 'Settings Saved', timer: 1500, showConfirmButton: false }));
         }
 
-        // --- CATEGORIES (Image 4 format) ---
+        // --- CATEGORIES ---
         function loadCategories() {
             db.ref('match_categories').on('value', (snap) => {
                 const container = document.getElementById('categoryContainer');
                 container.innerHTML = '';
-                if (!snap.exists()) return;
+                if (!snap.exists()) {
+                    container.innerHTML = '<p class="text-muted">No categories available.</p>';
+                    return;
+                }
                 snap.forEach((child) => {
                     const cat = child.val();
                     container.innerHTML += `
-                        <div class="admin-cat-card">
-                            <img src="${cat.image}">
-                            <h6>${cat.title}</h6>
+                        <div class="category-card p-2 text-center">
+                            <img src="${cat.image || 'https://via.placeholder.com/220x130'}" class="category-img mb-2 rounded">
+                            <h6 class="fw-bold text-white mb-2">${cat.title}</h6>
                             <div class="d-flex gap-1">
-                                <button class="btn btn-primary btn-sm flex-grow-1" onclick="openCategoryMatches('${child.key}', '${cat.title}')"><i class="fas fa-list me-1"></i>Matches</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteCategory('${child.key}')"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-primary btn-sm w-100" onclick="openCategoryMatches('${child.key}', '${cat.title}')"><i class="fas fa-list me-1"></i>Matches</button>
+                                <button class="btn btn-outline-danger btn-sm" onclick="deleteCategory('${child.key}')"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     `;
@@ -450,6 +470,7 @@
             document.getElementById('matchView').classList.remove('d-none');
             loadMatchesForCategory(catKey);
         }
+
         function backToCategories() {
             selectedCategoryKey = null;
             document.getElementById('matchView').classList.add('d-none');
@@ -460,24 +481,36 @@
             db.ref('matches').orderByChild('categoryKey').equalTo(catKey).on('value', (snap) => {
                 const container = document.getElementById('matchesContainer');
                 container.innerHTML = '';
-                if (!snap.exists()) return;
+                if (!snap.exists()) {
+                    container.innerHTML = '<div class="col-12"><p class="text-muted">No matches created under this category yet.</p></div>';
+                    return;
+                }
                 snap.forEach((child) => {
                     const m = child.val();
+                    const joinedCount = m.joinedUsers ? Object.keys(m.joinedUsers).length : 0;
                     container.innerHTML += `
                         <div class="col-md-6 col-lg-4">
                             <div class="card p-3 h-100 border-secondary">
-                                <div class="d-flex justify-content-between mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="badge bg-info">${m.type || 'SOLO'}</span>
-                                    <span class="badge bg-warning text-dark">${m.joinedUsers ? Object.keys(m.joinedUsers).length : 0} / ${m.totalSpots || 48} Joined</span>
+                                    <span class="badge bg-warning text-dark">${joinedCount} / ${m.totalSpots || 48} Joined</span>
                                 </div>
-                                <h5 class="fw-bold mb-2">${m.title}</h5>
-                                <div class="small text-muted mb-2"><i class="far fa-clock me-1 text-info"></i>${m.matchTime || 'N/A'}</div>
-                                <div class="bg-dark p-2 rounded mb-3 small border border-secondary text-center">
-                                    <span class="text-danger fw-bold d-block">Entry: ৳${m.entryFee || 0}</span>
-                                    <span class="text-success fw-bold d-block">Prize: ৳${m.prizePool || 0}</span>
+                                <h5 class="fw-bold text-white mb-2">${m.title}</h5>
+                                <div class="small text-muted mb-2">
+                                    <div><i class="far fa-clock me-1 text-info"></i>${m.matchTime || 'N/A'}</div>
+                                </div>
+                                <div class="row g-1 text-center bg-dark p-2 rounded mb-3 small">
+                                    <div class="col-4 border-end border-secondary"><span class="d-block text-muted">Prize</span><span class="fw-bold text-success">৳${m.prizePool || 0}</span></div>
+                                    <div class="col-4 border-end border-secondary"><span class="d-block text-muted">Per Kill</span><span class="fw-bold text-warning">৳${m.perKill || 0}</span></div>
+                                    <div class="col-4"><span class="d-block text-muted">Entry</span><span class="fw-bold text-danger">৳${m.entryFee || 0}</span></div>
+                                </div>
+                                <div class="bg-dark p-2 rounded mb-3 small border border-secondary">
+                                    <div class="fw-bold text-info"><i class="fas fa-key me-1"></i>Room Details:</div>
+                                    <div>ID: <strong class="text-white">${m.roomId || 'Not set'}</strong></div>
+                                    <div>PASS: <strong class="text-white">${m.roomPassword || 'Not set'}</strong></div>
                                 </div>
                                 <div class="d-flex gap-2 mt-auto">
-                                    <button class="btn btn-outline-info btn-sm flex-fill" onclick="setRoomDetailsPrompt('${child.key}', '${m.roomId || ''}', '${m.roomPassword || ''}')"><i class="fas fa-key"></i> Room ID</button>
+                                    <button class="btn btn-outline-info btn-sm flex-fill" onclick="setRoomDetailsPrompt('${child.key}', '${m.roomId || ''}', '${m.roomPassword || ''}')"><i class="fas fa-key me-1"></i>Room ID</button>
                                     <button class="btn btn-outline-danger btn-sm" onclick="db.ref('matches/${child.key}').remove()"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
@@ -493,58 +526,75 @@
                 title: 'Create Match',
                 html: `
                     <input id="mTitle" class="swal2-input" placeholder="Match Title">
-                    <input id="mTime" class="swal2-input" placeholder="Time (10 Nov - 08:00 PM)">
+                    <input id="mTime" class="swal2-input" placeholder="Match Time (e.g. 10 Nov - 08:00 PM)">
                     <input id="mEntry" type="number" class="swal2-input" placeholder="Entry Fee (৳)">
                     <input id="mPrize" type="number" class="swal2-input" placeholder="Prize Pool (৳)">
                     <input id="mPerKill" type="number" class="swal2-input" placeholder="Per Kill (৳)">
                     <input id="mSpots" type="number" class="swal2-input" placeholder="Total Spots" value="48">
                     <select id="mType" class="swal2-select w-100 mt-2"><option value="SOLO">SOLO</option><option value="DUO">DUO</option><option value="SQUAD">SQUAD</option></select>
                 `,
-                showCancelButton: true, confirmButtonText: 'Create',
+                showCancelButton: true, confirmButtonText: 'Create Match',
                 preConfirm: () => {
-                    const title = document.getElementById('mTitle').value;
-                    if (!title) Swal.showValidationMessage('Title required');
-                    return { categoryKey: selectedCategoryKey, title, matchTime: document.getElementById('mTime').value, entryFee: parseFloat(document.getElementById('mEntry').value)||0, prizePool: parseFloat(document.getElementById('mPrize').value)||0, perKill: parseFloat(document.getElementById('mPerKill').value)||0, totalSpots: parseInt(document.getElementById('mSpots').value)||48, type: document.getElementById('mType').value };
+                    const title = document.getElementById('mTitle').value.trim();
+                    if (!title) Swal.showValidationMessage('Title is required');
+                    return {
+                        categoryKey: selectedCategoryKey,
+                        title: title,
+                        matchTime: document.getElementById('mTime').value.trim(),
+                        entryFee: parseFloat(document.getElementById('mEntry').value) || 0,
+                        prizePool: parseFloat(document.getElementById('mPrize').value) || 0,
+                        perKill: parseFloat(document.getElementById('mPerKill').value) || 0,
+                        totalSpots: parseInt(document.getElementById('mSpots').value) || 48,
+                        type: document.getElementById('mType').value
+                    };
                 }
             }).then((res) => { if (res.isConfirmed) db.ref('matches').push(res.value); });
         }
 
         function setRoomDetailsPrompt(mKey, rId, rPass) {
             SwalDark.fire({
-                title: 'Room Details',
-                html: `<input id="rId" class="swal2-input" placeholder="Room ID" value="${rId}"><input id="rPass" class="swal2-input" placeholder="Password" value="${rPass}">`,
+                title: 'Set Room ID & Password',
+                html: `<input id="rId" class="swal2-input" placeholder="Room ID" value="${rId}"><input id="rPass" class="swal2-input" placeholder="Room Password" value="${rPass}">`,
                 showCancelButton: true, confirmButtonText: 'Save',
-                preConfirm: () => ({ roomId: document.getElementById('rId').value, roomPassword: document.getElementById('rPass').value })
-            }).then(res => { if (res.isConfirmed) db.ref(`matches/${mKey}`).update(res.value); });
+                preConfirm: () => ({ roomId: document.getElementById('rId').value.trim(), roomPassword: document.getElementById('rPass').value.trim() })
+            }).then((res) => { if (res.isConfirmed) db.ref(`matches/${mKey}`).update(res.value); });
         }
 
         function addCategoryPrompt() {
             SwalDark.fire({
                 title: 'Add Category',
-                html: `<input id="catTitle" class="swal2-input" placeholder="Title"><input id="catImage" class="swal2-input" placeholder="Image URL">`,
+                html: `<input id="catTitle" class="swal2-input" placeholder="Category Title"><input id="catImage" class="swal2-input" placeholder="Image URL">`,
                 showCancelButton: true, confirmButtonText: 'Add',
-                preConfirm: () => ({ title: document.getElementById('catTitle').value, image: document.getElementById('catImage').value })
-            }).then(res => { if (res.isConfirmed && res.value.title) db.ref('match_categories').push(res.value); });
+                preConfirm: () => ({ title: document.getElementById('catTitle').value.trim(), image: document.getElementById('catImage').value.trim() })
+            }).then((res) => { if (res.isConfirmed && res.value.title) db.ref('match_categories').push(res.value); });
         }
-        function deleteCategory(key) { SwalDark.fire({title:'Delete Category?', icon:'warning', showCancelButton:true}).then(r=>{if(r.isConfirmed)db.ref('match_categories/'+key).remove()}); }
 
-        // --- USERS LIST (No Delete Button) ---
+        function deleteCategory(key) {
+            SwalDark.fire({ title: 'Delete Category?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete' }).then((res) => {
+                if (res.isConfirmed) db.ref('match_categories/' + key).remove();
+            });
+        }
+
+        // --- USERS LIST (No Delete Button - Full Phone Number) ---
         function loadUsers() {
             db.ref('users').on('value', (snap) => {
                 const tbody = document.getElementById('usersTableBody');
                 tbody.innerHTML = '';
-                if (!snap.exists()) return;
+                if (!snap.exists()) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No users found.</td></tr>';
+                    return;
+                }
                 snap.forEach((child) => {
                     const u = child.val();
                     tbody.innerHTML += `
                         <tr>
                             <td>${u.name || 'N/A'}</td>
-                            <td>${u.phone || 'N/A'}</td>
+                            <td class="fw-bold text-info">${u.phone || 'N/A'}</td>
                             <td>${u.email || 'N/A'}</td>
                             <td class="text-success fw-bold">৳ ${u.wallet || 0}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-warning me-1" onclick="editWallet('${child.key}', ${u.wallet || 0})" title="Add/Edit Balance"><i class="fas fa-coins"></i></button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="banUserPrompt('${child.key}', '${u.email}')" title="Ban Account"><i class="fas fa-ban"></i></button>
+                                <button class="btn btn-sm btn-outline-warning me-1" onclick="editWallet('${child.key}', ${u.wallet || 0})" title="Edit Balance"><i class="fas fa-coins me-1"></i>Balance</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="banUserPrompt('${child.key}', '${u.email}')" title="Ban Account"><i class="fas fa-ban me-1"></i>Ban</button>
                             </td>
                         </tr>
                     `;
@@ -554,11 +604,11 @@
 
         function editWallet(key, currentBal) {
             SwalDark.fire({
-                title: 'Edit Balance',
+                title: 'Edit Balance (৳)',
                 input: 'number',
                 inputValue: currentBal,
                 showCancelButton: true,
-                confirmButtonText: 'Save'
+                confirmButtonText: 'Update'
             }).then((res) => {
                 if (res.isConfirmed && res.value !== '') {
                     db.ref(`users/${key}/wallet`).set(parseFloat(res.value) || 0);
@@ -570,11 +620,11 @@
             SwalDark.fire({
                 title: 'Ban User',
                 input: 'text',
-                inputPlaceholder: 'Reason',
+                inputPlaceholder: 'Reason for ban',
                 showCancelButton: true,
                 confirmButtonText: 'Ban'
             }).then((res) => {
-                if (res.isConfirmed) db.ref('bannedUsers/' + key).set({ email, reason: res.value || 'Violation', bannedAt: new Date().toISOString() });
+                if (res.isConfirmed) db.ref('bannedUsers/' + key).set({ email: email, reason: res.value || 'Violation', bannedAt: new Date().toISOString() });
             });
         }
 
@@ -590,7 +640,7 @@
             });
         }
 
-        // --- BANNERS & ADMINS ---
+        // --- BANNERS & ADMIN ACCESS ---
         function loadBanners() {
             db.ref('banners').on('value', (snap) => {
                 const container = document.getElementById('bannerContainer');
@@ -601,7 +651,12 @@
                 });
             });
         }
-        function addBannerPrompt() { SwalDark.fire({ title: 'Add Banner URL', input: 'url', showCancelButton: true }).then((res) => { if (res.isConfirmed && res.value) db.ref('banners').push({ image: res.value }); }); }
+
+        function addBannerPrompt() {
+            SwalDark.fire({ title: 'Add Banner URL', input: 'url', showCancelButton: true }).then((res) => {
+                if (res.isConfirmed && res.value) db.ref('banners').push({ image: res.value.trim() });
+            });
+        }
 
         function loadAdminsList() {
             db.ref('superAdmins').on('value', (snap) => {
@@ -609,7 +664,7 @@
                 container.innerHTML = '';
                 snap.forEach((child) => {
                     const isSelf = (child.key === currentUserCleanEmail);
-                    container.innerHTML += `<div class="d-flex justify-content-between p-2 mb-2 bg-dark rounded border border-secondary"><span><i class="fas fa-user-shield text-warning me-2"></i>${child.val().email}</span>${!isSelf ? `<button class="btn btn-sm btn-outline-danger" onclick="db.ref('superAdmins/${child.key}').remove()"><i class="fas fa-trash"></i></button>` : '<span class="badge bg-warning text-dark">You</span>'}</div>`;
+                    container.innerHTML += `<div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark rounded border border-secondary"><span><i class="fas fa-user-shield text-warning me-2"></i>${child.val().email}</span>${!isSelf ? `<button class="btn btn-sm btn-outline-danger" onclick="db.ref('superAdmins/${child.key}').remove()"><i class="fas fa-trash"></i></button>` : '<span class="badge bg-warning text-dark">You</span>'}</div>`;
                 });
             });
             db.ref('admins').on('value', (snap) => {
@@ -617,13 +672,13 @@
                 container.innerHTML = '';
                 snap.forEach((child) => {
                     const isSelf = (child.key === currentUserCleanEmail);
-                    container.innerHTML += `<div class="d-flex justify-content-between p-2 mb-2 bg-dark rounded border border-secondary"><span><i class="fas fa-user-cog text-info me-2"></i>${child.val().email}</span><div><button class="btn btn-sm btn-outline-info me-1" onclick="openPermissionsModal('${child.key}', '${child.val().email}')">Permissions</button>${!isSelf ? `<button class="btn btn-sm btn-outline-danger" onclick="db.ref('admins/${child.key}').remove(); db.ref('adminPermissions/${child.key}').remove()"><i class="fas fa-trash"></i></button>` : '<span class="badge bg-info text-dark">You</span>'}</div></div>`;
+                    container.innerHTML += `<div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark rounded border border-secondary"><span><i class="fas fa-user-cog text-info me-2"></i>${child.val().email}</span><div><button class="btn btn-sm btn-outline-info me-1" onclick="openPermissionsModal('${child.key}', '${child.val().email}')">Permissions</button>${!isSelf ? `<button class="btn btn-sm btn-outline-danger" onclick="db.ref('admins/${child.key}').remove(); db.ref('adminPermissions/${child.key}').remove()"><i class="fas fa-trash"></i></button>` : '<span class="badge bg-info text-dark">You</span>'}</div></div>`;
                 });
             });
         }
 
-        function addSuperAdminPrompt() { SwalDark.fire({ title: 'Add Super Admin', input: 'email', showCancelButton: true }).then((res) => { if (res.isConfirmed && res.value) db.ref('superAdmins/' + emailToKey(res.value)).set({ email: res.value }); }); }
-        function addNormalAdminPrompt() { SwalDark.fire({ title: 'Add Normal Admin', input: 'email', showCancelButton: true }).then((res) => { if (res.isConfirmed && res.value) { const k = emailToKey(res.value); db.ref('admins/' + k).set({ email: res.value }); db.ref('adminPermissions/' + k).set({ games: true, users: true, banned: true, banners: true, payment: true }); } }); }
+        function addSuperAdminPrompt() { SwalDark.fire({ title: 'Add Super Admin', input: 'email', showCancelButton: true }).then((res) => { if (res.isConfirmed && res.value) db.ref('superAdmins/' + emailToKey(res.value)).set({ email: res.value.trim() }); }); }
+        function addNormalAdminPrompt() { SwalDark.fire({ title: 'Add Normal Admin', input: 'email', showCancelButton: true }).then((res) => { if (res.isConfirmed && res.value) { const k = emailToKey(res.value); db.ref('admins/' + k).set({ email: res.value.trim() }); db.ref('adminPermissions/' + k).set({ games: true, users: true, banned: true, banners: true, payment: true }); } }); }
         
         function openPermissionsModal(key, email) {
             db.ref('adminPermissions/' + key).once('value', (snap) => {
@@ -632,11 +687,11 @@
                     title: `Permissions: ${email}`,
                     html: `
                         <div class="text-start">
-                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="p1" ${p.games!==false?'checked':''}><label class="text-light ms-2">Games</label></div>
-                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="p2" ${p.users!==false?'checked':''}><label class="text-light ms-2">Users</label></div>
-                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="p3" ${p.banned!==false?'checked':''}><label class="text-light ms-2">Banned</label></div>
-                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="p4" ${p.banners!==false?'checked':''}><label class="text-light ms-2">Banners</label></div>
-                            <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="p5" ${p.payment!==false?'checked':''}><label class="text-light ms-2">Payment</label></div>
+                            <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="p1" ${p.games!==false?'checked':''}><label class="text-light ms-2">Games & Matches</label></div>
+                            <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="p2" ${p.users!==false?'checked':''}><label class="text-light ms-2">Users List</label></div>
+                            <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="p3" ${p.banned!==false?'checked':''}><label class="text-light ms-2">Banned List</label></div>
+                            <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="p4" ${p.banners!==false?'checked':''}><label class="text-light ms-2">Banners</label></div>
+                            <div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="p5" ${p.payment!==false?'checked':''}><label class="text-light ms-2">Payment Settings</label></div>
                         </div>
                     `,
                     showCancelButton: true, confirmButtonText: 'Save',
@@ -644,6 +699,7 @@
                 }).then((res) => { if (res.isConfirmed) db.ref('adminPermissions/' + key).set(res.value); });
             });
         }
+
         function logoutAdmin() { auth.signOut().then(() => { window.location.href = 'index.html'; }); }
     </script>
 </body>
