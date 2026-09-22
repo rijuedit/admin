@@ -53,7 +53,7 @@
             border-color: #a78bfa;
             box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
         }
-        /* Top Up Style Category Card (Image 1) */
+        /* Top Up Style Category Card */
         .topup-card {
             background-color: #120a28;
             border: 1px solid #2a1b4d;
@@ -66,7 +66,7 @@
             border-color: #7c3aed;
             box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
         }
-        /* Match Add Form Custom Input Styling (Image 3 & 4) */
+        /* Match Add Form Custom Input Styling */
         .match-input {
             width: 100%;
             background: #f8fafc;
@@ -153,7 +153,7 @@
             </div>
         </div>
 
-        <!-- Horizontal Tab Navigation Bar (Full Options Restored) -->
+        <!-- Horizontal Tab Navigation Bar -->
         <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
             <button id="tab-matches" onclick="switchTab('matches')" class="nav-tab active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
                 <i class="fa-solid fa-gamepad"></i> Matches & Categories
@@ -178,7 +178,7 @@
             </button>
         </div>
 
-        <!-- TAB 1: MATCHES & CATEGORIES (TOP UP STYLE - IMAGE 1) -->
+        <!-- TAB 1: MATCHES & CATEGORIES -->
         <section id="section-matches" class="main-container p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
@@ -192,7 +192,7 @@
                 </button>
             </div>
 
-            <!-- Categories Grid (Top-Up Style Cards - 512x512 Image) -->
+            <!-- Categories Grid (Top-Up Style Cards) -->
             <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <!-- Dynamically Rendered Category Cards -->
             </div>
@@ -350,10 +350,9 @@
     </main>
 
     <!-- ========================================================================= -->
-    <!-- MATCH MANAGEMENT OVERLAY (EXACTLY MATCHING YOUR SCREENSHOT 2) -->
+    <!-- MATCH MANAGEMENT OVERLAY -->
     <!-- ========================================================================= -->
     <div id="matchManagementScreen" class="fixed inset-0 bg-black z-[100] hidden flex-col font-sans">
-        <!-- Top App Bar -->
         <div class="flex items-center px-4 py-3 bg-black border-b border-gray-900 text-white">
             <button onclick="closeMatchManagement()" class="p-1 mr-3 text-white text-xl">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -362,29 +361,25 @@
             <span id="currentCategoryTitleDisplay" class="ml-auto text-xs text-slate-400 font-medium"></span>
         </div>
 
-        <!-- Matches Sub-Tabs -->
         <div class="flex border-b border-gray-800 bg-black text-xs font-semibold">
             <div class="flex-1 text-center py-3 text-blue-500 border-b-2 border-blue-500 cursor-pointer">Matches</div>
             <div class="flex-1 text-center py-3 text-gray-500 cursor-pointer">Ongoing</div>
             <div class="flex-1 text-center py-3 text-gray-500 cursor-pointer">Results</div>
         </div>
 
-        <!-- Matches List Content -->
         <div id="matchListContent" class="flex-1 overflow-y-auto p-4 space-y-3 bg-black">
             <!-- Dynamically Rendered Matches -->
         </div>
 
-        <!-- Rounded Bottom-Right (+) FAB Button -->
         <button onclick="openMatchAddScreen()" class="fixed bottom-8 right-6 w-14 h-14 bg-[#f3e8ff] hover:bg-[#e9d5ff] rounded-2xl flex items-center justify-center text-black text-2xl shadow-2xl transition-transform active:scale-95 z-[105]">
             <i class="fa-solid fa-plus"></i>
         </button>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- MATCH ADD FORM OVERLAY (EXACTLY MATCHING YOUR SCREENSHOT 3 & 4) -->
+    <!-- MATCH ADD FORM OVERLAY -->
     <!-- ========================================================================= -->
     <div id="matchAddScreen" class="fixed inset-0 bg-[#ffffff] z-[110] hidden flex-col font-sans">
-        <!-- Top Header Bar -->
         <div class="flex items-center px-4 py-3 bg-black text-white">
             <button onclick="closeMatchAddScreen()" class="p-1 mr-3 text-white text-xl">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -392,7 +387,6 @@
             <h1 class="text-lg font-semibold tracking-wide">Match Add</h1>
         </div>
 
-        <!-- Form Scroll Area -->
         <div class="flex-1 overflow-y-auto p-4 space-y-3.5 pb-24 max-w-lg mx-auto w-full">
             <input type="text" id="ma_title" placeholder="MATCH TITLE" class="match-input">
             
@@ -429,7 +423,6 @@
             
             <textarea id="ma_details" placeholder="PRIZE DETAILS" class="match-input h-24 resize-none"></textarea>
             
-            <!-- Bottom Cancel / Create Action Buttons -->
             <div class="grid grid-cols-2 gap-3 pt-3">
                 <button onclick="closeMatchAddScreen()" class="w-full bg-[#e2e8f0] hover:bg-slate-300 text-black font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider">
                     CANCEL
@@ -529,7 +522,7 @@
         }
 
         function initRealtimeListeners() {
-            // Stats & Users Listener
+            // Stats & Users Listener (Phone Number Fix Applied)
             db.ref('users').on('value', snapshot => {
                 const users = snapshot.val() || {};
                 const userKeys = Object.keys(users);
@@ -540,11 +533,15 @@
 
                 userKeys.forEach(k => {
                     const u = users[k];
+                    
+                    // Checking multiple fields to ensure phone number is found
+                    const realPhone = u.phone || u.mobile || u.phoneNumber || u.number || 'N/A';
+
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-[#181a2e] transition';
                     tr.innerHTML = `
                         <td class="py-3 px-4 font-medium text-white">${u.email || k.replace(/,/g, '.')}</td>
-                        <td class="py-3 px-4 text-slate-300 font-mono">${u.phone || 'N/A'}</td>
+                        <td class="py-3 px-4 text-slate-300 font-mono">${realPhone}</td>
                         <td class="py-3 px-4 text-emerald-400 font-bold">৳${u.wallet || 0}</td>
                         <td class="py-3 px-4 text-right space-x-2">
                             <button onclick="editUserBalance('${k}', ${u.wallet || 0})" class="bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 border border-indigo-500/40 text-xs px-2.5 py-1 rounded-lg font-medium transition">
@@ -631,7 +628,7 @@
                 });
             });
 
-            // Load Match Categories (Top-Up Style - Screenshot 1)
+            // Load Match Categories
             loadTopUpCategories();
 
             // Render Admins
@@ -678,7 +675,7 @@
             });
         }
 
-        // 1. TOP-UP CATEGORIES (SCREENSHOT 1)
+        // Categories Map
         function loadTopUpCategories() {
             db.ref('match_categories').on('value', snapshot => {
                 const categories = snapshot.val() || {};
@@ -731,7 +728,7 @@
             }
         }
 
-        // 2. MATCH MANAGEMENT SCREEN (SCREENSHOT 2)
+        // Matches
         function openMatchManagement(catKey, catTitle) {
             currentActiveCategoryKey = catKey;
             document.getElementById('currentCategoryTitleDisplay').innerText = catTitle;
@@ -783,7 +780,6 @@
             currentActiveCategoryKey = null;
         }
 
-        // 3. MATCH ADD FORM SCREEN (SCREENSHOT 3 & 4)
         function openMatchAddScreen() {
             document.getElementById('matchAddScreen').style.display = 'flex';
             ['ma_title','ma_date','ma_time','ma_timer','ma_prize','ma_perkill','ma_fee','ma_slots','ma_details'].forEach(id => {
@@ -858,7 +854,7 @@
             }
         }
 
-        // Deposit Actions
+        // Others actions (Deposit, Balance, Ban, Admins, etc.)
         async function approveDeposit(reqId, userKey, amount) {
             await db.ref(`deposit_requests/${reqId}`).update({ status: 'approved' });
             await db.ref(`users/${userKey}/wallet`).transaction(c => (c || 0) + amount);
@@ -870,14 +866,12 @@
             SwalDark.fire('Rejected', 'Deposit request rejected.', 'info');
         }
 
-        // Users Balance & Ban
         async function editUserBalance(uKey, currentBal) {
             const { value: newBal } = await SwalDark.fire({
                 title: 'Update Balance (৳)',
                 input: 'number',
                 inputValue: currentBal
             });
-
             if (newBal !== undefined && newBal !== null && newBal !== '') {
                 await db.ref(`users/${uKey}/wallet`).set(Number(newBal));
             }
@@ -890,7 +884,6 @@
                 inputPlaceholder: 'Reason for ban...',
                 showCancelButton: true
             });
-
             if (reason) {
                 await db.ref(`bannedUsers/${uKey}`).set({
                     email: email || uKey.replace(/,/g, '.'),
@@ -906,7 +899,6 @@
             SwalDark.fire('Restored', 'User account unbanned.', 'success');
         }
 
-        // Admins List
         async function renderAdminsList() {
             const superSnap = await db.ref('superAdmins').once('value');
             const normalSnap = await db.ref('admins').once('value');
@@ -972,13 +964,11 @@
                 SwalDark.fire('Unauthorized', 'Only Super Admins can add admins.', 'error');
                 return;
             }
-
             const { value: email } = await SwalDark.fire({
                 title: type === 'super' ? 'Add Super Admin' : 'Add Normal Admin',
                 input: 'email',
                 inputPlaceholder: 'Admin email...'
             });
-
             if (email) {
                 const key = emailToKey(email);
                 if (type === 'super') {
@@ -992,30 +982,22 @@
 
         async function removeAdmin(type, key) {
             if (!isSuperAdmin) return;
-            if (key === currentUserCleanEmail) {
-                SwalDark.fire('Error', 'You cannot remove yourself!', 'error');
-                return;
-            }
+            if (key === currentUserCleanEmail) return;
 
             const confirm = await SwalDark.fire({ title: 'Remove Admin Access?', showCancelButton: true });
             if (confirm.isConfirmed) {
-                if (type === 'super') {
-                    await db.ref(`superAdmins/${key}`).remove();
-                } else {
-                    await db.ref(`admins/${key}`).remove();
-                }
+                if (type === 'super') await db.ref(`superAdmins/${key}`).remove();
+                else await db.ref(`admins/${key}`).remove();
                 renderAdminsList();
             }
         }
 
-        // Banners
         async function promptAddBanner() {
             const { value: imageUrl } = await SwalDark.fire({
                 title: 'Banner Image URL',
                 input: 'url',
                 inputPlaceholder: 'https://example.com/banner.jpg'
             });
-
             if (imageUrl) {
                 await db.ref('banners').push().set({ image: imageUrl });
             }
@@ -1025,21 +1007,17 @@
             await db.ref(`banners/${bKey}`).remove();
         }
 
-        // Payment Settings Save & Toggle
         async function savePaymentSettings() {
             const bkash = document.getElementById('bkashNumberInput').value;
             const nagad = document.getElementById('nagadNumberInput').value;
             const rocket = document.getElementById('rocketNumberInput').value;
-
             const bkashActive = document.getElementById('bkashActiveToggle').checked;
             const nagadActive = document.getElementById('nagadActiveToggle').checked;
             const rocketActive = document.getElementById('rocketActiveToggle').checked;
 
             await db.ref('paymentSettings').update({
-                bkash, nagad, rocket,
-                bkashActive, nagadActive, rocketActive
+                bkash, nagad, rocket, bkashActive, nagadActive, rocketActive
             });
-
             SwalDark.fire('Saved', 'Payment details updated.', 'success');
         }
 
