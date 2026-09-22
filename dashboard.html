@@ -3,1029 +3,702 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OXI ADMIN - Tournament Management</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>OXI ADMIN - Dashboard</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0c0d18;
-            color: #f1f5f9;
+        :root {
+            --bg-color: #0b021a;
+            --card-bg: #150a2e;
+            --primary: #9d00ff;
+            --accent: #00ffcc;
+            --text: #ffffff;
+            --text-dim: #b0a3c4;
+            --danger: #ff1744;
+            --success: #00e676;
+            --info: #2196f3;
         }
-        .heading-font {
-            font-family: 'Rajdhani', sans-serif;
-        }
-        .admin-card {
-            background-color: #15172a;
-            border: 1px solid #222543;
-            border-radius: 14px;
-        }
-        .main-container {
-            background-color: #121425;
-            border: 1px solid #1e223d;
-            border-radius: 16px;
-        }
-        .nav-tab {
-            background-color: #181a2e;
-            border: 1px solid #232747;
-            color: #94a3b8;
-            transition: all 0.2s ease;
-        }
-        .nav-tab:hover {
-            border-color: #8b5cf6;
-            color: #ffffff;
-        }
-        .nav-tab.active {
-            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-            color: #ffffff;
-            border-color: #a78bfa;
-            box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
-        }
-        /* Top Up Style Category Card */
-        .topup-card {
-            background-color: #120a28;
-            border: 1px solid #2a1b4d;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.2s ease;
-        }
-        .topup-card:hover {
-            transform: translateY(-2px);
-            border-color: #7c3aed;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
-        }
-        /* Match Add Form Custom Input Styling */
-        .match-input {
-            width: 100%;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px 14px;
-            font-size: 13px;
-            color: #1e293b;
-            font-weight: 500;
-            outline: none;
-        }
-        .match-input:focus {
-            border-color: #f59e0b;
-            background: #ffffff;
-        }
-        .match-input::placeholder {
-            color: #94a3b8;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
-        }
-        .btn-gradient-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-        .btn-gradient-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-        .btn-gradient-red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-        .btn-gradient-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0c0d18; }
-        ::-webkit-scrollbar-thumb { background: #222543; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #7c3aed; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text); overflow-x: hidden; }
+
+        header {
+            background: var(--card-bg);
+            padding: 15px 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #25164d; position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-area h2 { font-weight: 600; letter-spacing: 1px; color: var(--accent); }
+        .role-badge { background: linear-gradient(45deg, #ff9800, #ff5722); font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: bold; color: #fff; }
+        
+        .logout-btn { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px 5%; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #25164d; }
+        .stat-card i { font-size: 24px; color: var(--accent); margin-bottom: 10px; }
+        .stat-card h3 { font-size: 28px; color: var(--text); }
+        .stat-card p { color: var(--text-dim); font-size: 12px; text-transform: uppercase; }
+
+        /* Navigation Tabs */
+        .nav-tabs { display: flex; gap: 15px; padding: 10px 5%; overflow-x: auto; background: #0f0524; border-bottom: 1px solid #25164d; }
+        .tab-btn { background: #25164d; color: var(--text-dim); border: none; padding: 10px 20px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 0 15px rgba(157, 0, 255, 0.4); }
+
+        .main-content { padding: 30px 5%; }
+        .tab-panel { display: none; animation: fadeIn 0.4s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-header { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--accent); font-size: 18px; }
+        .input-card { background: var(--card-bg); padding: 25px; border-radius: 15px; border: 1px solid #25164d; margin-bottom: 25px; }
+        .input-group { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 15px; }
+        input, select { background: #0b021a; border: 1px solid #3d2b63; padding: 12px 15px; color: white; border-radius: 8px; outline: none; flex: 1; min-width: 200px; }
+        .action-btn { background: var(--accent); color: #000; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+
+        /* --- Category Grid Cards (Fixed Layout) --- */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #25164d;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .category-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .category-card img { width: 100%; height: 150px; object-fit: cover; }
+        .category-card h3 { padding: 15px; text-align: center; font-size: 16px; color: white; font-weight: 600; }
+        .delete-btn { background: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; }
+
+        /* User Table */
+        .table-container { overflow-x: auto; background: var(--card-bg); border-radius: 15px; border: 1px solid #25164d; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #25164d; font-size: 14px; }
+        th { background: #1c0e3d; color: var(--accent); }
+        .btn-small { padding: 6px 12px; border-radius: 6px; border: none; font-size: 12px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .btn-edit { background: var(--info); color: white; }
+        .btn-ban { background: #ff9800; color: white; }
+        .btn-delete { background: var(--danger); color: white; }
+
+        /* Admin Management Reference UI Styles */
+        .info-box { background: #11052c; border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 13px; color: #d1c4e9; border: 1px solid #25164d; }
+        .admin-action-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .btn-add-super { background: var(--success); color: #000; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-add-normal { background: var(--info); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        
+        .sub-section-title { font-size: 16px; font-weight: 600; margin: 20px 0 12px 0; display: flex; align-items: center; gap: 8px; color: #ffffff; }
+        .admin-cards-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .admin-item-card { background: #180c38; border: 1px solid #2d1854; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .admin-email { font-size: 15px; font-weight: 600; color: #ffb703; }
+        .admin-subtext { font-size: 11px; color: var(--text-dim); }
+        
+        .card-actions { display: flex; gap: 10px; align-items: center; }
+        .btn-perm { background: #651fff; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .you-tag { background: #25164d; color: #b0a3c4; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+
+        /* Switches & Modals */
+        .switch-container { display: flex; align-items: center; justify-content: space-between; background: #0b021a; padding: 15px 20px; border-radius: 10px; border: 1px solid #3d2b63; margin-bottom: 15px; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.75); display: none; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(3px); }
+        .modal-content { background: #150a2e; border: 1px solid #3d2b63; border-radius: 15px; width: 90%; max-width: 400px; padding: 25px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #25164d; padding-bottom: 15px;}
+        .close-btn { background: none; border: none; color: var(--text-dim); font-size: 24px; cursor: pointer; }
+        .perm-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #25164d; font-size: 14px; }
+
+        .my-swal { border-radius: 15px !important; background: #150a2e !important; color: white !important; }
     </style>
 </head>
-<body class="min-h-screen pb-12">
+<body>
 
-    <!-- Top Navigation Header -->
-    <header class="bg-[#121424] border-b border-[#1e223d] sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <span class="text-2xl font-bold heading-font tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500">
-                    OXI ADMIN
-                </span>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <span id="roleBadge" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    <i class="fa-solid fa-crown font-bold"></i> Super Admin
-                </span>
-                <span id="adminEmailDisplay" class="text-xs text-slate-300 font-medium bg-[#1a1d36] px-3 py-1.5 rounded-lg border border-[#272b4d]">
-                    Loading...
-                </span>
-                <button onclick="handleLogout()" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-medium transition hover:opacity-90 flex items-center gap-1.5">
-                    Logout
-                </button>
-            </div>
+    <header>
+        <div class="logo-area">
+            <h2>OXI ADMIN</h2>
+            <span class="role-badge" id="admin-role-badge">LOADING...</span>
         </div>
+        <button class="logout-btn" onclick="logoutAdmin()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 mt-6">
+    <div class="stats-grid">
+        <div class="stat-card"><i class="fas fa-users"></i> <h3 id="total-users">0</h3> <p>Users</p></div>
+        <div class="stat-card"><i class="fas fa-user-slash"></i> <h3 id="total-banned">0</h3> <p>Banned</p></div>
+        <div class="stat-card"><i class="fas fa-image"></i> <h3 id="total-banners">0</h3> <p>Banners</p></div>
+        <div class="stat-card"><i class="fas fa-gamepad"></i> <h3 id="total-categories">0</h3> <p>Categories</p></div>
+    </div>
 
-        <!-- Top Overview Stats Cards Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="admin-card p-4 text-center">
-                <div class="text-purple-400 text-xl mb-1"><i class="fa-solid fa-users"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">TOTAL USERS</div>
-                <div id="statTotalUsers" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
+    <div class="nav-tabs" id="admin-nav">
+        <button class="tab-btn active" onclick="switchNav('games', this)" id="nav-games-btn"><i class="fas fa-gamepad"></i> Games & Matches</button>
+        <button class="tab-btn" onclick="switchNav('users', this)" id="nav-users-btn"><i class="fas fa-users-cog"></i> Users List</button>
+        <button class="tab-btn" onclick="switchNav('banned', this)" id="nav-banned-btn"><i class="fas fa-ban"></i> Banned List</button>
+        <button class="tab-btn" onclick="switchNav('banners', this)" id="nav-banners-btn"><i class="fas fa-image"></i> Banners</button>
+        <button class="tab-btn" onclick="switchNav('payment', this)" id="nav-payment-btn"><i class="fas fa-wallet"></i> Payment Settings</button>
+        <button class="tab-btn" onclick="switchNav('admins', this)" id="nav-admins-btn" style="display:none;"><i class="fas fa-crown"></i> Admins Management</button>
+    </div>
 
-            <div class="admin-card p-4 text-center">
-                <div class="text-cyan-400 text-xl mb-1"><i class="fa-solid fa-gamepad"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">TOTAL MATCHES</div>
-                <div id="statTotalMatches" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
-
-            <div class="admin-card p-4 text-center">
-                <div class="text-amber-400 text-xl mb-1"><i class="fa-solid fa-sack-dollar"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">PENDING ADD MONEY</div>
-                <div id="statPendingMoney" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
-
-            <div class="admin-card p-4 text-center">
-                <div class="text-rose-400 text-xl mb-1"><i class="fa-solid fa-ban"></i></div>
-                <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">BANNED USERS</div>
-                <div id="statBannedUsers" class="text-2xl font-extrabold heading-font text-white mt-1">0</div>
-            </div>
-        </div>
-
-        <!-- Horizontal Tab Navigation Bar -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
-            <button id="tab-matches" onclick="switchTab('matches')" class="nav-tab active px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-gamepad"></i> Matches & Categories
-            </button>
-            <button id="tab-deposits" onclick="switchTab('deposits')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-credit-card"></i> Add Money Requests
-            </button>
-            <button id="tab-users" onclick="switchTab('users')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-users"></i> Users List
-            </button>
-            <button id="tab-banned" onclick="switchTab('banned')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-user-slash"></i> Ban List
-            </button>
-            <button id="tab-banners" onclick="switchTab('banners')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-image"></i> Banners
-            </button>
-            <button id="tab-payment" onclick="switchTab('payment')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-wallet"></i> Payment Settings
-            </button>
-            <button id="tab-admins" onclick="switchTab('admins')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2">
-                <i class="fa-solid fa-crown text-amber-400"></i> Admins
-            </button>
-        </div>
-
-        <!-- TAB 1: MATCHES & CATEGORIES -->
-        <section id="section-matches" class="main-container p-6">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white">
-                        <i class="fa-solid fa-trophy text-purple-400"></i> Tournament Match Categories
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">Click any category card to manage its active matches.</p>
+    <div class="main-content">
+        <!-- 1. Games Panel -->
+        <div id="games-panel" class="tab-panel active">
+            <div class="section-header"><i class="fas fa-plus-circle"></i> Create New Category</div>
+            <div class="input-card">
+                <div class="input-group">
+                    <input type="text" id="cat-title" placeholder="Category Name (e.g. BR Match)">
+                    <input type="text" id="cat-image" placeholder="Square Image URL (1:1 Ratio)">
+                    <button class="action-btn" onclick="addCategory()">ADD CATEGORY</button>
                 </div>
-                <button onclick="promptCreateCategory()" class="btn-gradient-purple text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-plus"></i> Add Category
-                </button>
             </div>
+            <div class="section-header"><i class="fas fa-list-ul"></i> Match Categories</div>
+            <div id="categories-container" class="category-grid"></div>
+        </div>
 
-            <!-- Categories Grid (Top-Up Style Cards) -->
-            <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                <!-- Dynamically Rendered Category Cards -->
-            </div>
-        </section>
-
-        <!-- TAB 2: ADD MONEY REQUESTS -->
-        <section id="section-deposits" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-4">
-                <i class="fa-solid fa-credit-card text-purple-400"></i> Manual Deposit Requests
-            </h2>
-            <div id="depositRequestsContainer" class="space-y-3">
-                <p class="text-slate-400 text-sm italic">Loading deposit requests...</p>
-            </div>
-        </section>
-
-        <!-- TAB 3: USERS LIST -->
-        <section id="section-users" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-4">
-                <i class="fa-solid fa-users text-purple-400"></i> Registered Users List
-            </h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+        <!-- 2. Users List Panel -->
+        <div id="users-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-users"></i> Registered Users Management</div>
+            <div class="table-container">
+                <table>
                     <thead>
-                        <tr class="border-b border-[#222543] text-xs font-semibold text-slate-400 uppercase">
-                            <th class="py-3 px-4">User Email</th>
-                            <th class="py-3 px-4">Phone Number</th>
-                            <th class="py-3 px-4">Wallet Balance</th>
-                            <th class="py-3 px-4 text-right">Actions</th>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Email / Phone</th>
+                            <th>Wallet Balance</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="usersTableBody" class="divide-y divide-[#1e223d] text-sm">
-                        <!-- Dynamically Populated Users -->
-                    </tbody>
+                    <tbody id="users-list-body"></tbody>
                 </table>
             </div>
-        </section>
+        </div>
 
-        <!-- TAB 4: BAN LIST -->
-        <section id="section-banned" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-4">
-                <i class="fa-solid fa-user-slash text-rose-400"></i> Banned Accounts
-            </h2>
-            <div id="bannedUsersContainer" class="space-y-3">
-                <p class="text-slate-400 text-sm">Loading banned accounts...</p>
+        <!-- 3. Banned List Panel -->
+        <div id="banned-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-ban"></i> Banned Accounts</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Reason</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="banned-list-body"></tbody>
+                </table>
             </div>
-        </section>
+        </div>
 
-        <!-- TAB 5: BANNERS -->
-        <section id="section-banners" class="main-container p-6 hidden">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white">
-                    <i class="fa-solid fa-image text-purple-400"></i> Home Slider Banners
-                </h2>
-                <button onclick="promptAddBanner()" class="btn-gradient-purple text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Add Banner Image
-                </button>
+        <!-- 4. Admins Panel -->
+        <div id="admins-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-crown"></i> Admin Management</div>
+            <div class="info-box">
+                <p>💡 <b>Super Admin:</b> সব কাজ + Wallet manage + Admin manage করতে পারবে</p>
+                <p>💡 <b>Normal Admin:</b> নির্দিষ্ট পারমিশন অনুযায়ী কাজ করতে পারবে</p>
             </div>
-            <div id="bannersGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Banners Rendered Here -->
+            <div class="admin-action-btns">
+                <button class="btn-add-super" onclick="promptAddAdmin('super')"><i class="fas fa-plus"></i> Add Super Admin</button>
+                <button class="btn-add-normal" onclick="promptAddAdmin('normal')"><i class="fas fa-plus"></i> Add Normal Admin</button>
             </div>
-        </section>
+            <div class="sub-section-title"><i class="fas fa-crown" style="color:#ffb703;"></i> Super Admins</div>
+            <div id="super-admins-list" class="admin-cards-list"></div>
+            <div class="sub-section-title"><i class="fas fa-wrench" style="color:var(--info);"></i> Normal Admins</div>
+            <div id="normal-admins-list" class="admin-cards-list"></div>
+        </div>
 
-        <!-- TAB 6: PAYMENT SETTINGS -->
-        <section id="section-payment" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-6">
-                <i class="fa-solid fa-wallet text-purple-400"></i> Gateway & Deposit Settings
-            </h2>
-
-            <div class="p-4 bg-[#181a2e] border border-[#232747] rounded-xl mb-6 flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-sm text-white">Deposit Verification Mode</h3>
-                    <p class="text-xs text-slate-400">Automatic SMS Transaction verification vs Manual Approval.</p>
-                </div>
-                <button id="toggleAutoModeBtn" onclick="togglePaymentMode()" class="px-4 py-2 rounded-xl text-xs font-bold text-white transition">
-                    Loading Mode...
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="admin-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-pink-500 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> bKash Number
-                        </span>
-                        <input type="checkbox" id="bkashActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-purple-600 rounded">
+        <!-- 5. Payment Panel -->
+        <div id="payment-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-robot"></i> Auto Add Money & Payment Gateway</div>
+            <div class="input-card">
+                <div class="switch-container">
+                    <div>
+                        <b style="color:var(--accent); font-size: 16px;">AUTO ADD MONEY SERVICE</b>
+                        <p style="color:var(--text-dim); font-size: 12px;">Enable/Disable instant automatic balance adding via TrxID</p>
                     </div>
-                    <input type="text" id="bkashNumberInput" placeholder="017XXXXXXXX" class="w-full bg-[#0c0d18] border border-[#222543] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500">
+                    <label class="switch"><input type="checkbox" id="auto-gateway-toggle"><span class="slider"></span></label>
                 </div>
-
-                <div class="admin-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-orange-400 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> Nagad Number
-                        </span>
-                        <input type="checkbox" id="nagadActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-purple-600 rounded">
-                    </div>
-                    <input type="text" id="nagadNumberInput" placeholder="018XXXXXXXX" class="w-full bg-[#0c0d18] border border-[#222543] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500">
+                <hr style="border-color:#25164d; margin: 20px 0;">
+                <div class="input-group">
+                    <b style="width: 120px; color:#ff4081;"><i class="fas fa-mobile-alt"></i> bKash:</b>
+                    <input type="text" id="bkash-num" placeholder="bKash Number">
+                    <label class="switch"><input type="checkbox" id="bkash-toggle"><span class="slider"></span></label>
                 </div>
-
-                <div class="admin-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-purple-400 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> Rocket Number
-                        </span>
-                        <input type="checkbox" id="rocketActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-purple-600 rounded">
-                    </div>
-                    <input type="text" id="rocketNumberInput" placeholder="019XXXXXXXX" class="w-full bg-[#0c0d18] border border-[#222543] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500">
+                <div class="input-group">
+                    <b style="width: 120px; color:#ff9800;"><i class="fas fa-mobile-alt"></i> Nagad:</b>
+                    <input type="text" id="nagad-num" placeholder="Nagad Number">
+                    <label class="switch"><input type="checkbox" id="nagad-toggle"><span class="slider"></span></label>
                 </div>
-            </div>
-
-            <button onclick="savePaymentSettings()" class="mt-6 btn-gradient-purple text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2">
-                <i class="fa-solid fa-floppy-disk"></i> Save Gateway Numbers
-            </button>
-        </section>
-
-        <!-- TAB 7: ADMINS MANAGEMENT -->
-        <section id="section-admins" class="main-container p-6 hidden">
-            <h2 class="text-xl font-bold heading-font flex items-center gap-2 text-white mb-2">
-                <i class="fa-solid fa-crown text-amber-400"></i> Admin Access Management
-            </h2>
-
-            <div class="bg-[#1c1f3b] border border-[#2e335e] rounded-xl p-4 mb-6 text-xs text-slate-300 space-y-1.5">
-                <div class="flex items-center gap-2 text-amber-300 font-semibold">
-                    <i class="fa-solid fa-lightbulb"></i> <span>Super Admin:</span> <span class="text-slate-300 font-normal">সব কাজ + Wallet manage + Admin manage</span>
+                <div class="input-group">
+                    <b style="width: 120px; color:#9c27b0;"><i class="fas fa-mobile-alt"></i> Rocket:</b>
+                    <input type="text" id="rocket-num" placeholder="Rocket Number">
+                    <label class="switch"><input type="checkbox" id="rocket-toggle"><span class="slider"></span></label>
                 </div>
-                <div class="flex items-center gap-2 text-cyan-300 font-semibold">
-                    <i class="fa-solid fa-lightbulb"></i> <span>Normal Admin:</span> <span class="text-slate-300 font-normal">শুধু order/payment/product/ban manage</span>
-                </div>
+                <button class="action-btn" onclick="savePaymentSettings()" style="width:100%; margin-top:15px;">SAVE PAYMENT SETTINGS</button>
             </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                <button onclick="promptAddAdmin('super')" class="btn-gradient-green text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-plus"></i> Add Super Admin
-                </button>
-                <button onclick="promptAddAdmin('normal')" class="btn-gradient-blue text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-plus"></i> Add Normal Admin
-                </button>
-            </div>
-
-            <div class="mb-8">
-                <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-crown"></i> Super Admins
-                </h3>
-                <div id="superAdminsList" class="space-y-3"></div>
-            </div>
-
-            <div>
-                <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-user-gear"></i> Normal Admins
-                </h3>
-                <div id="normalAdminsList" class="space-y-3"></div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- ========================================================================= -->
-    <!-- MATCH MANAGEMENT OVERLAY -->
-    <!-- ========================================================================= -->
-    <div id="matchManagementScreen" class="fixed inset-0 bg-black z-[100] hidden flex-col font-sans">
-        <div class="flex items-center px-4 py-3 bg-black border-b border-gray-900 text-white">
-            <button onclick="closeMatchManagement()" class="p-1 mr-3 text-white text-xl">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <h1 class="text-lg font-semibold tracking-wide">Match Management</h1>
-            <span id="currentCategoryTitleDisplay" class="ml-auto text-xs text-slate-400 font-medium"></span>
         </div>
 
-        <div class="flex border-b border-gray-800 bg-black text-xs font-semibold">
-            <div class="flex-1 text-center py-3 text-blue-500 border-b-2 border-blue-500 cursor-pointer">Matches</div>
-            <div class="flex-1 text-center py-3 text-gray-500 cursor-pointer">Ongoing</div>
-            <div class="flex-1 text-center py-3 text-gray-500 cursor-pointer">Results</div>
-        </div>
-
-        <div id="matchListContent" class="flex-1 overflow-y-auto p-4 space-y-3 bg-black">
-            <!-- Dynamically Rendered Matches -->
-        </div>
-
-        <button onclick="openMatchAddScreen()" class="fixed bottom-8 right-6 w-14 h-14 bg-[#f3e8ff] hover:bg-[#e9d5ff] rounded-2xl flex items-center justify-center text-black text-2xl shadow-2xl transition-transform active:scale-95 z-[105]">
-            <i class="fa-solid fa-plus"></i>
-        </button>
-    </div>
-
-    <!-- ========================================================================= -->
-    <!-- MATCH ADD FORM OVERLAY -->
-    <!-- ========================================================================= -->
-    <div id="matchAddScreen" class="fixed inset-0 bg-[#ffffff] z-[110] hidden flex-col font-sans">
-        <div class="flex items-center px-4 py-3 bg-black text-white">
-            <button onclick="closeMatchAddScreen()" class="p-1 mr-3 text-white text-xl">
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <h1 class="text-lg font-semibold tracking-wide">Match Add</h1>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-4 space-y-3.5 pb-24 max-w-lg mx-auto w-full">
-            <input type="text" id="ma_title" placeholder="MATCH TITLE" class="match-input">
-            
-            <div class="grid grid-cols-2 gap-3">
-                <input type="date" id="ma_date" class="match-input uppercase" title="MATCH DATE">
-                <input type="time" id="ma_time" class="match-input uppercase" title="MATCH TIME">
+        <!-- 6. Banners Panel -->
+        <div id="banners-panel" class="tab-panel">
+            <div class="section-header"><i class="fas fa-image"></i> App Home Banners</div>
+            <div class="input-card">
+                <div class="input-group">
+                    <input type="text" id="banner-url" placeholder="Banner Image URL">
+                    <button class="action-btn" onclick="addBanner()">ADD BANNER</button>
+                </div>
             </div>
-            
-            <input type="time" id="ma_timer" class="match-input uppercase" placeholder="TIMER (24 Hours Format)" title="TIMER">
-            
-            <div class="grid grid-cols-3 gap-2">
-                <input type="number" id="ma_prize" placeholder="WIN PRIZE" class="match-input">
-                <input type="number" id="ma_perkill" placeholder="PER KILL" class="match-input">
-                <input type="number" id="ma_fee" placeholder="ENTRY FEE" class="match-input">
-            </div>
-            
-            <div class="grid grid-cols-2 gap-3 pt-1 text-center font-bold text-xs text-black uppercase">
-                <span>TYPE</span>
-                <span>VERSION</span>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <select id="ma_type" class="match-input text-center font-semibold">
-                    <option value="Solo">Solo</option>
-                    <option value="Duo">Duo</option>
-                    <option value="Squad">Squad</option>
-                </select>
-                <input type="text" id="ma_version" value="MOBILE" class="match-input text-center font-semibold">
-            </div>
-            
-            <div class="text-center font-bold text-xs text-black uppercase pt-1">MAP</div>
-            <input type="text" id="ma_map" value="Bermuda" class="match-input">
-            
-            <input type="number" id="ma_slots" placeholder="MATCH SLOTS" class="match-input">
-            
-            <textarea id="ma_details" placeholder="PRIZE DETAILS" class="match-input h-24 resize-none"></textarea>
-            
-            <div class="grid grid-cols-2 gap-3 pt-3">
-                <button onclick="closeMatchAddScreen()" class="w-full bg-[#e2e8f0] hover:bg-slate-300 text-black font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider">
-                    CANCEL
-                </button>
-                <button onclick="submitMatchAdd()" class="w-full bg-[#f59e0b] hover:bg-amber-600 text-white font-bold py-3.5 rounded-lg text-xs uppercase tracking-wider shadow-md">
-                    CREATE
-                </button>
-            </div>
+            <div id="banners-container" class="category-grid"></div>
         </div>
     </div>
 
+    <!-- Permissions Modal Overlay -->
+    <div id="perm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-sliders-h"></i> Admin Permissions</h3>
+                <button class="close-btn" onclick="closePermModal()">&times;</button>
+            </div>
+            <p id="modal-email-title" style="color:var(--text-dim); font-size:12px; margin-bottom:15px;"></p>
+            <div id="modal-body"></div>
+        </div>
+    </div>
 
-    <!-- JS LOGIC -->
     <script>
+        const Popup = Swal.mixin({
+            background: '#150a2e',
+            color: '#ffffff',
+            confirmButtonColor: '#9d00ff',
+            cancelButtonColor: '#ff1744',
+            customClass: { popup: 'my-swal' }
+        });
+
+        // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
             authDomain: "oxi-esports.firebaseapp.com",
-            databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com",
             projectId: "oxi-esports",
             storageBucket: "oxi-esports.firebasestorage.app",
             messagingSenderId: "924353594492",
-            appId: "1:924353594492:web:08329a3d1f67e7a5da35f9"
+            appId: "1:924353594492:web:08329a3d1f67e7a5da35f9",
+            databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com"
         };
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
-        let currentUser = null;
-        let currentUserCleanEmail = '';
+        let currentUserCleanEmail = "";
         let isSuperAdmin = false;
-        let currentActiveCategoryKey = null;
 
-        function emailToKey(email) {
-            return email ? email.replace(/\./g, ',') : '';
+        function emailToKey(email) { return email ? email.replace(/\./g, ',') : ''; }
+
+        function switchNav(panelName, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            const selectedPanel = document.getElementById(panelName + '-panel');
+            if (selectedPanel) selectedPanel.classList.add('active');
+            if (btn) btn.classList.add('active');
         }
 
-        const SwalDark = Swal.mixin({
-            customClass: {
-                popup: 'bg-[#15172a] text-white border border-[#222543] rounded-2xl',
-                title: 'text-white font-bold',
-                confirmButton: 'btn-gradient-purple text-white font-bold px-4 py-2 rounded-xl text-sm mx-1',
-                cancelButton: 'bg-slate-700 text-white font-bold px-4 py-2 rounded-xl text-sm mx-1'
-            },
-            buttonsStyling: false
-        });
-
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
-            currentUser = user;
-            currentUserCleanEmail = emailToKey(user.email);
-            document.getElementById('adminEmailDisplay').innerText = user.email;
-
-            // Check Admin Status
-            const superSnap = await db.ref(`superAdmins/${currentUserCleanEmail}`).once('value');
-            const normalSnap = await db.ref(`admins/${currentUserCleanEmail}`).once('value');
-
-            if (superSnap.exists()) {
-                isSuperAdmin = true;
-                document.getElementById('roleBadge').innerHTML = '<i class="fa-solid fa-crown font-bold"></i> Super Admin';
-            } else if (normalSnap.exists()) {
-                isSuperAdmin = false;
-                document.getElementById('roleBadge').innerHTML = '<i class="fa-solid fa-user-gear"></i> Normal Admin';
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserCleanEmail = emailToKey(user.email);
+                checkAdminRole(currentUserCleanEmail);
             } else {
-                SwalDark.fire('Access Denied', 'You do not have admin permissions.', 'error').then(() => {
-                    auth.signOut();
-                    window.location.href = 'index.html';
-                });
-                return;
+                window.location.href = 'index.html';
             }
-
-            initRealtimeListeners();
         });
 
-        function handleLogout() {
-            auth.signOut().then(() => window.location.href = 'index.html');
-        }
-
-        function switchTab(tab) {
-            const tabs = ['matches', 'deposits', 'users', 'banned', 'banners', 'payment', 'admins'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                const sec = document.getElementById(`section-${t}`);
-                if (btn && sec) {
-                    if (t === tab) {
-                        btn.classList.add('active');
-                        sec.classList.remove('hidden');
-                    } else {
-                        btn.classList.remove('active');
-                        sec.classList.add('hidden');
-                    }
+        function checkAdminRole(key) {
+            db.ref(`superAdmins/${key}`).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    isSuperAdmin = true;
+                    document.getElementById('admin-role-badge').innerText = 'SUPER ADMIN';
+                    document.getElementById('nav-admins-btn').style.display = 'flex';
+                    initDashboard();
+                } else {
+                    db.ref(`admins/${key}`).once('value', adminSnap => {
+                        if (adminSnap.exists()) {
+                            isSuperAdmin = false;
+                            document.getElementById('admin-role-badge').innerText = 'ADMIN';
+                            applyNormalAdminPermissions(key);
+                            initDashboard();
+                        } else {
+                            Popup.fire('Access Denied!', 'You are not an Admin.', 'error').then(() => {
+                                auth.signOut().then(() => window.location.href = 'index.html');
+                            });
+                        }
+                    });
                 }
             });
         }
 
-        function initRealtimeListeners() {
-            // Stats & Users Listener (Phone Number Fix Applied)
+        function applyNormalAdminPermissions(key) {
+            db.ref(`adminPermissions/${key}`).on('value', snapshot => {
+                const perms = snapshot.val() || {};
+                document.getElementById('nav-games-btn').style.display = perms.games ? 'flex' : 'none';
+                document.getElementById('nav-users-btn').style.display = perms.users ? 'flex' : 'none';
+                document.getElementById('nav-banned-btn').style.display = perms.banned ? 'flex' : 'none';
+                document.getElementById('nav-banners-btn').style.display = perms.banners ? 'flex' : 'none';
+                document.getElementById('nav-payment-btn').style.display = perms.payment ? 'flex' : 'none';
+            });
+        }
+
+        function initDashboard() {
+            fetchStats();
+            fetchCategories();
+            fetchUsersList();
+            fetchBannedList();
+            loadPaymentSettings();
+            fetchBanners();
+            if (isSuperAdmin) fetchAdminsList();
+        }
+
+        function fetchStats() {
+            db.ref('users').on('value', s => document.getElementById('total-users').innerText = s.numChildren());
+            db.ref('bannedUsers').on('value', s => document.getElementById('total-banned').innerText = s.numChildren());
+            db.ref('banners').on('value', s => document.getElementById('total-banners').innerText = s.numChildren());
+        }
+
+        // --- Categories Grid Logic (Fixed) ---
+        function addCategory() {
+            const title = document.getElementById('cat-title').value.trim();
+            const img = document.getElementById('cat-image').value.trim();
+            if (!title || !img) return Popup.fire('Oops!', 'Please fill all fields.', 'error');
+
+            db.ref('match_categories').push({ title, image: img }).then(() => {
+                document.getElementById('cat-title').value = '';
+                document.getElementById('cat-image').value = '';
+                Popup.fire('Added!', 'Category created successfully.', 'success');
+            });
+        }
+
+        function fetchCategories() {
+            db.ref('match_categories').on('value', snapshot => {
+                const container = document.getElementById('categories-container');
+                container.innerHTML = '';
+                let count = 0;
+
+                snapshot.forEach(child => {
+                    count++;
+                    const data = child.val();
+                    const key = child.key;
+
+                    const div = document.createElement('div');
+                    div.className = 'category-card';
+                    div.innerHTML = `
+                        <img src="${data.image}">
+                        <h3>${data.title}</h3>
+                        <div style="text-align:center; padding-bottom:15px;">
+                            <button class="delete-btn" onclick="deleteCategory('${key}')"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+
+                document.getElementById('total-categories').innerText = count;
+            });
+        }
+
+        function deleteCategory(key) {
+            Popup.fire({
+                title: 'Delete Category?', text: "You cannot undo this action!", icon: 'warning',
+                showCancelButton: true, confirmButtonText: 'Yes, Delete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.ref(`match_categories/${key}`).remove();
+                    Popup.fire('Deleted!', 'Category deleted.', 'success');
+                }
+            });
+        }
+
+        // --- Registered Users Management ---
+        function fetchUsersList() {
             db.ref('users').on('value', snapshot => {
-                const users = snapshot.val() || {};
-                const userKeys = Object.keys(users);
-                document.getElementById('statTotalUsers').innerText = userKeys.length;
+                const body = document.getElementById('users-list-body');
+                body.innerHTML = '';
 
-                const tbody = document.getElementById('usersTableBody');
-                tbody.innerHTML = '';
+                snapshot.forEach(child => {
+                    const u = child.val();
+                    const key = child.key;
 
-                userKeys.forEach(k => {
-                    const u = users[k];
-                    
-                    // Checking multiple fields to ensure phone number is found
-                    const realPhone = u.phone || u.mobile || u.phoneNumber || u.number || 'N/A';
-
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-[#181a2e] transition';
-                    tr.innerHTML = `
-                        <td class="py-3 px-4 font-medium text-white">${u.email || k.replace(/,/g, '.')}</td>
-                        <td class="py-3 px-4 text-slate-300 font-mono">${realPhone}</td>
-                        <td class="py-3 px-4 text-emerald-400 font-bold">৳${u.wallet || 0}</td>
-                        <td class="py-3 px-4 text-right space-x-2">
-                            <button onclick="editUserBalance('${k}', ${u.wallet || 0})" class="bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 border border-indigo-500/40 text-xs px-2.5 py-1 rounded-lg font-medium transition">
-                                Coins
-                            </button>
-                            <button onclick="banUser('${k}', '${u.email}')" class="bg-rose-600/30 hover:bg-rose-600 text-rose-300 border border-rose-500/40 text-xs px-2.5 py-1 rounded-lg font-medium transition">
-                                Ban
-                            </button>
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><b>${u.name || 'User'}</b></td>
+                        <td>${u.email}<br><small style="color:var(--accent);">${u.phone || 'No Phone'}</small></td>
+                        <td><b style="color:#00e676;">৳ ${u.wallet || 0}</b></td>
+                        <td>
+                            <button class="btn-small btn-edit" onclick="editWallet('${key}', ${u.wallet || 0})"><i class="fas fa-wallet"></i> Wallet</button>
+                            <button class="btn-small btn-ban" onclick="banUser('${key}', '${u.email}')"><i class="fas fa-ban"></i> Ban</button>
+                            <button class="btn-small btn-delete" onclick="deleteUser('${key}')"><i class="fas fa-trash"></i></button>
                         </td>
                     `;
-                    tbody.appendChild(tr);
-                });
-            });
-
-            // Total Matches Stat
-            db.ref('matches').on('value', snapshot => {
-                const matches = snapshot.val() || {};
-                document.getElementById('statTotalMatches').innerText = Object.keys(matches).length;
-            });
-
-            // Deposit Requests
-            db.ref('deposit_requests').on('value', snapshot => {
-                const requests = snapshot.val() || {};
-                const pending = Object.entries(requests).filter(([k, v]) => v.status === 'pending');
-                document.getElementById('statPendingMoney').innerText = pending.length;
-
-                const container = document.getElementById('depositRequestsContainer');
-                container.innerHTML = '';
-
-                if (pending.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-sm">No pending deposit requests.</p>`;
-                    return;
-                }
-
-                pending.forEach(([reqId, req]) => {
-                    const div = document.createElement('div');
-                    div.className = 'admin-card p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3';
-                    div.innerHTML = `
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="uppercase text-xs font-bold px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded border border-purple-500/30">${req.gateway || 'Deposit'}</span>
-                                <span class="text-xs text-slate-400 font-mono">${new Date(req.timestamp || Date.now()).toLocaleString()}</span>
-                            </div>
-                            <div class="text-sm font-semibold text-white mt-1">User: ${req.userEmail || req.userKey}</div>
-                            <div class="text-xs text-slate-300 font-mono mt-0.5">TrxID: <span class="text-amber-300">${req.trxId}</span> | Amount: <span class="text-emerald-400 font-bold">৳${req.amount}</span></div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="approveDeposit('${reqId}', '${req.userKey}', ${req.amount})" class="btn-gradient-green text-white text-xs px-3.5 py-1.5 rounded-lg font-bold">Approve</button>
-                            <button onclick="rejectDeposit('${reqId}')" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-bold">Reject</button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-            });
-
-            // Banned Users
-            db.ref('bannedUsers').on('value', snapshot => {
-                const banned = snapshot.val() || {};
-                const bannedKeys = Object.keys(banned);
-                document.getElementById('statBannedUsers').innerText = bannedKeys.length;
-
-                const container = document.getElementById('bannedUsersContainer');
-                container.innerHTML = '';
-
-                if (bannedKeys.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-sm">No banned users.</p>`;
-                    return;
-                }
-
-                bannedKeys.forEach(k => {
-                    const b = banned[k];
-                    const div = document.createElement('div');
-                    div.className = 'admin-card p-4 flex items-center justify-between';
-                    div.innerHTML = `
-                        <div>
-                            <div class="text-sm font-bold text-rose-400">${b.email || k.replace(/,/g, '.')}</div>
-                            <div class="text-xs text-slate-400 mt-0.5">Reason: ${b.reason || 'N/A'}</div>
-                        </div>
-                        <button onclick="unbanUser('${k}')" class="bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 border border-emerald-500/40 text-xs px-3 py-1.5 rounded-lg font-bold transition">
-                            Unban
-                        </button>
-                    `;
-                    container.appendChild(div);
-                });
-            });
-
-            // Load Match Categories
-            loadTopUpCategories();
-
-            // Render Admins
-            renderAdminsList();
-
-            // Payment Settings
-            db.ref('paymentSettings').on('value', snapshot => {
-                const ps = snapshot.val() || {};
-                document.getElementById('bkashNumberInput').value = ps.bkash || '';
-                document.getElementById('nagadNumberInput').value = ps.nagad || '';
-                document.getElementById('rocketNumberInput').value = ps.rocket || '';
-
-                document.getElementById('bkashActiveToggle').checked = !!ps.bkashActive;
-                document.getElementById('nagadActiveToggle').checked = !!ps.nagadActive;
-                document.getElementById('rocketActiveToggle').checked = !!ps.rocketActive;
-
-                const modeBtn = document.getElementById('toggleAutoModeBtn');
-                if (ps.autoAddMoneyActive) {
-                    modeBtn.className = 'btn-gradient-green px-4 py-2 rounded-xl text-xs font-bold text-white shadow';
-                    modeBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Mode: Automatic SMS Verification';
-                } else {
-                    modeBtn.className = 'btn-gradient-purple px-4 py-2 rounded-xl text-xs font-bold text-white shadow';
-                    modeBtn.innerHTML = '<i class="fa-solid fa-hand"></i> Mode: Manual Processing';
-                }
-            });
-
-            // Banners Render
-            db.ref('banners').on('value', snapshot => {
-                const banners = snapshot.val() || {};
-                const grid = document.getElementById('bannersGrid');
-                grid.innerHTML = '';
-
-                Object.entries(banners).forEach(([bKey, bVal]) => {
-                    const card = document.createElement('div');
-                    card.className = 'admin-card p-3 relative group';
-                    card.innerHTML = `
-                        <img src="${bVal.image}" class="w-full h-32 object-cover rounded-lg">
-                        <button onclick="deleteBanner('${bKey}')" class="absolute top-5 right-5 bg-rose-600 text-white p-2 rounded-lg text-xs shadow">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    `;
-                    grid.appendChild(card);
+                    body.appendChild(row);
                 });
             });
         }
 
-        // Categories Map
-        function loadTopUpCategories() {
-            db.ref('match_categories').on('value', snapshot => {
-                const categories = snapshot.val() || {};
-                const grid = document.getElementById('categoriesGrid');
-                grid.innerHTML = '';
-
-                Object.entries(categories).forEach(([catKey, cat]) => {
-                    const card = document.createElement('div');
-                    card.className = 'topup-card relative group cursor-pointer';
-                    card.innerHTML = `
-                        <div onclick="openMatchManagement('${catKey}', '${cat.title}')" class="relative pb-[100%] w-full bg-[#0b061c]">
-                            <img src="${cat.image || 'https://via.placeholder.com/512'}" class="absolute inset-0 w-full h-full object-cover">
-                        </div>
-                        <div class="p-3 bg-[#120a28] flex items-center justify-between">
-                            <span onclick="openMatchManagement('${catKey}', '${cat.title}')" class="font-bold text-xs text-white truncate flex-1">${cat.title}</span>
-                            <button onclick="deleteCategory('${catKey}')" class="text-rose-500 hover:text-rose-400 text-xs pl-2">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    grid.appendChild(card);
-                });
-            });
-        }
-
-        async function promptCreateCategory() {
-            const { value: formValues } = await SwalDark.fire({
-                title: 'New Category',
-                html: `
-                    <input id="swal-cat-title" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Category Title">
-                    <input id="swal-cat-img" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Image URL (512x512)">
-                `,
-                focusConfirm: false,
-                showCancelButton: true,
-                preConfirm: () => ({
-                    title: document.getElementById('swal-cat-title').value,
-                    image: document.getElementById('swal-cat-img').value
-                })
-            });
-
-            if (formValues && formValues.title) {
-                await db.ref('match_categories').push(formValues);
-            }
-        }
-
-        async function deleteCategory(catKey) {
-            const confirm = await SwalDark.fire({ title: 'Delete Category?', showCancelButton: true });
-            if (confirm.isConfirmed) {
-                await db.ref(`match_categories/${catKey}`).remove();
-            }
-        }
-
-        // Matches
-        function openMatchManagement(catKey, catTitle) {
-            currentActiveCategoryKey = catKey;
-            document.getElementById('currentCategoryTitleDisplay').innerText = catTitle;
-            document.getElementById('matchManagementScreen').style.display = 'flex';
-
-            db.ref('matches').orderByChild('categoryKey').equalTo(catKey).on('value', snapshot => {
-                const matches = snapshot.val() || {};
-                const list = document.getElementById('matchListContent');
-                list.innerHTML = '';
-
-                const mList = Object.entries(matches);
-                if (mList.length === 0) {
-                    list.innerHTML = `<p class="text-center text-slate-600 text-xs py-10">No active matches found under this category.</p>`;
-                    return;
-                }
-
-                mList.forEach(([mKey, m]) => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-[#121212] border border-[#262626] rounded-xl p-4 text-white space-y-2';
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between">
-                            <h3 class="font-bold text-sm text-white">${m.title}</h3>
-                            <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">৳${m.entryFee || 0} ENTRY</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-400 bg-[#0a0a0a] p-2.5 rounded-lg border border-[#1f1f1f]">
-                            <div>Date: <span class="text-white">${m.matchDate || '-'}</span></div>
-                            <div>Time: <span class="text-white">${m.matchTime || '-'}</span></div>
-                            <div>Win Prize: <span class="text-emerald-400 font-bold">৳${m.winPrize || 0}</span></div>
-                            <div>Per Kill: <span class="text-white">৳${m.perKill || 0}</span></div>
-                            <div>Map: <span class="text-white">${m.map || '-'}</span></div>
-                            <div>Type: <span class="text-purple-300">${m.type || '-'}</span></div>
-                        </div>
-                        <div class="flex items-center gap-2 pt-1">
-                            <button onclick="setRoomDetailsPrompt('${mKey}')" class="flex-1 bg-blue-600/30 hover:bg-blue-600 text-blue-300 text-xs py-1.5 rounded-lg font-bold border border-blue-500/30 transition">
-                                Set Room ID/Pass
-                            </button>
-                            <button onclick="deleteMatch('${mKey}')" class="bg-rose-600/30 hover:bg-rose-600 text-rose-300 text-xs px-3 py-1.5 rounded-lg font-bold border border-rose-500/30 transition">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                    list.appendChild(card);
-                });
-            });
-        }
-
-        function closeMatchManagement() {
-            document.getElementById('matchManagementScreen').style.display = 'none';
-            currentActiveCategoryKey = null;
-        }
-
-        function openMatchAddScreen() {
-            document.getElementById('matchAddScreen').style.display = 'flex';
-            ['ma_title','ma_date','ma_time','ma_timer','ma_prize','ma_perkill','ma_fee','ma_slots','ma_details'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            document.getElementById('ma_type').value = 'Solo';
-            document.getElementById('ma_version').value = 'MOBILE';
-            document.getElementById('ma_map').value = 'Bermuda';
-        }
-
-        function closeMatchAddScreen() {
-            document.getElementById('matchAddScreen').style.display = 'none';
-        }
-
-        async function submitMatchAdd() {
-            const matchData = {
-                categoryKey: currentActiveCategoryKey,
-                title: document.getElementById('ma_title').value,
-                matchDate: document.getElementById('ma_date').value,
-                matchTime: document.getElementById('ma_time').value,
-                timer: document.getElementById('ma_timer').value,
-                winPrize: document.getElementById('ma_prize').value,
-                perKill: document.getElementById('ma_perkill').value,
-                entryFee: Number(document.getElementById('ma_fee').value),
-                type: document.getElementById('ma_type').value,
-                version: document.getElementById('ma_version').value,
-                map: document.getElementById('ma_map').value,
-                slots: document.getElementById('ma_slots').value,
-                prizeDetails: document.getElementById('ma_details').value,
-                roomId: '',
-                roomPassword: '',
-                timestamp: Date.now()
-            };
-
-            if (!matchData.title || !matchData.entryFee) {
-                SwalDark.fire('Required', 'Please fill in Title and Entry Fee', 'error');
-                return;
-            }
-
-            await db.ref('matches').push().set(matchData);
-            closeMatchAddScreen();
-            SwalDark.fire('Created!', 'New match has been added.', 'success');
-        }
-
-        async function setRoomDetailsPrompt(mKey) {
-            const mSnap = await db.ref(`matches/${mKey}`).once('value');
-            const match = mSnap.val() || {};
-
-            const { value: formValues } = await SwalDark.fire({
-                title: 'Set Room Credentials',
-                html: `
-                    <input id="swal-rid" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Room ID" value="${match.roomId || ''}">
-                    <input id="swal-rpass" class="swal2-input bg-[#0c0d18] text-white border-[#222543]" placeholder="Room Password" value="${match.roomPassword || ''}">
-                `,
-                showCancelButton: true,
-                preConfirm: () => ({
-                    roomId: document.getElementById('swal-rid').value,
-                    roomPassword: document.getElementById('swal-rpass').value
-                })
-            });
-
-            if (formValues) {
-                await db.ref(`matches/${mKey}`).update(formValues);
-                SwalDark.fire('Saved!', 'Room credentials published.', 'success');
-            }
-        }
-
-        async function deleteMatch(mKey) {
-            const confirm = await SwalDark.fire({ title: 'Delete Match?', showCancelButton: true });
-            if (confirm.isConfirmed) {
-                await db.ref(`matches/${mKey}`).remove();
-            }
-        }
-
-        // Others actions (Deposit, Balance, Ban, Admins, etc.)
-        async function approveDeposit(reqId, userKey, amount) {
-            await db.ref(`deposit_requests/${reqId}`).update({ status: 'approved' });
-            await db.ref(`users/${userKey}/wallet`).transaction(c => (c || 0) + amount);
-            SwalDark.fire('Approved', `৳${amount} added to user.`, 'success');
-        }
-
-        async function rejectDeposit(reqId) {
-            await db.ref(`deposit_requests/${reqId}`).update({ status: 'rejected' });
-            SwalDark.fire('Rejected', 'Deposit request rejected.', 'info');
-        }
-
-        async function editUserBalance(uKey, currentBal) {
-            const { value: newBal } = await SwalDark.fire({
-                title: 'Update Balance (৳)',
+        function editWallet(key, currentWallet) {
+            Popup.fire({
+                title: 'Edit Wallet Balance',
+                text: 'Enter new wallet amount (৳):',
                 input: 'number',
-                inputValue: currentBal
-            });
-            if (newBal !== undefined && newBal !== null && newBal !== '') {
-                await db.ref(`users/${uKey}/wallet`).set(Number(newBal));
-            }
-        }
-
-        async function banUser(uKey, email) {
-            const { value: reason } = await SwalDark.fire({
-                title: 'Ban Account',
-                input: 'text',
-                inputPlaceholder: 'Reason for ban...',
-                showCancelButton: true
-            });
-            if (reason) {
-                await db.ref(`bannedUsers/${uKey}`).set({
-                    email: email || uKey.replace(/,/g, '.'),
-                    reason: reason,
-                    bannedAt: Date.now()
-                });
-                SwalDark.fire('Banned', 'Account has been banned.', 'success');
-            }
-        }
-
-        async function unbanUser(uKey) {
-            await db.ref(`bannedUsers/${uKey}`).remove();
-            SwalDark.fire('Restored', 'User account unbanned.', 'success');
-        }
-
-        async function renderAdminsList() {
-            const superSnap = await db.ref('superAdmins').once('value');
-            const normalSnap = await db.ref('admins').once('value');
-
-            const supers = superSnap.val() || {};
-            const normals = normalSnap.val() || {};
-
-            const superContainer = document.getElementById('superAdminsList');
-            const normalContainer = document.getElementById('normalAdminsList');
-
-            superContainer.innerHTML = '';
-            normalContainer.innerHTML = '';
-
-            Object.keys(supers).forEach(key => {
-                const isYou = (key === currentUserCleanEmail);
-                const email = key.replace(/,/g, '.');
-
-                const card = document.createElement('div');
-                card.className = 'admin-card p-4 flex items-center justify-between';
-                card.innerHTML = `
-                    <div>
-                        <div class="font-bold text-amber-400 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-crown"></i> ${email}
-                        </div>
-                        <div class="text-xs text-slate-400 mt-0.5">${isYou ? 'Super Admin (You)' : 'Super Admin'}</div>
-                    </div>
-                    <div>
-                        ${isYou ? 
-                            `<span class="bg-[#212542] text-slate-400 text-xs px-3 py-1.5 rounded-lg font-bold border border-[#2d325a]"><i class="fa-solid fa-lock"></i> You</span>` : 
-                            `<button onclick="removeAdmin('super', '${key}')" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-bold shadow"><i class="fa-solid fa-trash"></i> Remove</button>`
-                        }
-                    </div>
-                `;
-                superContainer.appendChild(card);
-            });
-
-            Object.keys(normals).forEach(key => {
-                const isYou = (key === currentUserCleanEmail);
-                const email = key.replace(/,/g, '.');
-
-                const card = document.createElement('div');
-                card.className = 'admin-card p-4 flex items-center justify-between';
-                card.innerHTML = `
-                    <div>
-                        <div class="font-bold text-cyan-400 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-user-gear"></i> ${email}
-                        </div>
-                        <div class="text-xs text-slate-400 mt-0.5">Normal Admin</div>
-                    </div>
-                    <div>
-                        ${isYou ? 
-                            `<span class="bg-[#212542] text-slate-400 text-xs px-3 py-1.5 rounded-lg font-bold border border-[#2d325a]"><i class="fa-solid fa-lock"></i> You</span>` : 
-                            `<button onclick="removeAdmin('normal', '${key}')" class="btn-gradient-red text-white text-xs px-3.5 py-1.5 rounded-lg font-bold shadow"><i class="fa-solid fa-trash"></i> Remove</button>`
-                        }
-                    </div>
-                `;
-                normalContainer.appendChild(card);
-            });
-        }
-
-        async function promptAddAdmin(type) {
-            if (!isSuperAdmin) {
-                SwalDark.fire('Unauthorized', 'Only Super Admins can add admins.', 'error');
-                return;
-            }
-            const { value: email } = await SwalDark.fire({
-                title: type === 'super' ? 'Add Super Admin' : 'Add Normal Admin',
-                input: 'email',
-                inputPlaceholder: 'Admin email...'
-            });
-            if (email) {
-                const key = emailToKey(email);
-                if (type === 'super') {
-                    await db.ref(`superAdmins/${key}`).set(true);
-                } else {
-                    await db.ref(`admins/${key}`).set(true);
+                inputValue: currentWallet,
+                showCancelButton: true,
+                confirmButtonText: 'Update Balance'
+            }).then(result => {
+                if (result.isConfirmed && result.value !== '') {
+                    db.ref(`users/${key}/wallet`).set(parseFloat(result.value)).then(() => {
+                        Popup.fire('Updated!', 'User wallet balance updated.', 'success');
+                    });
                 }
-                renderAdminsList();
-            }
-        }
-
-        async function removeAdmin(type, key) {
-            if (!isSuperAdmin) return;
-            if (key === currentUserCleanEmail) return;
-
-            const confirm = await SwalDark.fire({ title: 'Remove Admin Access?', showCancelButton: true });
-            if (confirm.isConfirmed) {
-                if (type === 'super') await db.ref(`superAdmins/${key}`).remove();
-                else await db.ref(`admins/${key}`).remove();
-                renderAdminsList();
-            }
-        }
-
-        async function promptAddBanner() {
-            const { value: imageUrl } = await SwalDark.fire({
-                title: 'Banner Image URL',
-                input: 'url',
-                inputPlaceholder: 'https://example.com/banner.jpg'
             });
-            if (imageUrl) {
-                await db.ref('banners').push().set({ image: imageUrl });
-            }
         }
 
-        async function deleteBanner(bKey) {
-            await db.ref(`banners/${bKey}`).remove();
-        }
+        function banUser(key, email) {
+            Popup.fire({
+                title: 'Ban Account?',
+                text: 'Enter reason for banning this user:',
+                input: 'text',
+                inputPlaceholder: 'e.g. Fraudulent activity',
+                showCancelButton: true,
+                confirmButtonText: 'Ban User'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const reason = result.value || 'Violation of terms';
+                    const banKey = emailToKey(email);
 
-        async function savePaymentSettings() {
-            const bkash = document.getElementById('bkashNumberInput').value;
-            const nagad = document.getElementById('nagadNumberInput').value;
-            const rocket = document.getElementById('rocketNumberInput').value;
-            const bkashActive = document.getElementById('bkashActiveToggle').checked;
-            const nagadActive = document.getElementById('nagadActiveToggle').checked;
-            const rocketActive = document.getElementById('rocketActiveToggle').checked;
-
-            await db.ref('paymentSettings').update({
-                bkash, nagad, rocket, bkashActive, nagadActive, rocketActive
+                    db.ref(`bannedUsers/${banKey}`).set({
+                        email: email,
+                        reason: reason,
+                        bannedAt: firebase.database.ServerValue.TIMESTAMP
+                    }).then(() => {
+                        Popup.fire('Banned!', `${email} has been banned.`, 'success');
+                    });
+                }
             });
-            SwalDark.fire('Saved', 'Payment details updated.', 'success');
         }
 
-        async function togglePaymentMode() {
-            const psSnap = await db.ref('paymentSettings/autoAddMoneyActive').once('value');
-            const currentVal = !!psSnap.val();
-            await db.ref('paymentSettings').update({ autoAddMoneyActive: !currentVal });
+        function deleteUser(key) {
+            Popup.fire({
+                title: 'Delete User?', text: "This user profile will be removed!", icon: 'warning',
+                showCancelButton: true, confirmButtonText: 'Yes, Delete'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref(`users/${key}`).remove();
+                    Popup.fire('Deleted!', 'User deleted.', 'success');
+                }
+            });
         }
+
+        function fetchBannedList() {
+            db.ref('bannedUsers').on('value', snapshot => {
+                const body = document.getElementById('banned-list-body');
+                body.innerHTML = '';
+                snapshot.forEach(child => {
+                    const b = child.val();
+                    const key = child.key;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${b.email}</td>
+                        <td><span style="color:var(--danger);">${b.reason}</span></td>
+                        <td><button class="btn-small btn-edit" onclick="unbanUser('${key}')">Unban</button></td>
+                    `;
+                    body.appendChild(row);
+                });
+            });
+        }
+
+        function unbanUser(key) {
+            db.ref(`bannedUsers/${key}`).remove().then(() => {
+                Popup.fire('Unbanned!', 'User account unbanned successfully.', 'success');
+            });
+        }
+
+        // --- Admin Access Management ---
+        function promptAddAdmin(role) {
+            const roleName = role === 'super' ? 'Super Admin' : 'Normal Admin';
+            Popup.fire({
+                title: `Add ${roleName}`,
+                input: 'email', inputPlaceholder: 'Email Address',
+                showCancelButton: true, confirmButtonText: 'Add'
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    const key = emailToKey(result.value.trim());
+                    const targetPath = role === 'super' ? `superAdmins/${key}` : `admins/${key}`;
+
+                    db.ref(targetPath).set(true).then(() => {
+                        if (role === 'normal') {
+                            db.ref(`adminPermissions/${key}`).set({ games: true, users: false, banned: false, banners: false, payment: false });
+                        }
+                        Popup.fire('Success!', `${roleName} added successfully.`, 'success');
+                    });
+                }
+            });
+        }
+
+        function fetchAdminsList() {
+            const superContainer = document.getElementById('super-admins-list');
+            const normalContainer = document.getElementById('normal-admins-list');
+
+            db.ref('superAdmins').on('value', s1 => {
+                db.ref('admins').on('value', s2 => {
+                    const supers = s1.val() || {};
+                    const normals = s2.val() || {};
+                    superContainer.innerHTML = ''; normalContainer.innerHTML = '';
+
+                    Object.keys(supers).forEach(key => {
+                        const email = key.replace(/,/g, '.');
+                        const isSelf = key === currentUserCleanEmail;
+                        const card = document.createElement('div');
+                        card.className = 'admin-item-card';
+                        card.innerHTML = `
+                            <div>
+                                <div class="admin-email"><i class="fas fa-crown" style="color:#ffb703;"></i> ${email}</div>
+                                <span class="admin-subtext">Super Admin ${isSelf ? '(You)' : ''}</span>
+                            </div>
+                            <div class="card-actions">
+                                ${isSelf ? '<span class="you-tag"><i class="fas fa-lock"></i> You</span>' : `<button class="delete-btn" onclick="removeAdmin('${key}', 'superAdmins')"><i class="fas fa-trash"></i> Remove</button>`}
+                            </div>`;
+                        superContainer.appendChild(card);
+                    });
+
+                    const normalKeys = Object.keys(normals);
+                    if (normalKeys.length === 0) {
+                        normalContainer.innerHTML = '<p style="color:var(--text-dim); padding:10px;">No Normal Admins added yet.</p>';
+                    } else {
+                        normalKeys.forEach(key => {
+                            const email = key.replace(/,/g, '.');
+                            const isSelf = key === currentUserCleanEmail;
+                            const card = document.createElement('div');
+                            card.className = 'admin-item-card';
+                            card.innerHTML = `
+                                <div>
+                                    <div class="admin-email" style="color:var(--info);"><i class="fas fa-wrench"></i> ${email}</div>
+                                    <span class="admin-subtext">Normal Admin</span>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn-perm" onclick="openPermModal('${key}', '${email}')"><i class="fas fa-sliders-h"></i> Permissions</button>
+                                    ${isSelf ? '<span class="you-tag"><i class="fas fa-lock"></i> You</span>' : `<button class="delete-btn" onclick="removeAdmin('${key}', 'admins')"><i class="fas fa-trash"></i></button>`}
+                                </div>`;
+                            normalContainer.appendChild(card);
+                        });
+                    }
+                });
+            });
+        }
+
+        function openPermModal(key, email) {
+            document.getElementById('modal-email-title').innerText = "Managing: " + email;
+            const body = document.getElementById('modal-body');
+            db.ref(`adminPermissions/${key}`).once('value', snap => {
+                const p = snap.val() || {};
+                body.innerHTML = `
+                    <div class="perm-row"><span><i class="fas fa-gamepad" style="color:var(--accent); width:20px;"></i> Games & Matches</span><label class="switch"><input type="checkbox" ${p.games?'checked':''} onchange="togglePerm('${key}','games',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-users-cog" style="color:var(--accent); width:20px;"></i> Users List</span><label class="switch"><input type="checkbox" ${p.users?'checked':''} onchange="togglePerm('${key}','users',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-ban" style="color:var(--accent); width:20px;"></i> Banned List</span><label class="switch"><input type="checkbox" ${p.banned?'checked':''} onchange="togglePerm('${key}','banned',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-image" style="color:var(--accent); width:20px;"></i> Banners</span><label class="switch"><input type="checkbox" ${p.banners?'checked':''} onchange="togglePerm('${key}','banners',this.checked)"><span class="slider"></span></label></div>
+                    <div class="perm-row"><span><i class="fas fa-wallet" style="color:var(--accent); width:20px;"></i> Payment Settings</span><label class="switch"><input type="checkbox" ${p.payment?'checked':''} onchange="togglePerm('${key}','payment',this.checked)"><span class="slider"></span></label></div>
+                `;
+                document.getElementById('perm-modal').style.display = 'flex';
+            });
+        }
+
+        function closePermModal() { document.getElementById('perm-modal').style.display = 'none'; }
+        function togglePerm(key, field, value) { db.ref(`adminPermissions/${key}/${field}`).set(value); }
+
+        function removeAdmin(key, path) {
+            Popup.fire({
+                title: 'Remove Admin?', text: "Revoke admin access?", icon: 'warning',
+                showCancelButton: true, confirmButtonText: 'Yes, Remove'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    db.ref(`${path}/${key}`).remove();
+                    if (path === 'admins') db.ref(`adminPermissions/${key}`).remove();
+                    Popup.fire('Removed!', 'Admin removed.', 'success');
+                }
+            });
+        }
+
+        // --- Payment Settings ---
+        function loadPaymentSettings() {
+            db.ref('paymentSettings').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                document.getElementById('auto-gateway-toggle').checked = !!data.autoAddMoneyActive;
+                document.getElementById('bkash-num').value = data.bkash || ''; document.getElementById('bkash-toggle').checked = !!data.bkashActive;
+                document.getElementById('nagad-num').value = data.nagad || ''; document.getElementById('nagad-toggle').checked = !!data.nagadActive;
+                document.getElementById('rocket-num').value = data.rocket || ''; document.getElementById('rocket-toggle').checked = !!data.rocketActive;
+            });
+        }
+
+        function savePaymentSettings() {
+            const settings = {
+                autoAddMoneyActive: document.getElementById('auto-gateway-toggle').checked,
+                bkash: document.getElementById('bkash-num').value.trim(), bkashActive: document.getElementById('bkash-toggle').checked,
+                nagad: document.getElementById('nagad-num').value.trim(), nagadActive: document.getElementById('nagad-toggle').checked,
+                rocket: document.getElementById('rocket-num').value.trim(), rocketActive: document.getElementById('rocket-toggle').checked
+            };
+            db.ref('paymentSettings').set(settings).then(() => Popup.fire('Saved!', 'Payment Settings Updated.', 'success'));
+        }
+
+        // --- Banners Management ---
+        function addBanner() {
+            const url = document.getElementById('banner-url').value.trim();
+            if(!url) return Popup.fire('Required', 'Enter Banner URL', 'warning');
+
+            db.ref('banners').push({ image: url }).then(() => {
+                document.getElementById('banner-url').value = '';
+                Popup.fire('Added!', 'Banner added.', 'success');
+            });
+        }
+
+        function fetchBanners() {
+            db.ref('banners').on('value', snapshot => {
+                const container = document.getElementById('banners-container');
+                container.innerHTML = '';
+                snapshot.forEach(child => {
+                    const data = child.val();
+                    const key = child.key;
+                    const div = document.createElement('div');
+                    div.className = 'category-card';
+                    div.innerHTML = `
+                        <img src="${data.image}">
+                        <div style="text-align:center; padding:12px;">
+                            <button class="delete-btn" onclick="deleteBanner('${key}')"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+        }
+
+        function deleteBanner(key) {
+            db.ref(`banners/${key}`).remove().then(() => Popup.fire('Deleted!', 'Banner removed.', 'success'));
+        }
+
+        function logoutAdmin() { auth.signOut(); }
     </script>
 </body>
 </html>
