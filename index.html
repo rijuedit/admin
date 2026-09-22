@@ -87,6 +87,7 @@
             margin-top: 15px;
             font-weight: 500;
             min-height: 18px;
+            word-break: break-word;
         }
     </style>
 </head>
@@ -129,30 +130,35 @@
         const statusMsg = document.getElementById('statusMessage');
         const loginBtn = document.getElementById('googleLoginBtn');
 
-        // Email format converter (Top-up style)
         function emailToKey(email) {
             if (!email) return '';
             return email.replace(/\./g, ',');
         }
 
-        // Check Admin Level (Top-up style)
         async function checkAdminLevel(email) {
             const key = emailToKey(email);
             
-            // Auto Setup for very first login
-            const allSuperAdminsSnap = await get(ref(db, 'superAdmins'));
-            if (!allSuperAdminsSnap.exists()) {
-                await set(ref(db, 'superAdmins/' + key), true);
-                return 'super';
+            try {
+                // Check if any Super Admin exists
+                const allSuperSnap = await get(ref(db, 'superAdmins'));
+                if (!allSuperSnap.exists()) {
+                    // First Login: Auto-make Super Admin
+                    await set(ref(db, 'superAdmins/' + key), true);
+                    return 'super';
+                }
+
+                // Check Super Admin
+                const superAdminSnap = await get(ref(db, 'superAdmins/' + key));
+                if (superAdminSnap.exists() && superAdminSnap.val() === true) return 'super';
+                
+                // Check Normal Admin
+                const adminSnap = await get(ref(db, 'admins/' + key));
+                if (adminSnap.exists() && adminSnap.val() === true) return 'admin';
+
+            } catch (err) {
+                console.error("Database Check Error:", err);
+                throw new Error("Database Permission Error: " + err.message);
             }
-            
-            // Check Super Admin
-            const superAdminSnap = await get(ref(db, 'superAdmins/' + key));
-            if (superAdminSnap.exists() && superAdminSnap.val() === true) return 'super';
-            
-            // Check Normal Admin
-            const adminSnap = await get(ref(db, 'admins/' + key));
-            if (adminSnap.exists() && adminSnap.val() === true) return 'admin';
             
             return 'none';
         }
@@ -160,16 +166,20 @@
         // Auto login check
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const role = await checkAdminLevel(user.email);
-                if (role !== 'none') {
-                    window.location.href = "dashboard.html";
-                } else {
-                    await signOut(auth);
+                try {
+                    const role = await checkAdminLevel(user.email);
+                    if (role !== 'none') {
+                        window.location.href = "dashboard.html";
+                    } else {
+                        await signOut(auth);
+                    }
+                } catch (e) {
+                    console.log("Auto auth error:", e);
                 }
             }
         });
 
-        // Manual Login Button Click
+        // Click Google Sign-in
         loginBtn.addEventListener('click', async () => {
             try {
                 loginBtn.disabled = true;
@@ -177,9 +187,13 @@
                 statusMsg.innerText = "Authenticating with Google...";
 
                 const result = await signInWithPopup(auth, provider);
+                statusMsg.innerText = "Checking Admin Privileges...";
+                
                 const role = await checkAdminLevel(result.user.email);
 
                 if (role !== 'none') {
+                    statusMsg.style.color = "#00ffd2";
+                    statusMsg.innerText = "Success! Redirecting...";
                     window.location.href = "dashboard.html";
                 } else {
                     await signOut(auth);
@@ -191,7 +205,16 @@
             } catch (error) {
                 console.error(error);
                 statusMsg.style.color = "#ff0055";
-                statusMsg.innerText = "Login failed. Try again.";
+                
+                if (error.code === 'auth/operation-not-allowed') {
+                    statusMsg.innerText = "Error: Enable 'Google' in Firebase Auth Settings!";
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    statusMsg.innerText = "Sign-in popup was closed before completion.";
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    statusMsg.innerText = "Error: Add this domain in Firebase Authorized Domains!";
+                } else {
+                    statusMsg.innerText = error.message || "Login failed. Try again.";
+                }
             } finally {
                 loginBtn.disabled = false;
             }
