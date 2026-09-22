@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Banners - OXI ADMIN</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <!-- SweetAlert2 & FontAwesome & Fonts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0b061a;
+            --card-bg: #160d2e;
+            --cyan: #00ffd1;
+            --purple: #b026ff;
+            --text-light: #e0e0e0;
+            --danger: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 30px 5%;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: rgba(0, 255, 209, 0.1);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
+        }
+
+        .add-banner-btn {
+            background: linear-gradient(90deg, var(--purple), #8a2be2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
+            transition: 0.3s;
+        }
+
+        .add-banner-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
+        }
+
+        .header-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--cyan);
+        }
+
+        .header-box h2 {
+            color: var(--cyan);
+            font-size: 22px;
+        }
+
+        /* Banner Grid */
+        .banner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .banner-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .banner-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .banner-info {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .banner-link {
+            font-size: 12px;
+            color: var(--cyan);
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+
+        .btn-del-banner {
+            background: rgba(255, 77, 77, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 77, 77, 0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-del-banner:hover {
+            background: var(--danger);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <button class="add-banner-btn" onclick="showAddBannerModal()"><i class="fas fa-plus"></i> Add New Banner</button>
+    </div>
+
+    <div class="header-box">
+        <h2><i class="fas fa-images"></i> App Home Banners</h2>
+        <p style="font-size: 13px; color: #888;">Add or delete slider banners displayed at the top of the User App home page.</p>
+    </div>
+
+    <div id="banner-grid" class="banner-grid"></div>
+
+    <script src="config.js"></script>
+    <script>
+        checkAuth();
+
+        db.ref('banners').on('value', snapshot => {
+            const grid = document.getElementById('banner-grid');
+            grid.innerHTML = "";
+
+            if (!snapshot.exists()) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:50px; color:#888;">No banners added yet. Click "+ Add New Banner" to upload one.</div>`;
+                return;
+            }
+
+            snapshot.forEach(child => {
+                const b = child.val();
+                grid.innerHTML += `
+                    <div class="banner-card">
+                        <img src="${b.image}" onerror="this.src='https://via.placeholder.com/600x300?text=Banner+Image'">
+                        <div class="banner-info">
+                            <span class="banner-link"><i class="fas fa-link"></i> ${b.link || 'Direct Image'}</span>
+                            <button class="btn-del-banner" onclick="deleteBanner('${child.key}')"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        function showAddBannerModal() {
+            SwalDark.fire({
+                title: 'Add App Banner',
+                html: `
+                    <div style="text-align:left;">
+                        <label style="font-size:12px; color:#aaa;">Banner Image Direct URL</label>
+                        <input id="b-img-input" class="swal2-input" placeholder="https://example.com/banner.jpg" style="margin-top:5px; margin-bottom:15px;">
+                        <label style="font-size:12px; color:#aaa;">Action Link (Optional - Open URL on click)</label>
+                        <input id="b-link-input" class="swal2-input" placeholder="https://telegram.me/yourgroup" style="margin-top:5px;">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Publish Banner',
+                confirmButtonColor: '#b026ff'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const image = document.getElementById('b-img-input').value.trim();
+                    const link = document.getElementById('b-link-input').value.trim();
+
+                    if (image) {
+                        db.ref('banners').push({ image, link: link || '' }).then(() => {
+                            SwalDark.fire('Uploaded!', 'Banner is now active on User App.', 'success');
+                        });
+                    } else {
+                        SwalDark.fire('Error', 'Image URL is required.', 'error');
+                    }
+                }
+            });
+        }
+
+        function deleteBanner(key) {
+            SwalDark.fire({
+                title: 'Delete Banner?',
+                text: 'This image will no longer appear on user home slider.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Delete',
+                confirmButtonColor: '#ff4d4d'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref(`banners/${key}`).remove().then(() => {
+                        SwalDark.fire('Deleted!', 'Banner has been removed.', 'success');
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
