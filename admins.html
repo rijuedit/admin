@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admins - OXI ADMIN</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg: #0b061a; --card: #160d2e; --cyan: #00ffd1; --purple: #b026ff; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
+        .back-btn { background: var(--card); color: var(--cyan); border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .table-container { background: var(--card); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(176,38,255,0.2); padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #333; }
+        .btn-del { background: #ff4d4d; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>System Admins</h2>
+        <button class="back-btn" style="background:var(--purple); color:#fff; border:none;" onclick="addAdmin()">+ Add Admin</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Email</th><th>Role</th><th>Action</th></tr></thead>
+            <tbody id="admin-list"></tbody>
+        </table>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        checkAuth();
+        const me = auth.currentUser ? emailToKey(auth.currentUser.email) : "";
+
+        function load() {
+            const tbody = document.getElementById('admin-list');
+            tbody.innerHTML = "";
+            
+            db.ref('superAdmins').on('value', s => {
+                s.forEach(c => {
+                    tbody.innerHTML += `<tr><td>${c.key.replace(/,/g,'.')}</td><td>Super Admin</td><td>${c.key===me ? '' : `<button class="btn-del" onclick="remove('superAdmins','${c.key}')">Remove</button>`}</td></tr>`;
+                });
+            });
+            db.ref('admins').on('value', s => {
+                s.forEach(c => {
+                    tbody.innerHTML += `<tr><td>${c.key.replace(/,/g,'.')}</td><td>Admin</td><td><button class="btn-del" onclick="remove('admins','${c.key}')">Remove</button></td></tr>`;
+                });
+            });
+        }
+
+        function addAdmin() {
+            SwalDark.fire({
+                title: 'Add Admin',
+                html: `<input id="ae" class="swal2-input" placeholder="Email"><select id="ar" class="swal2-input"><option value="admins">Admin</option><option value="superAdmins">Super Admin</option></select>`,
+                confirmButtonText: 'Add'
+            }).then(r => {
+                const email = document.getElementById('ae').value;
+                const role = document.getElementById('ar').value;
+                if(r.isConfirmed && email) db.ref(role + '/' + emailToKey(email)).set(true);
+            });
+        }
+
+        function remove(path, key) {
+            db.ref(path + '/' + key).remove();
+        }
+        load();
+    </script>
+</body>
+</html>
