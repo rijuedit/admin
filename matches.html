@@ -2,149 +2,501 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Match Management - OXI ADMIN</title>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <!-- SweetAlert2 & FontAwesome & Fonts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        :root { --bg: #0b061a; --card: #160d2e; --cyan: #00ffd1; --purple: #b026ff; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
-        .back-btn { background: var(--card); color: var(--cyan); border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 20px; }
-        
-        /* Match Card - Mobile Style (Black) */
-        .match-card { background: #000; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #333; position: relative; }
-        .match-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 10px; }
-        .match-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; text-align: center; }
-        .match-grid div p { font-size: 12px; color: #888; margin: 0; }
-        .match-grid div b { font-size: 14px; color: #fff; }
-        
-        .action-btns { display: flex; gap: 10px; margin-top: 15px; }
-        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
-        .btn-room { background: var(--cyan); color: #000; }
-        .btn-del { background: #ff4d4d; color: #fff; }
-        
-        /* Light Theme Overlay for Add Match */
-        .swal-light-custom { background: #fff !important; color: #000 !important; }
-        .add-btn { background: var(--purple); color: #fff; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        :root {
+            --bg-dark: #0b061a;
+            --card-bg: #160d2e;
+            --cyan: #00ffd1;
+            --purple: #b026ff;
+            --text-light: #e0e0e0;
+            --danger: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 30px 5%;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            background: rgba(0, 255, 209, 0.1);
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
+        }
+
+        .create-match-btn {
+            background: linear-gradient(90deg, var(--purple), #8a2be2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
+            transition: 0.3s;
+        }
+
+        .create-match-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
+        }
+
+        /* Header Info */
+        .category-header {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .category-header h2 {
+            color: var(--cyan);
+            font-size: 22px;
+        }
+
+        /* Match Grid Layout */
+        .match-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        /* Black Mobile Match Card */
+        .match-card {
+            background: #000000;
+            border: 1fr solid #222222;
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: 0.3s;
+        }
+
+        .match-card:hover {
+            border-color: var(--cyan);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1a1a1a;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        .match-id {
+            color: var(--cyan);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .match-time {
+            color: #888;
+            font-size: 12px;
+        }
+
+        .match-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            background: #0a0a0a;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 12px;
+            border: 1px solid #161616;
+        }
+
+        .info-box label {
+            display: block;
+            font-size: 10px;
+            color: #777;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .info-box span {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .prize-win { color: var(--cyan) !important; }
+        .prize-fee { color: var(--purple) !important; }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.3s;
+        }
+
+        .btn-room {
+            background: rgba(0, 255, 209, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(0, 255, 209, 0.3);
+        }
+
+        .btn-room:hover {
+            background: var(--cyan);
+            color: #000;
+        }
+
+        .btn-delete {
+            background: rgba(255, 77, 77, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .empty-msg {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            color: #888;
+            grid-column: 1 / -1;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        /* Light Theme SweetAlert Input Fix */
+        .swal-light-input {
+            width: 100% !important;
+            padding: 10px !important;
+            margin: 6px 0 !important;
+            border: 1px solid #ccc !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            box-sizing: border-box !important;
+        }
     </style>
 </head>
 <body>
-    <a href="categories.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Categories</a>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 id="cat-title">Loading Matches...</h2>
-        <button class="add-btn" onclick="showAddMatch()">+ Create Match</button>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <a href="categories.html" class="back-btn"><i class="fas fa-arrow-left"></i> All Categories</a>
+        <button class="create-match-btn" onclick="showAddMatchModal()"><i class="fas fa-plus-circle"></i> Create Match</button>
     </div>
 
-    <div id="match-list"></div>
+    <!-- Category Header Info -->
+    <div class="category-header">
+        <i class="fas fa-gamepad" style="font-size: 28px; color: var(--cyan);"></i>
+        <div>
+            <h2 id="cat-title-text">Loading Category...</h2>
+            <p style="font-size: 12px; color: #888;">Manage all matches, update Room ID/Pass or create new ones.</p>
+        </div>
+    </div>
 
+    <!-- Matches Container -->
+    <div id="match-container" class="match-grid">
+        <div class="empty-msg"><i class="fas fa-spinner fa-spin"></i> Loading matches from database...</div>
+    </div>
+
+    <!-- Configuration -->
     <script src="config.js"></script>
     <script>
         checkAuth();
+
         const urlParams = new URLSearchParams(window.location.search);
         const catKey = urlParams.get('cat');
 
-        if (!catKey) window.location.href = "categories.html";
-
-        // Load Category Name
-        db.ref('match_categories/' + catKey).once('value', s => {
-            document.getElementById('cat-title').innerText = s.val().title + " Matches";
-        });
-
-        // Load Matches
-        db.ref('matches').orderByChild('categoryKey').equalTo(catKey).on('value', snapshot => {
-            const list = document.getElementById('match-list');
-            list.innerHTML = "";
-            snapshot.forEach(child => {
-                const m = child.val();
-                list.innerHTML += `
-                    <div class="match-card">
-                        <div class="match-header">
-                            <span style="color:var(--cyan)">#${child.key.slice(-5)}</span>
-                            <span>${m.matchDate} at ${m.matchTime}</span>
-                        </div>
-                        <h3 style="margin-bottom:15px;">${m.title}</h3>
-                        <div class="match-grid">
-                            <div><p>WIN PRIZE</p><b>৳${m.winPrize}</b></div>
-                            <div><p>PER KILL</p><b>৳${m.perKill}</b></div>
-                            <div><p>ENTRY FEE</p><b>৳${m.entryFee}</b></div>
-                        </div>
-                        <div class="match-grid" style="margin-top:15px; background:#111; padding:10px; border-radius:10px;">
-                            <div><p>TYPE</p><b>${m.type}</b></div>
-                            <div><p>VERSION</p><b>${m.version}</b></div>
-                            <div><p>MAP</p><b>${m.map}</b></div>
-                        </div>
-                        <div class="action-btns">
-                            <button class="btn btn-room" onclick="updateRoom('${child.key}')">Room ID/Pass</button>
-                            <button class="btn btn-del" onclick="deleteMatch('${child.key}')">Delete</button>
-                        </div>
-                    </div>`;
-            });
-        });
-
-        function showAddMatch() {
-            Swal.fire({
-                title: 'Create New Match',
-                background: '#fff',
-                color: '#000',
-                html: `
-                    <input id="m-title" class="swal2-input" placeholder="Match Title">
-                    <input id="m-date" class="swal2-input" type="date">
-                    <input id="m-time" class="swal2-input" type="time">
-                    <input id="m-win" class="swal2-input" placeholder="Win Prize">
-                    <input id="m-kill" class="swal2-input" placeholder="Per Kill Prize">
-                    <input id="m-entry" class="swal2-input" placeholder="Entry Fee">
-                    <select id="m-type" class="swal2-input"><option>SOLO</option><option>DUO</option><option>SQUAD</option></select>
-                    <input id="m-map" class="swal2-input" placeholder="Map Name (e.g. Bermuda)">
-                `,
-                confirmButtonText: 'Publish Match',
-                confirmButtonColor: '#b026ff'
-            }).then(r => {
-                if(r.isConfirmed) {
-                    const newMatch = {
-                        categoryKey: catKey,
-                        title: document.getElementById('m-title').value,
-                        matchDate: document.getElementById('m-date').value,
-                        matchTime: document.getElementById('m-time').value,
-                        winPrize: document.getElementById('m-win').value,
-                        perKill: document.getElementById('m-kill').value,
-                        entryFee: document.getElementById('m-entry').value,
-                        type: document.getElementById('m-type').value,
-                        version: "Mobile",
-                        map: document.getElementById('m-map').value,
-                        roomId: "",
-                        roomPassword: "",
-                        status: "upcoming"
-                    };
-                    db.ref('matches').push(newMatch);
-                }
-            });
+        if (!catKey) {
+            window.location.href = "categories.html";
         }
 
-        function updateRoom(key) {
+        // Load Category Details
+        db.ref('match_categories/' + catKey).once('value', snapshot => {
+            if (snapshot.exists()) {
+                document.getElementById('cat-title-text').innerText = snapshot.val().title + " Matches";
+            } else {
+                document.getElementById('cat-title-text').innerText = "Game Matches";
+            }
+        });
+
+        // Load Matches - Client Side Filtering (Fixes missing match bug)
+        db.ref('matches').on('value', snapshot => {
+            const container = document.getElementById('match-container');
+            container.innerHTML = "";
+
+            if (!snapshot.exists()) {
+                container.innerHTML = `<div class="empty-msg"><i class="fas fa-ghost" style="font-size:30px; margin-bottom:10px; display:block;"></i>No matches created yet. Click "+ Create Match" to start.</div>`;
+                return;
+            }
+
+            let matchFoundCount = 0;
+
+            snapshot.forEach(child => {
+                const match = child.val();
+
+                // Check category match key
+                if (match.categoryKey === catKey || match.category === catKey) {
+                    matchFoundCount++;
+
+                    const hasRoomInfo = match.roomId && match.roomId.trim() !== "";
+
+                    container.innerHTML += `
+                        <div class="match-card">
+                            <div class="card-top">
+                                <span class="match-id">MATCH #${child.key.slice(-5).toUpperCase()}</span>
+                                <span class="match-time"><i class="far fa-clock"></i> ${match.matchDate || ''} ${match.matchTime || ''}</span>
+                            </div>
+                            
+                            <div class="match-title">${match.title || 'Untitled Match'}</div>
+
+                            <div class="info-row">
+                                <div class="info-box">
+                                    <label>Win Prize</label>
+                                    <span class="prize-win">৳${match.winPrize || 0}</span>
+                                </div>
+                                <div class="info-box">
+                                    <label>Per Kill</label>
+                                    <span>৳${match.perKill || 0}</span>
+                                </div>
+                                <div class="info-box">
+                                    <label>Entry Fee</label>
+                                    <span class="prize-fee">৳${match.entryFee || 0}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-row" style="background: #111;">
+                                <div class="info-box">
+                                    <label>Type</label>
+                                    <span>${match.type || 'SOLO'}</span>
+                                </div>
+                                <div class="info-box">
+                                    <label>Version</label>
+                                    <span>${match.version || 'Mobile'}</span>
+                                </div>
+                                <div class="info-box">
+                                    <label>Map</label>
+                                    <span>${match.map || 'Bermuda'}</span>
+                                </div>
+                            </div>
+
+                            ${hasRoomInfo ? `
+                                <div style="background: rgba(0,255,209,0.08); border:1px solid rgba(0,255,209,0.2); border-radius:8px; padding:8px 12px; margin-bottom:12px; font-size:12px; color:var(--cyan); display:flex; justify-content:space-between;">
+                                    <span><b>ID:</b> ${match.roomId}</span>
+                                    <span><b>PASS:</b> ${match.roomPassword || 'None'}</span>
+                                </div>
+                            ` : ''}
+
+                            <div class="card-actions">
+                                <button class="btn-action btn-room" onclick="showRoomModal('${child.key}', '${match.roomId || ''}', '${match.roomPassword || ''}')">
+                                    <i class="fas fa-key"></i> Room ID/Pass
+                                </button>
+                                <button class="btn-action btn-delete" onclick="deleteMatch('${child.key}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (matchFoundCount === 0) {
+                container.innerHTML = `<div class="empty-msg"><i class="fas fa-ghost" style="font-size:30px; margin-bottom:10px; display:block;"></i>No matches created in this category yet. Click "+ Create Match" above.</div>`;
+            }
+        });
+
+        // Modal: Create New Match (Light Theme Overlay)
+        function showAddMatchModal() {
             Swal.fire({
-                title: 'Room Details',
-                background: '#fff',
-                color: '#000',
+                title: 'Create New Match',
+                background: '#ffffff',
+                color: '#000000',
                 html: `
-                    <input id="r-id" class="swal2-input" placeholder="Room ID">
-                    <input id="r-pass" class="swal2-input" placeholder="Room Password">
+                    <div style="text-align:left;">
+                        <input id="m-title" class="swal-light-input" placeholder="Match Title (e.g. Free Fire Duo Special)">
+                        <div style="display:flex; gap:10px;">
+                            <input id="m-date" class="swal-light-input" type="date">
+                            <input id="m-time" class="swal-light-input" type="time">
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <input id="m-win" class="swal-light-input" type="number" placeholder="Win Prize (৳)">
+                            <input id="m-kill" class="swal-light-input" type="number" placeholder="Per Kill (৳)">
+                        </div>
+                        <input id="m-entry" class="swal-light-input" type="number" placeholder="Entry Fee Per Player (৳)">
+                        
+                        <div style="display:flex; gap:10px;">
+                            <select id="m-type" class="swal-light-input">
+                                <option value="SOLO">SOLO</option>
+                                <option value="DUO">DUO</option>
+                                <option value="SQUAD">SQUAD</option>
+                            </select>
+                            <select id="m-map" class="swal-light-input">
+                                <option value="Bermuda">Bermuda</option>
+                                <option value="Purgatory">Purgatory</option>
+                                <option value="Kalahari">Kalahari</option>
+                                <option value="Alpine">Alpine</option>
+                                <option value="Nextterra">Nextterra</option>
+                            </select>
+                        </div>
+                    </div>
                 `,
-                confirmButtonText: 'Update'
-            }).then(r => {
-                if(r.isConfirmed) {
-                    db.ref('matches/' + key).update({
-                        roomId: document.getElementById('r-id').value,
-                        roomPassword: document.getElementById('r-pass').value
+                showCancelButton: true,
+                confirmButtonText: 'Publish Match',
+                confirmButtonColor: '#b026ff',
+                cancelButtonColor: '#666'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const title = document.getElementById('m-title').value.trim();
+                    const matchDate = document.getElementById('m-date').value;
+                    const matchTime = document.getElementById('m-time').value;
+                    const winPrize = document.getElementById('m-win').value;
+                    const perKill = document.getElementById('m-kill').value;
+                    const entryFee = document.getElementById('m-entry').value;
+                    const type = document.getElementById('m-type').value;
+                    const map = document.getElementById('m-map').value;
+
+                    if (!title || !entryFee) {
+                        SwalDark.fire('Error', 'Match Title and Entry Fee are required.', 'error');
+                        return;
+                    }
+
+                    const newMatchData = {
+                        categoryKey: catKey,
+                        title: title,
+                        matchDate: matchDate || 'Today',
+                        matchTime: matchTime || 'TBA',
+                        winPrize: Number(winPrize) || 0,
+                        perKill: Number(perKill) || 0,
+                        entryFee: Number(entryFee) || 0,
+                        type: type,
+                        version: 'Mobile',
+                        map: map,
+                        roomId: '',
+                        roomPassword: '',
+                        createdAt: Date.now()
+                    };
+
+                    db.ref('matches').push(newMatchData).then(() => {
+                        SwalDark.fire('Published!', 'New match created successfully.', 'success');
                     });
                 }
             });
         }
 
-        function deleteMatch(key) {
-            SwalDark.fire({ title: 'Delete Match?', showCancelButton: true }).then(r => {
-                if(r.isConfirmed) db.ref('matches/' + key).remove();
+        // Modal: Update Room ID and Password
+        function showRoomModal(matchKey, currentId, currentPass) {
+            Swal.fire({
+                title: 'Set Room Credentials',
+                background: '#ffffff',
+                color: '#000000',
+                html: `
+                    <div style="text-align:left;">
+                        <label style="font-size:12px; color:#555;">Room ID</label>
+                        <input id="r-id" class="swal-light-input" value="${currentId}" placeholder="Enter Room ID">
+                        <label style="font-size:12px; color:#555; margin-top:10px; display:block;">Room Password</label>
+                        <input id="r-pass" class="swal-light-input" value="${currentPass}" placeholder="Enter Password">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Save Credentials',
+                confirmButtonColor: '#00ffd1',
+                cancelButtonColor: '#666'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const roomId = document.getElementById('r-id').value.trim();
+                    const roomPassword = document.getElementById('r-pass').value.trim();
+
+                    db.ref(`matches/${matchKey}`).update({
+                        roomId: roomId,
+                        roomPassword: roomPassword
+                    }).then(() => {
+                        SwalDark.fire('Updated!', 'Room details have been saved.', 'success');
+                    });
+                }
+            });
+        }
+
+        // Delete Match
+        function deleteMatch(matchKey) {
+            SwalDark.fire({
+                title: 'Delete Match?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Delete',
+                confirmButtonColor: '#ff4d4d'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref(`matches/${matchKey}`).remove().then(() => {
+                        SwalDark.fire('Deleted!', 'Match has been removed.', 'success');
+                    });
+                }
             });
         }
     </script>
