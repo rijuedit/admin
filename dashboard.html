@@ -3,744 +3,588 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OXI ADMIN - Dashboard</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SweetAlert2 -->
+    <title>OXI ADMIN - Premium Panel</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --bg-dark: #0b061a;
+            --card-bg: #160d2e;
+            --cyan: #00ffd1;
+            --purple: #b026ff;
+            --text-light: #e0e0e0;
+            --danger: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #0b061a; /* Dark Purple Deep BG */
-            color: #ffffff;
-            user-select: none;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
         }
-        /* Dashboard Card Colors */
-        .dash-card {
-            background-color: #160d2e;
+
+        /* Navbar & Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(22, 13, 46, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-area h1 { color: var(--cyan); font-weight: 800; font-size: 24px; }
+        .badge {
+            background: linear-gradient(45deg, #f39c12, #d35400);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px 5%;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 209, 0.1);
+            padding: 20px;
             border-radius: 12px;
-            border: 1px solid #281655;
+            text-align: center;
+            transition: 0.3s;
         }
-        /* Pill Tabs */
-        .pill-tab {
-            background-color: #1e1b4b;
-            color: #9ca3af;
-            border-radius: 50px;
-            padding: 8px 20px;
-            font-size: 13px;
-            font-weight: 500;
-            display: inline-flex;
+        .stat-card i { font-size: 30px; color: var(--cyan); margin-bottom: 10px; }
+        .stat-card h3 { font-size: 28px; margin: 5px 0; }
+        .stat-card p { font-size: 12px; color: #888; text-transform: uppercase; }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 5%;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: rgba(176, 38, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(176, 38, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+            display: flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
         }
-        .pill-tab:hover {
-            background-color: #2e1065;
-            color: #ffffff;
+
+        .tab-btn.active {
+            background: var(--purple);
+            box-shadow: 0 0 15px var(--purple);
         }
-        .pill-tab.active {
-            background-color: #b026ff; /* Glowing Purple */
-            color: #ffffff;
-            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
+
+        /* Tab Content Section */
+        .tab-content { padding: 20px 5%; max-width: 1200px; margin: 0 auto; }
+
+        /* Payment Settings Premium UI */
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid var(--cyan);
         }
-        /* Custom Inputs */
-        .custom-input {
-            background-color: #0b061a;
-            border: 1px solid #281655;
-            border-radius: 8px;
-            color: #ffffff;
-            padding: 10px 15px;
-            font-size: 13px;
-            width: 100%;
-            outline: none;
+
+        .auto-mode-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 255, 209, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
         }
-        .custom-input:focus { border-color: #00ffd1; }
-        .custom-input::placeholder { color: #6b7280; }
-        
-        /* Banner Card */
-        .banner-card {
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .payment-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
             position: relative;
-            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid #281655;
-            cursor: pointer;
-            transition: transform 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .banner-card:active { transform: scale(0.97); }
 
-        /* Match Overlay Specifics */
-        .match-input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #1e293b; font-weight: 500; outline: none; }
-        .match-input:focus { border-color: #f59e0b; background: #ffffff; }
+        .payment-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+        }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #281655; border-radius: 10px; }
+        .card-bkash::before { background: #e2136e; }
+        .card-nagad::before { background: #f7941d; }
+        .card-rocket::before { background: #8c3494; }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .gateway-info { display: flex; align-items: center; gap: 12px; }
+        .gateway-info i { font-size: 24px; }
+        .gateway-info h4 { font-size: 18px; font-weight: 600; }
+
+        .input-group {
+            margin-top: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 209, 0.2);
+        }
+
+        /* Toggle Switch Styling */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--cyan); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .save-btn-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--purple), #8a2be2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(176, 38, 255, 0.4);
+        }
+
+        /* SWAL Dark Customization */
+        .swal2-popup.swal-dark-custom {
+            background: #160d2e !important;
+            color: #fff !important;
+            border: 1px solid #b026ff !important;
+        }
+
+        /* Category Grid Styling (Top-Up Style) */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        .cat-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .cat-card:hover { transform: translateY(-5px); border-color: var(--cyan); }
+        .cat-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .cat-card h4 { padding: 10px; font-size: 14px; }
+
+        /* Hidden Sections */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
     </style>
 </head>
-<body class="min-h-screen pb-16">
+<body>
 
-    <!-- HEADER -->
-    <header class="bg-[#0b061a] border-b border-[#281655] py-4 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-bold text-[#00ffd1] tracking-wide">
-                    OXI ADMIN
-                    <span id="roleBadge" class="bg-[#ff9900] text-black text-[10px] px-2 py-0.5 rounded-full align-middle ml-1 uppercase font-bold">SUPER ADMIN</span>
-                </h1>
-            </div>
-            <button onclick="handleLogout()" class="bg-[#ff3366] hover:bg-rose-600 text-white text-xs px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </button>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-area">
+            <h1>OXI ADMIN</h1>
+            <span class="badge" id="admin-role">Admin</span>
         </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 mt-6 space-y-6">
-
-        <!-- TOP STATS CARDS -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="dash-card p-5 text-center flex flex-col items-center justify-center">
-                <i class="fa-solid fa-users text-[#00ffd1] text-2xl mb-2"></i>
-                <div id="statTotalUsers" class="text-2xl font-bold">0</div>
-                <div class="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Users</div>
-            </div>
-            <div class="dash-card p-5 text-center flex flex-col items-center justify-center">
-                <i class="fa-solid fa-user-slash text-[#00ffd1] text-2xl mb-2"></i>
-                <div id="statBanned" class="text-2xl font-bold">0</div>
-                <div class="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Banned</div>
-            </div>
-            <div class="dash-card p-5 text-center flex flex-col items-center justify-center">
-                <i class="fa-solid fa-image text-[#00ffd1] text-2xl mb-2"></i>
-                <div id="statBanners" class="text-2xl font-bold">0</div>
-                <div class="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Banners</div>
-            </div>
-            <div class="dash-card p-5 text-center flex flex-col items-center justify-center">
-                <i class="fa-solid fa-gamepad text-[#00ffd1] text-2xl mb-2"></i>
-                <div id="statCategories" class="text-2xl font-bold">0</div>
-                <div class="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Categories</div>
-            </div>
-        </div>
-
-        <!-- PILL TAB NAVIGATION -->
-        <div class="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
-            <button id="tab-matches" onclick="switchTab('matches')" class="pill-tab active"><i class="fa-solid fa-gamepad"></i> Games & Matches</button>
-            <button id="tab-users" onclick="switchTab('users')" class="pill-tab"><i class="fa-solid fa-users"></i> Users List</button>
-            <button id="tab-banned" onclick="switchTab('banned')" class="pill-tab"><i class="fa-solid fa-ban"></i> Banned List</button>
-            <button id="tab-deposits" onclick="switchTab('deposits')" class="pill-tab"><i class="fa-solid fa-credit-card"></i> Add Money</button>
-            <button id="tab-banners" onclick="switchTab('banners')" class="pill-tab"><i class="fa-solid fa-image"></i> Banners</button>
-            <button id="tab-payment" onclick="switchTab('payment')" class="pill-tab"><i class="fa-solid fa-wallet"></i> Payment Settings</button>
-            <button id="tab-admins" onclick="switchTab('admins')" class="pill-tab"><i class="fa-solid fa-crown"></i> Admins Management</button>
-        </div>
-
-        <!-- TAB 1: GAMES & MATCHES -->
-        <section id="section-matches" class="space-y-6">
-            <div>
-                <h3 class="text-[#00ffd1] font-semibold flex items-center gap-2 mb-3">
-                    <i class="fa-solid fa-circle-plus"></i> Create New Category
-                </h3>
-                <div class="dash-card p-4 flex flex-col md:flex-row gap-4 items-center">
-                    <input type="text" id="catInputTitle" placeholder="Category Name (e.g. BR Match)" class="custom-input flex-1">
-                    <input type="text" id="catInputImg" placeholder="Square Image URL (1:1 Ratio)" class="custom-input flex-1">
-                    <button onclick="createCategory()" class="bg-[#00ffd1] hover:bg-[#00e6bc] text-black font-bold text-xs px-6 py-3 rounded-lg w-full md:w-auto whitespace-nowrap transition">
-                        ADD CATEGORY
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="text-[#00ffd1] font-semibold flex items-center gap-2 mb-3">
-                    <i class="fa-solid fa-list"></i> Match Categories
-                </h3>
-                <div id="categoriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    <!-- Cards Populated Here -->
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 2: USERS LIST -->
-        <section id="section-users" class="dash-card p-6 hidden">
-            <h2 class="text-[#b026ff] font-bold text-lg flex items-center gap-2 mb-6">
-                <i class="fa-solid fa-users"></i> Registered Users List
-            </h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-[#281655] text-[11px] font-semibold text-gray-400 uppercase tracking-widest">
-                            <th class="py-3 px-4">User Email</th>
-                            <th class="py-3 px-4">Phone Number</th>
-                            <th class="py-3 px-4">Wallet Balance</th>
-                            <th class="py-3 px-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody" class="divide-y divide-[#281655] text-sm"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- TAB 3: BANNED LIST -->
-        <section id="section-banned" class="dash-card p-6 hidden">
-            <h2 class="text-[#ff3366] font-bold text-lg flex items-center gap-2 mb-6">
-                <i class="fa-solid fa-user-slash"></i> Banned Accounts
-            </h2>
-            <div id="bannedUsersContainer" class="space-y-3 text-sm text-gray-400">Loading...</div>
-        </section>
-        
-        <!-- TAB 4: ADD MONEY REQUESTS -->
-        <section id="section-deposits" class="dash-card p-6 hidden">
-            <h2 class="text-[#00ffd1] font-bold text-lg flex items-center gap-2 mb-6">
-                <i class="fa-solid fa-credit-card"></i> Deposit Requests
-            </h2>
-            <div id="depositRequestsContainer" class="space-y-3 text-sm text-gray-400">Loading...</div>
-        </section>
-
-        <!-- TAB 5: BANNERS -->
-        <section id="section-banners" class="space-y-6 hidden">
-            <div>
-                <h3 class="text-[#00ffd1] font-semibold flex items-center gap-2 mb-3">
-                    <i class="fa-solid fa-circle-plus"></i> Add New Banner
-                </h3>
-                <div class="dash-card p-4 grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-center">
-                    <input type="text" id="banImgInput" placeholder="Banner Image URL (e.g. https://.../img.jpg)" class="custom-input">
-                    <input type="text" id="banLinkInput" placeholder="Direct Link (e.g. YouTube/FB Link)" class="custom-input">
-                    <button onclick="addBanner()" class="bg-[#00ffd1] hover:bg-[#00e6bc] text-black font-bold text-xs px-6 py-3 rounded-lg whitespace-nowrap transition">
-                        ADD BANNER
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-[#b026ff] font-semibold flex items-center gap-2">
-                        <i class="fa-solid fa-image"></i> Active Banners
-                    </h3>
-                    <span class="text-xs text-gray-400 italic">Long press (Hold) to Delete</span>
-                </div>
-                <div id="bannersGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <!-- Banners Populated Here -->
-                </div>
-            </div>
-        </section>
-
-        <!-- TAB 6: PAYMENT SETTINGS (Fully Restored) -->
-        <section id="section-payment" class="space-y-6 hidden">
-            <h2 class="text-[#00ffd1] font-bold text-lg flex items-center gap-2 mb-4">
-                <i class="fa-solid fa-wallet"></i> Gateway & Deposit Settings
-            </h2>
-
-            <!-- Auto / Manual Toggle Box -->
-            <div class="dash-card p-4 mb-6 flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-sm text-white">Deposit Verification Mode</h3>
-                    <p class="text-xs text-gray-400 mt-1">Automatic SMS Transaction verification vs Manual Approval.</p>
-                </div>
-                <button id="toggleAutoModeBtn" onclick="togglePaymentMode()" class="px-4 py-2 rounded-lg text-xs font-bold text-black transition">
-                    Loading...
-                </button>
-            </div>
-
-            <!-- Numbers Input Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- bKash -->
-                <div class="dash-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-pink-500 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> bKash Number
-                        </span>
-                        <input type="checkbox" id="bkashActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-[#b026ff] rounded">
-                    </div>
-                    <input type="text" id="bkashNumberInput" placeholder="017XXXXXXXX" class="custom-input mb-4">
-                </div>
-
-                <!-- Nagad -->
-                <div class="dash-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-orange-400 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> Nagad Number
-                        </span>
-                        <input type="checkbox" id="nagadActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-[#b026ff] rounded">
-                    </div>
-                    <input type="text" id="nagadNumberInput" placeholder="018XXXXXXXX" class="custom-input mb-4">
-                </div>
-
-                <!-- Rocket -->
-                <div class="dash-card p-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="font-bold text-purple-400 flex items-center gap-2">
-                            <i class="fa-solid fa-mobile-screen"></i> Rocket Number
-                        </span>
-                        <input type="checkbox" id="rocketActiveToggle" onchange="savePaymentSettings()" class="w-4 h-4 accent-[#b026ff] rounded">
-                    </div>
-                    <input type="text" id="rocketNumberInput" placeholder="019XXXXXXXX" class="custom-input mb-4">
-                </div>
-            </div>
-
-            <button onclick="savePaymentSettings()" class="mt-6 bg-[#b026ff] hover:bg-[#9333ea] text-white px-6 py-3 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg transition">
-                <i class="fa-solid fa-floppy-disk"></i> Save Gateway Numbers
-            </button>
-        </section>
-
-        <!-- TAB 7: ADMINS MANAGEMENT (Fully Restored) -->
-        <section id="section-admins" class="space-y-6 hidden">
-            <h2 class="text-[#00ffd1] font-bold text-lg flex items-center gap-2 mb-2">
-                <i class="fa-solid fa-crown"></i> Admin Access Management
-            </h2>
-
-            <!-- Info Box -->
-            <div class="bg-[#110a24] border border-[#281655] rounded-xl p-4 mb-6 text-xs text-gray-300 space-y-2">
-                <div class="flex items-center gap-2 text-[#ff9900] font-semibold">
-                    <i class="fa-solid fa-lightbulb"></i> <span>Super Admin:</span> <span class="text-gray-400 font-normal">সব কাজ + Wallet manage + Admin manage</span>
-                </div>
-                <div class="flex items-center gap-2 text-[#00ffd1] font-semibold">
-                    <i class="fa-solid fa-lightbulb"></i> <span>Normal Admin:</span> <span class="text-gray-400 font-normal">শুধু order/payment/product/ban manage</span>
-                </div>
-            </div>
-
-            <!-- Action Add Admin Buttons -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                <button onclick="promptAddAdmin('super')" class="bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 text-black font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg transition">
-                    <i class="fa-solid fa-plus"></i> Add Super Admin
-                </button>
-                <button onclick="promptAddAdmin('normal')" class="bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-600 hover:to-blue-500 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg transition">
-                    <i class="fa-solid fa-plus"></i> Add Normal Admin
-                </button>
-            </div>
-
-            <!-- Super Admins List -->
-            <div class="mb-8">
-                <h3 class="text-sm font-bold text-[#ff9900] uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-crown"></i> Super Admins
-                </h3>
-                <div id="superAdminsList" class="space-y-3"></div>
-            </div>
-
-            <!-- Normal Admins List -->
-            <div>
-                <h3 class="text-sm font-bold text-[#00ffd1] uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-user-gear"></i> Normal Admins
-                </h3>
-                <div id="normalAdminsList" class="space-y-3"></div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- ========================================== -->
-    <!-- MATCH MANAGEMENT OVERLAY -->
-    <!-- ========================================== -->
-    <div id="matchManagementScreen" class="fixed inset-0 bg-black z-[100] hidden flex-col">
-        <div class="flex items-center p-4 text-white border-b border-gray-900 bg-black">
-            <i class="fa-solid fa-arrow-left text-xl mr-4 cursor-pointer" onclick="closeMatchManagement()"></i>
-            <h1 class="text-xl font-medium">Match Management</h1>
-            <div class="ml-auto text-xs text-gray-400" id="currentCatTitle"></div>
-        </div>
-        <div class="flex border-b border-gray-800 text-sm font-medium bg-black">
-            <div class="flex-1 text-center py-3 text-[#00ffd1] border-b-2 border-[#00ffd1]">Matches</div>
-            <div class="flex-1 text-center py-3 text-gray-500">Ongoing</div>
-        </div>
-        <div id="matchListContent" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0a0a0a]"></div>
-        <button onclick="openMatchAdd()" class="fixed bottom-8 right-6 w-14 h-14 bg-[#f3e8ff] rounded-2xl flex items-center justify-center text-black text-2xl shadow-lg">
-            <i class="fa-solid fa-plus"></i>
-        </button>
+        <button class="logout-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 
-    <!-- ========================================== -->
-    <!-- MATCH ADD OVERLAY -->
-    <!-- ========================================== -->
-    <div id="matchAddScreen" class="fixed inset-0 bg-[#f5f5f5] z-[110] hidden flex-col font-sans">
-        <div class="flex items-center p-4 bg-black text-white">
-            <i class="fa-solid fa-arrow-left text-xl mr-4 cursor-pointer" onclick="closeMatchAdd()"></i>
-            <h1 class="text-xl font-medium">Match Add</h1>
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-users"></i>
+            <h3 id="stat-users">0</h3>
+            <p>Users</p>
         </div>
-        <div class="flex-1 overflow-y-auto p-4 space-y-3 pb-24">
-            <input type="text" id="ma_title" placeholder="MATCH TITLE" class="match-input">
-            <div class="flex gap-3">
-                <input type="date" id="ma_date" class="match-input">
-                <input type="time" id="ma_time" class="match-input">
-            </div>
-            <input type="time" id="ma_timer" class="match-input" placeholder="TIMER">
-            <div class="flex gap-3">
-                <input type="number" id="ma_prize" placeholder="WIN PRIZE" class="match-input">
-                <input type="number" id="ma_perkill" placeholder="PER KILL" class="match-input">
-                <input type="number" id="ma_fee" placeholder="ENTRY FEE" class="match-input">
-            </div>
-            <div class="flex gap-3 pt-1 text-center text-xs font-bold text-black uppercase">
-                <div class="flex-1">Type</div><div class="flex-1">Version</div>
-            </div>
-            <div class="flex gap-3">
-                <select id="ma_type" class="match-input text-center font-semibold">
-                    <option value="Solo">Solo</option>
-                    <option value="Duo">Duo</option>
-                    <option value="Squad">Squad</option>
-                </select>
-                <input type="text" id="ma_version" value="MOBILE" class="match-input text-center">
-            </div>
-            <div class="text-center text-xs font-bold text-black uppercase pt-1">Map</div>
-            <input type="text" id="ma_map" value="Bermuda" class="match-input">
-            <input type="number" id="ma_slots" placeholder="MATCH SLOTS" class="match-input">
-            <textarea id="ma_details" placeholder="PRIZE DETAILS" class="match-input h-24 resize-none"></textarea>
-            
-            <div class="flex gap-3 pt-4">
-                <button onclick="closeMatchAdd()" class="flex-1 bg-[#e0e0e0] text-black font-bold py-3.5 rounded-lg text-sm">CANCEL</button>
-                <button onclick="submitMatchAdd()" class="flex-1 bg-[#f59e0b] text-white font-bold py-3.5 rounded-lg text-sm shadow-md">CREATE</button>
-            </div>
+        <div class="stat-card">
+            <i class="fas fa-user-slash"></i>
+            <h3 id="stat-banned">0</h3>
+            <p>Banned</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-image"></i>
+            <h3 id="stat-banners">0</h3>
+            <p>Banners</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-gamepad"></i>
+            <h3 id="stat-categories">0</h3>
+            <p>Categories</p>
         </div>
     </div>
 
+    <!-- Navigation -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="openTab('games-matches')"><i class="fas fa-gamepad"></i> Games & Matches</button>
+        <button class="tab-btn" onclick="openTab('users-list')"><i class="fas fa-users"></i> Users List</button>
+        <button class="tab-btn" onclick="openTab('banned-list')"><i class="fas fa-ban"></i> Banned List</button>
+        <button class="tab-btn" onclick="openTab('add-money')"><i class="fas fa-hand-holding-usd"></i> Add Money</button>
+        <button class="tab-btn" onclick="openTab('banners-section')"><i class="fas fa-images"></i> Banners</button>
+        <button class="tab-btn" onclick="openTab('payment-settings')"><i class="fas fa-wallet"></i> Payment Settings</button>
+        <button class="tab-btn" id="admins-tab" onclick="openTab('admins-management')" style="display:none;"><i class="fas fa-user-shield"></i> Admins Management</button>
+    </div>
 
-    <!-- JS LOGIC -->
+    <!-- TAB: GAMES & MATCHES -->
+    <div id="games-matches" class="tab-content active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: var(--cyan);"><i class="fas fa-list"></i> Match Categories</h2>
+            <button class="tab-btn" onclick="showAddCategory()" style="background: var(--cyan); color: #000;"><i class="fas fa-plus"></i> Add Category</button>
+        </div>
+        <div id="category-list" class="cat-grid"></div>
+    </div>
+
+    <!-- TAB: PAYMENT SETTINGS (PREMIUM REDESIGN) -->
+    <div id="payment-settings" class="tab-content">
+        <div class="settings-header">
+            <div>
+                <h2 style="color: var(--cyan);"><i class="fas fa-shield-alt"></i> Gateway & Deposit Settings</h2>
+                <p style="font-size: 13px; color: #888;">Configure your payment numbers and verification mode.</p>
+            </div>
+            <div class="auto-mode-box">
+                <span id="auto-status-text" style="font-weight: 600;">Manual Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="auto-mode-toggle" onchange="toggleAutoMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="payment-grid">
+            <!-- bKash -->
+            <div class="payment-card card-bkash">
+                <div class="card-top">
+                    <div class="gateway-info">
+                        <i class="fas fa-mobile-alt" style="color: #e2136e;"></i>
+                        <h4>bKash Personal</h4>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="bkash-active">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="bkash-number" placeholder="017XXXXXXXX">
+                </div>
+            </div>
+
+            <!-- Nagad -->
+            <div class="payment-card card-nagad">
+                <div class="card-top">
+                    <div class="gateway-info">
+                        <i class="fas fa-mobile-alt" style="color: #f7941d;"></i>
+                        <h4>Nagad Personal</h4>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="nagad-active">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="nagad-number" placeholder="018XXXXXXXX">
+                </div>
+            </div>
+
+            <!-- Rocket -->
+            <div class="payment-card card-rocket">
+                <div class="card-top">
+                    <div class="gateway-info">
+                        <i class="fas fa-mobile-alt" style="color: #8c3494;"></i>
+                        <h4>Rocket Personal</h4>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="rocket-active">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="input-group">
+                    <label>Mobile Number</label>
+                    <input type="text" id="rocket-number" placeholder="019XXXXXXXX">
+                </div>
+            </div>
+        </div>
+
+        <div class="save-btn-container">
+            <button class="btn-primary" onclick="saveGatewayNumbers()">
+                <i class="fas fa-save"></i> Save Gateway Configuration
+            </button>
+        </div>
+    </div>
+
+    <!-- Remaining Tabs Placeholder (Logic implemented in JS) -->
+    <div id="users-list" class="tab-content"><h2>User Management</h2><div id="user-table-container"></div></div>
+    <div id="banned-list" class="tab-content"><h2>Banned Accounts</h2><div id="banned-table-container"></div></div>
+    <div id="add-money" class="tab-content"><h2>Deposit Requests</h2><div id="deposit-table-container"></div></div>
+    <div id="banners-section" class="tab-content"><h2>App Banners</h2><div id="banner-list-container"></div></div>
+    <div id="admins-management" class="tab-content"><h2>System Admins</h2><div id="admin-table-container"></div></div>
+
     <script>
+        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
             authDomain: "oxi-esports.firebaseapp.com",
-            databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com",
             projectId: "oxi-esports",
             storageBucket: "oxi-esports.firebasestorage.app",
             messagingSenderId: "924353594492",
-            appId: "1:924353594492:web:08329a3d1f67e7a5da35f9"
+            appId: "1:924353594492:web:08329a3d1f67e7a5da35f9",
+            databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.database();
-
-        let currentUser = null, currentUserCleanEmail = '', isSuperAdmin = false, currentActiveCategoryKey = null;
+        const auth = firebase.auth();
 
         const SwalDark = Swal.mixin({
-            customClass: { popup: 'bg-[#160d2e] text-white border border-[#281655] rounded-xl', title: 'text-white', confirmButton: 'bg-[#b026ff] text-white px-4 py-2 rounded-lg mx-1', cancelButton: 'bg-gray-600 text-white px-4 py-2 rounded-lg mx-1' },
-            buttonsStyling: false
+            customClass: { popup: 'swal-dark-custom' },
+            background: '#160d2e',
+            color: '#fff',
+            confirmButtonColor: '#b026ff',
+            cancelButtonColor: '#ff4d4d'
         });
 
+        // --- Auth Check ---
         auth.onAuthStateChanged(user => {
-            if(!user) { window.location.href = 'index.html'; return; }
-            currentUser = user; currentUserCleanEmail = user.email.replace(/\./g, ',');
-            db.ref(`superAdmins/${currentUserCleanEmail}`).once('value').then(s => {
-                isSuperAdmin = s.exists();
-                if(isSuperAdmin) initData(); else auth.signOut();
-            });
+            if (!user) {
+                window.location.href = "login.html";
+            } else {
+                checkAdminRole(user.email);
+                loadStats();
+                loadCategories();
+                loadPaymentSettings();
+            }
         });
 
-        function handleLogout() { auth.signOut().then(() => window.location.href = 'index.html'); }
+        function emailToKey(email) { return email.replace(/\./g, ','); }
 
-        function switchTab(tab) {
-            ['matches', 'users', 'banned', 'deposits', 'banners', 'payment', 'admins'].forEach(t => {
-                document.getElementById(`tab-${t}`)?.classList.remove('active');
-                document.getElementById(`section-${t}`)?.classList.add('hidden');
-            });
-            document.getElementById(`tab-${tab}`)?.classList.add('active');
-            document.getElementById(`section-${tab}`)?.classList.remove('hidden');
-        }
-
-        function initData() {
-            // Load Users
-            db.ref('users').on('value', snap => {
-                const users = snap.val() || {};
-                document.getElementById('statTotalUsers').innerText = Object.keys(users).length;
-                const tbody = document.getElementById('usersTableBody');
-                tbody.innerHTML = '';
-                Object.entries(users).forEach(([k, u]) => {
-                    const phone = u.phone || u.mobile || u.phoneNumber || 'N/A';
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-[#110a24] transition border-b border-[#281655]/50">
-                            <td class="py-3 px-4 text-white">${u.email || k.replace(/,/g, '.')}</td>
-                            <td class="py-3 px-4 text-gray-300 font-mono">${phone}</td>
-                            <td class="py-3 px-4 text-[#00ffd1] font-bold">৳${u.wallet || 0}</td>
-                            <td class="py-3 px-4 text-right space-x-2">
-                                <button onclick="editUserBal('${k}', ${u.wallet||0})" class="bg-[#1e1b4b] hover:bg-[#b026ff] text-white text-xs px-3 py-1 rounded">Coins</button>
-                                <button onclick="banUser('${k}')" class="bg-[#2a0e1b] hover:bg-[#ff3366] text-[#ff3366] hover:text-white border border-[#ff3366]/30 text-xs px-3 py-1 rounded transition">Ban</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            });
-
-            // Categories
-            db.ref('match_categories').on('value', snap => {
-                const cats = snap.val() || {};
-                document.getElementById('statCategories').innerText = Object.keys(cats).length;
-                const grid = document.getElementById('categoriesGrid');
-                grid.innerHTML = '';
-                Object.entries(cats).forEach(([k, c]) => {
-                    grid.innerHTML += `
-                        <div class="dash-card overflow-hidden group cursor-pointer shadow-lg">
-                            <div onclick="openMatchManagement('${k}', '${c.title}')" class="relative pb-[100%] w-full">
-                                <img src="${c.image}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                            </div>
-                            <div class="p-3 bg-[#110a24]">
-                                <h4 class="font-bold text-white text-sm mb-2 text-center truncate" onclick="openMatchManagement('${k}', '${c.title}')">${c.title}</h4>
-                                <button onclick="deleteCategory('${k}')" class="w-full bg-[#ff3366] hover:bg-rose-600 text-white text-xs font-bold py-1.5 rounded flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-trash"></i> Delete
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-
-            // Banners 
-            db.ref('banners').on('value', snap => {
-                const bans = snap.val() || {};
-                document.getElementById('statBanners').innerText = Object.keys(bans).length;
-                const grid = document.getElementById('bannersGrid');
-                grid.innerHTML = '';
-                Object.entries(bans).forEach(([k, b]) => {
-                    const hasLink = b.link ? `<span class="absolute bottom-2 left-2 bg-black/70 text-[#00ffd1] text-[10px] px-2 py-1 rounded backdrop-blur-sm shadow"><i class="fa-solid fa-link"></i> Linked</span>` : '';
-                    
-                    grid.innerHTML += `
-                        <div class="banner-card group relative h-32 bg-[#0b061a]" 
-                             onmousedown="startHold('${k}')" onmouseup="endHold()" onmouseleave="endHold()"
-                             ontouchstart="startHold('${k}')" ontouchend="endHold()" ontouchcancel="endHold()">
-                            <img src="${b.image}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
-                            ${hasLink}
-                            <div onclick="editBanner('${k}', '${b.image}', '${b.link || ''}')" class="absolute top-2 right-2 bg-[#b026ff] hover:bg-[#9333ea] text-white p-2 rounded-lg text-xs shadow-lg cursor-pointer">
-                                <i class="fa-solid fa-pen"></i>
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-
-            // Payment Settings Sync
-            db.ref('paymentSettings').on('value', snap => {
-                const ps = snap.val() || {};
-                document.getElementById('bkashNumberInput').value = ps.bkash || '';
-                document.getElementById('nagadNumberInput').value = ps.nagad || '';
-                document.getElementById('rocketNumberInput').value = ps.rocket || '';
-
-                document.getElementById('bkashActiveToggle').checked = !!ps.bkashActive;
-                document.getElementById('nagadActiveToggle').checked = !!ps.nagadActive;
-                document.getElementById('rocketActiveToggle').checked = !!ps.rocketActive;
-
-                const modeBtn = document.getElementById('toggleAutoModeBtn');
-                if (ps.autoAddMoneyActive) {
-                    modeBtn.className = 'bg-[#00ffd1] text-black px-4 py-2 rounded-lg text-xs font-bold transition';
-                    modeBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Auto Mode On';
+        function checkAdminRole(email) {
+            const eKey = emailToKey(email);
+            db.ref('superAdmins/' + eKey).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    document.getElementById('admin-role').innerText = "Super Admin";
+                    document.getElementById('admins-tab').style.display = "flex";
                 } else {
-                    modeBtn.className = 'bg-[#b026ff] text-white px-4 py-2 rounded-lg text-xs font-bold transition';
-                    modeBtn.innerHTML = '<i class="fa-solid fa-hand"></i> Manual Mode';
+                    document.getElementById('admin-role').innerText = "Admin";
                 }
             });
-
-            // Admins Render
-            renderAdminsList();
-
-            // Stats dummy filler
-            db.ref('bannedUsers').on('value', s => { document.getElementById('statBanned').innerText = Object.keys(s.val()||{}).length; });
         }
 
-        // --- Category Functions ---
-        async function createCategory() {
-            const title = document.getElementById('catInputTitle').value;
-            const image = document.getElementById('catInputImg').value;
-            if(!title || !image) { SwalDark.fire('Error', 'Please fill both fields', 'error'); return; }
-            await db.ref('match_categories').push({ title, image });
-            document.getElementById('catInputTitle').value = '';
-            document.getElementById('catInputImg').value = '';
-        }
-        async function deleteCategory(k) {
-            if((await SwalDark.fire({title:'Delete?', showCancelButton:true})).isConfirmed) await db.ref(`match_categories/${k}`).remove();
+        // --- Tab Logic ---
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            if(tabId === 'payment-settings') loadPaymentSettings();
+            // Call other loaders as needed
         }
 
-        // --- Banner Functions ---
-        async function addBanner() {
-            const img = document.getElementById('banImgInput').value;
-            const link = document.getElementById('banLinkInput').value;
-            if(!img) { SwalDark.fire('Error', 'Image URL is required!', 'error'); return; }
-            await db.ref('banners').push({ image: img, link: link });
-            document.getElementById('banImgInput').value = '';
-            document.getElementById('banLinkInput').value = '';
-        }
-        async function editBanner(key, currImg, currLink) {
-            const { value: formValues } = await SwalDark.fire({
-                title: 'Edit Banner',
-                html: `
-                    <input id="edit-img" class="swal2-input bg-[#0b061a] text-white border-[#281655] text-sm" placeholder="Image URL" value="${currImg}">
-                    <input id="edit-link" class="swal2-input bg-[#0b061a] text-white border-[#281655] text-sm mt-2" placeholder="Direct Link (Optional)" value="${currLink}">
-                `,
-                showCancelButton: true,
-                preConfirm: () => ({ img: document.getElementById('edit-img').value, link: document.getElementById('edit-link').value })
-            });
-            if(formValues && formValues.img) {
-                await db.ref(`banners/${key}`).update({ image: formValues.img, link: formValues.link });
-                SwalDark.fire('Saved', 'Banner updated!', 'success');
-            }
-        }
-        let holdTimer;
-        function startHold(key) {
-            holdTimer = setTimeout(async () => {
-                const conf = await SwalDark.fire({ title: 'Delete this Banner?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete', confirmButtonColor: '#ff3366' });
-                if(conf.isConfirmed) await db.ref(`banners/${key}`).remove();
-            }, 800);
-        }
-        function endHold() { clearTimeout(holdTimer); }
+        // --- Payment Settings Logic ---
+        function loadPaymentSettings() {
+            db.ref('paymentSettings').once('value', snapshot => {
+                const data = snapshot.val() || {};
+                
+                // Auto Mode
+                const autoActive = data.autoAddMoneyActive || false;
+                document.getElementById('auto-mode-toggle').checked = autoActive;
+                document.getElementById('auto-status-text').innerText = autoActive ? "Auto Mode ON" : "Manual Mode ON";
+                document.getElementById('auto-status-text').style.color = autoActive ? "var(--cyan)" : "#888";
 
-        // --- Payment Settings Functions ---
-        async function savePaymentSettings() {
-            const bkash = document.getElementById('bkashNumberInput').value;
-            const nagad = document.getElementById('nagadNumberInput').value;
-            const rocket = document.getElementById('rocketNumberInput').value;
+                // Numbers
+                document.getElementById('bkash-number').value = data.bkash || "";
+                document.getElementById('nagad-number').value = data.nagad || "";
+                document.getElementById('rocket-number').value = data.rocket || "";
 
-            const bkashActive = document.getElementById('bkashActiveToggle').checked;
-            const nagadActive = document.getElementById('nagadActiveToggle').checked;
-            const rocketActive = document.getElementById('rocketActiveToggle').checked;
-
-            await db.ref('paymentSettings').update({ bkash, nagad, rocket, bkashActive, nagadActive, rocketActive });
-            SwalDark.fire('Saved', 'Payment settings updated successfully.', 'success');
-        }
-        async function togglePaymentMode() {
-            const psSnap = await db.ref('paymentSettings/autoAddMoneyActive').once('value');
-            const currentVal = !!psSnap.val();
-            await db.ref('paymentSettings').update({ autoAddMoneyActive: !currentVal });
-        }
-
-        // --- Admin Roles Functions ---
-        async function renderAdminsList() {
-            const superSnap = await db.ref('superAdmins').once('value');
-            const normalSnap = await db.ref('admins').once('value');
-
-            const supers = superSnap.val() || {};
-            const normals = normalSnap.val() || {};
-
-            const superContainer = document.getElementById('superAdminsList');
-            const normalContainer = document.getElementById('normalAdminsList');
-
-            superContainer.innerHTML = '';
-            normalContainer.innerHTML = '';
-
-            Object.keys(supers).forEach(key => {
-                const isYou = (key === currentUserCleanEmail);
-                const email = key.replace(/,/g, '.');
-
-                superContainer.innerHTML += `
-                    <div class="dash-card p-4 flex items-center justify-between">
-                        <div>
-                            <div class="font-bold text-[#ff9900] text-sm flex items-center gap-2"><i class="fa-solid fa-crown"></i> ${email}</div>
-                            <div class="text-xs text-gray-400 mt-0.5">${isYou ? 'Super Admin (You)' : 'Super Admin'}</div>
-                        </div>
-                        <div>
-                            ${isYou ? `<span class="bg-[#1e1b4b] text-gray-400 text-xs px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-lock"></i> You</span>` : 
-                            `<button onclick="removeAdmin('super', '${key}')" class="bg-[#ff3366] text-white text-xs px-3.5 py-1.5 rounded-lg font-bold shadow"><i class="fa-solid fa-trash"></i> Remove</button>`}
-                        </div>
-                    </div>
-                `;
-            });
-
-            Object.keys(normals).forEach(key => {
-                const isYou = (key === currentUserCleanEmail);
-                const email = key.replace(/,/g, '.');
-
-                normalContainer.innerHTML += `
-                    <div class="dash-card p-4 flex items-center justify-between">
-                        <div>
-                            <div class="font-bold text-[#00ffd1] text-sm flex items-center gap-2"><i class="fa-solid fa-user-gear"></i> ${email}</div>
-                            <div class="text-xs text-gray-400 mt-0.5">Normal Admin</div>
-                        </div>
-                        <div>
-                            ${isYou ? `<span class="bg-[#1e1b4b] text-gray-400 text-xs px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-lock"></i> You</span>` : 
-                            `<button onclick="removeAdmin('normal', '${key}')" class="bg-[#ff3366] text-white text-xs px-3.5 py-1.5 rounded-lg font-bold shadow"><i class="fa-solid fa-trash"></i> Remove</button>`}
-                        </div>
-                    </div>
-                `;
+                // Switches
+                document.getElementById('bkash-active').checked = data.bkashActive || false;
+                document.getElementById('nagad-active').checked = data.nagadActive || false;
+                document.getElementById('rocket-active').checked = data.rocketActive || false;
             });
         }
 
-        async function promptAddAdmin(type) {
-            if (!isSuperAdmin) return SwalDark.fire('Unauthorized', 'Only Super Admins can add admin accounts.', 'error');
-            const { value: email } = await SwalDark.fire({ title: 'Add Admin', input: 'email', inputPlaceholder: 'Enter email...' });
-            if (email) {
-                const key = emailToKey(email);
-                if (type === 'super') await db.ref(`superAdmins/${key}`).set(true);
-                else await db.ref(`admins/${key}`).set(true);
-                renderAdminsList();
-            }
-        }
-        async function removeAdmin(type, key) {
-            if (!isSuperAdmin || key === currentUserCleanEmail) return;
-            const confirm = await SwalDark.fire({ title: 'Remove Admin?', showCancelButton: true });
-            if (confirm.isConfirmed) {
-                if (type === 'super') await db.ref(`superAdmins/${key}`).remove();
-                else await db.ref(`admins/${key}`).remove();
-                renderAdminsList();
-            }
+        function toggleAutoMode() {
+            const isActive = document.getElementById('auto-mode-toggle').checked;
+            db.ref('paymentSettings/autoAddMoneyActive').set(isActive)
+            .then(() => {
+                document.getElementById('auto-status-text').innerText = isActive ? "Auto Mode ON" : "Manual Mode ON";
+                document.getElementById('auto-status-text').style.color = isActive ? "var(--cyan)" : "#888";
+                SwalDark.fire('Updated', `Deposit verification is now ${isActive ? 'Automatic' : 'Manual'}`, 'success');
+            });
         }
 
+        function saveGatewayNumbers() {
+            const settings = {
+                bkash: document.getElementById('bkash-number').value,
+                bkashActive: document.getElementById('bkash-active').checked,
+                nagad: document.getElementById('nagad-number').value,
+                nagadActive: document.getElementById('nagad-active').checked,
+                rocket: document.getElementById('rocket-number').value,
+                rocketActive: document.getElementById('rocket-active').checked,
+                autoAddMoneyActive: document.getElementById('auto-mode-toggle').checked
+            };
 
-        // --- Match Management Functions ---
-        function openMatchManagement(catKey, catTitle) {
-            currentActiveCategoryKey = catKey;
-            document.getElementById('currentCatTitle').innerText = catTitle;
-            document.getElementById('matchManagementScreen').style.display = 'flex';
-            
-            db.ref('matches').orderByChild('categoryKey').equalTo(catKey).on('value', snap => {
-                const mList = snap.val() || {};
-                const list = document.getElementById('matchListContent');
-                list.innerHTML = '';
-                Object.entries(mList).forEach(([k, m]) => {
+            db.ref('paymentSettings').update(settings).then(() => {
+                SwalDark.fire('Saved!', 'Gateway numbers updated successfully.', 'success');
+            });
+        }
+
+        // --- Category Logic ---
+        function loadCategories() {
+            db.ref('match_categories').on('value', snapshot => {
+                const list = document.getElementById('category-list');
+                list.innerHTML = "";
+                snapshot.forEach(child => {
+                    const cat = child.val();
                     list.innerHTML += `
-                        <div class="bg-[#121212] border border-[#262626] rounded-xl p-4 text-white">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-bold text-[#00ffd1]">${m.title}</h3>
-                                <span class="text-orange-400 text-xs font-bold bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20">৳${m.entryFee} Entry</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-[10px] text-gray-400 mb-3">
-                                <div>Type: <span class="text-white">${m.type}</span></div>
-                                <div>Map: <span class="text-white">${m.map}</span></div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="setRoomPrompt('${k}')" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded text-xs">Set Room Details</button>
-                                <button onclick="deleteMatch('${k}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
-                            </div>
+                        <div class="cat-card" onclick="window.location.href='matches.html?cat=${child.key}'">
+                            <img src="${cat.image}" onerror="this.src='https://via.placeholder.com/150'">
+                            <h4>${cat.title}</h4>
                         </div>
                     `;
                 });
             });
         }
-        function closeMatchManagement() { document.getElementById('matchManagementScreen').style.display = 'none'; }
-        function openMatchAdd() { document.getElementById('matchAddScreen').style.display = 'flex'; }
-        function closeMatchAdd() { document.getElementById('matchAddScreen').style.display = 'none'; }
-        
-        async function submitMatchAdd() {
-            const data = {
-                categoryKey: currentActiveCategoryKey,
-                title: document.getElementById('ma_title').value,
-                matchDate: document.getElementById('ma_date').value,
-                matchTime: document.getElementById('ma_time').value,
-                timer: document.getElementById('ma_timer').value,
-                winPrize: Number(document.getElementById('ma_prize').value),
-                perKill: Number(document.getElementById('ma_perkill').value),
-                entryFee: Number(document.getElementById('ma_fee').value),
-                type: document.getElementById('ma_type').value,
-                version: document.getElementById('ma_version').value,
-                map: document.getElementById('ma_map').value,
-                slots: Number(document.getElementById('ma_slots').value) || 100,
-                prizeDetails: document.getElementById('ma_details').value,
-                roomId: '', roomPassword: '',
-                timestamp: Date.now()
-            };
-            if(!data.title) return;
-            await db.ref('matches').push(data);
-            closeMatchAdd();
-        }
-        async function deleteMatch(k) {
-            if((await SwalDark.fire({title:'Delete Match?', showCancelButton:true})).isConfirmed) await db.ref(`matches/${k}`).remove();
-        }
-        async function setRoomPrompt(mKey) {
-            const { value: formValues } = await SwalDark.fire({
-                title: 'Set Room ID/Pass',
+
+        function showAddCategory() {
+            SwalDark.fire({
+                title: 'Add New Category',
                 html: `
-                    <input id="swal-rid" class="swal2-input bg-[#0b061a] text-white border-[#281655]" placeholder="Room ID">
-                    <input id="swal-rpass" class="swal2-input bg-[#0b061a] text-white border-[#281655] mt-2" placeholder="Room Password">
+                    <input id="cat-title" class="swal2-input" placeholder="Category Title (e.g. Free Fire)">
+                    <input id="cat-img" class="swal2-input" placeholder="Icon URL (1:1 Ratio Recommended)">
                 `,
-                preConfirm: () => ({ rid: document.getElementById('swal-rid').value, rpass: document.getElementById('swal-rpass').value })
+                showCancelButton: true,
+                confirmButtonText: 'Create'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const title = document.getElementById('cat-title').value;
+                    const image = document.getElementById('cat-img').value;
+                    if (title && image) {
+                        db.ref('match_categories').push({ title, image });
+                    }
+                }
             });
-            if(formValues) await db.ref(`matches/${mKey}`).update({ roomId: formValues.rid, roomPassword: formValues.rpass });
+        }
+
+        function loadStats() {
+            db.ref('users').on('value', s => document.getElementById('stat-users').innerText = s.numChildren());
+            db.ref('bannedUsers').on('value', s => document.getElementById('stat-banned').innerText = s.numChildren());
+            db.ref('banners').on('value', s => document.getElementById('stat-banners').innerText = s.numChildren());
+            db.ref('match_categories').on('value', s => document.getElementById('stat-categories').innerText = s.numChildren());
+        }
+
+        function logoutAdmin() {
+            auth.signOut().then(() => window.location.href = "login.html");
         }
     </script>
 </body>
