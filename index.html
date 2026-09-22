@@ -3,115 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OXI Admin Panel - Login</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    <title>OXI ADMIN - Access Control</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- SweetAlert2 for Premium Popups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b021a;
+            --card-bg: #150a2e;
+            --primary: #9d00ff;
+            --accent: #00ffcc;
+            --text: #ffffff;
+            --text-dim: #b0a3c4;
+            --danger: #ff1744;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body {
-            background: radial-gradient(circle at center, #1a0b2e 0%, #080410 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            color: #ffffff;
-            padding: 20px;
+            background-color: var(--bg-color);
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; color: var(--text); padding: 20px;
+            overflow: hidden;
         }
 
         .login-card {
-            background-color: #120e24;
-            width: 100%;
-            max-width: 380px;
+            background: var(--card-bg);
             padding: 40px 30px;
             border-radius: 20px;
-            border: 2px solid #8b00ff;
-            box-shadow: 0 0 30px rgba(139, 0, 255, 0.4), inset 0 0 10px rgba(139, 0, 255, 0.2);
+            width: 100%; max-width: 380px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 25px rgba(157, 0, 255, 0.35);
             text-align: center;
+            position: relative;
         }
 
-        .lock-icon {
-            font-size: 55px;
+        .login-icon {
+            font-size: 45px;
+            color: #ffb703;
             margin-bottom: 15px;
-            display: inline-block;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
         }
 
-        .admin-title {
-            font-family: 'Orbitron', sans-serif;
+        .login-card h2 {
+            color: var(--accent);
             font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 1px;
             margin-bottom: 8px;
-            color: #ffffff;
+            letter-spacing: 1px;
         }
 
-        .admin-subtitle {
+        .login-card p {
+            color: var(--text-dim);
             font-size: 13px;
-            color: #a09cb0;
             margin-bottom: 30px;
         }
 
         .google-btn {
+            background: #ffffff;
+            color: #000;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            width: 100%;
-            padding: 12px 20px;
-            background-color: #ffffff;
-            color: #333333;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: 'Poppins', sans-serif;
-            cursor: pointer;
-            transition: 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
         }
 
         .google-btn:hover {
-            background-color: #f1f1f1;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
         }
 
-        .google-btn img {
-            width: 20px;
-            height: 20px;
-        }
-
-        #statusMessage {
+        .status-msg {
+            margin-top: 20px;
             font-size: 12px;
-            margin-top: 15px;
-            font-weight: 500;
-            min-height: 18px;
-            word-break: break-word;
+            color: var(--accent);
+            display: none;
+        }
+
+        /* Custom SweetAlert Popup Style */
+        .my-custom-swal {
+            background: #150a2e !important;
+            border: 1px solid #3d2b63 !important;
+            border-radius: 20px !important;
+            color: #ffffff !important;
+        }
+
+        .swal2-title {
+            color: #ff1744 !important;
+            font-size: 20px !important;
+        }
+
+        .swal2-html-container {
+            color: #b0a3c4 !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+        }
+
+        .swal2-confirm {
+            background-color: var(--primary) !important;
+            border-radius: 10px !important;
+            font-weight: bold !important;
+            padding: 10px 25px !important;
         }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <div class="lock-icon">🔐</div>
-        <div class="admin-title">Admin Panel</div>
-        <div class="admin-subtitle">Sign in with your admin Google account</div>
+        <div class="login-icon"><i class="fas fa-user-shield"></i></div>
+        <h2>OXI ADMIN PANEL</h2>
+        <p>Sign in with your authorized admin Google account</p>
 
-        <button class="google-btn" id="googleLoginBtn">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo">
+        <button class="google-btn" onclick="signInWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
             Sign in with Google
         </button>
 
-        <div id="statusMessage"></div>
+        <div id="status-msg" class="status-msg"><i class="fas fa-spinner fa-spin"></i> Checking Admin Privileges...</div>
     </div>
 
-    <!-- Firebase SDK Modular -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <script>
+        // Custom SweetAlert Mixin
+        const Popup = Swal.mixin({
+            customClass: { popup: 'my-custom-swal' }
+        });
 
+        // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyAkZkqcyP3P6QnbHT-wfxeygxgY9IoKBAU",
             authDomain: "oxi-esports.firebaseapp.com",
@@ -122,103 +152,70 @@
             databaseURL: "https://oxi-esports-default-rtdb.firebaseio.com"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        const provider = new GoogleAuthProvider();
-
-        const statusMsg = document.getElementById('statusMessage');
-        const loginBtn = document.getElementById('googleLoginBtn');
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
         function emailToKey(email) {
-            if (!email) return '';
-            return email.replace(/\./g, ',');
+            return email ? email.replace(/\./g, ',') : '';
         }
 
-        async function checkAdminLevel(email) {
-            const key = emailToKey(email);
-            
-            try {
-                // Check if any Super Admin exists
-                const allSuperSnap = await get(ref(db, 'superAdmins'));
-                if (!allSuperSnap.exists()) {
-                    // First Login: Auto-make Super Admin
-                    await set(ref(db, 'superAdmins/' + key), true);
-                    return 'super';
-                }
-
-                // Check Super Admin
-                const superAdminSnap = await get(ref(db, 'superAdmins/' + key));
-                if (superAdminSnap.exists() && superAdminSnap.val() === true) return 'super';
-                
-                // Check Normal Admin
-                const adminSnap = await get(ref(db, 'admins/' + key));
-                if (adminSnap.exists() && adminSnap.val() === true) return 'admin';
-
-            } catch (err) {
-                console.error("Database Check Error:", err);
-                throw new Error("Database Permission Error: " + err.message);
-            }
-            
-            return 'none';
-        }
-
-        // Auto login check
-        onAuthStateChanged(auth, async (user) => {
+        // --- Check Authorization Flow ---
+        auth.onAuthStateChanged(user => {
             if (user) {
-                try {
-                    const role = await checkAdminLevel(user.email);
-                    if (role !== 'none') {
-                        window.location.href = "dashboard.html";
-                    } else {
-                        await signOut(auth);
-                    }
-                } catch (e) {
-                    console.log("Auto auth error:", e);
-                }
+                showStatus(true);
+                const emailKey = emailToKey(user.email);
+                verifyAdminAccess(user.email, emailKey);
+            } else {
+                showStatus(false);
             }
         });
 
-        // Click Google Sign-in
-        loginBtn.addEventListener('click', async () => {
-            try {
-                loginBtn.disabled = true;
-                statusMsg.style.color = "#00ffd2";
-                statusMsg.innerText = "Authenticating with Google...";
-
-                const result = await signInWithPopup(auth, provider);
-                statusMsg.innerText = "Checking Admin Privileges...";
-                
-                const role = await checkAdminLevel(result.user.email);
-
-                if (role !== 'none') {
-                    statusMsg.style.color = "#00ffd2";
-                    statusMsg.innerText = "Success! Redirecting...";
-                    window.location.href = "dashboard.html";
+        function verifyAdminAccess(userEmail, emailKey) {
+            // Check Super Admins first
+            db.ref(`superAdmins/${emailKey}`).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    window.location.href = 'dashboard.html';
                 } else {
-                    await signOut(auth);
-                    statusMsg.style.color = "#ff0055";
-                    statusMsg.innerText = "Access Denied: Email not registered as Admin.";
-                    alert(`🚫 Access Denied!\n\nThis Google Account (${result.user.email}) is not authorized.\nOnly Super Admins can grant access.`);
+                    // Check Normal Admins
+                    db.ref(`admins/${emailKey}`).once('value', adminSnap => {
+                        if (adminSnap.exists()) {
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            // Unauthorized User -> Logout & Show Beautiful Popup
+                            showStatus(false);
+                            auth.signOut().then(() => {
+                                Popup.fire({
+                                    icon: 'error',
+                                    title: 'অ্যাক্সেস অনুমোদিত নয়!',
+                                    html: `আপনার এই Google অ্যাকাউন্টটি (<b>${userEmail}</b>) এডমিন প্যানেলে যুক্ত করা হয়নি।<br><br><span style="font-size:12px; color:#00ffcc;">অ্যাডমিন অ্যাক্সেস পাওয়ার জন্য মূল সুপার এডমিনের সাথে যোগাযোগ করুন।</span>`,
+                                    confirmButtonText: 'ঠিক আছে'
+                                });
+                            });
+                        }
+                    });
                 }
+            });
+        }
 
-            } catch (error) {
-                console.error(error);
-                statusMsg.style.color = "#ff0055";
-                
-                if (error.code === 'auth/operation-not-allowed') {
-                    statusMsg.innerText = "Error: Enable 'Google' in Firebase Auth Settings!";
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    statusMsg.innerText = "Sign-in popup was closed before completion.";
-                } else if (error.code === 'auth/unauthorized-domain') {
-                    statusMsg.innerText = "Error: Add this domain in Firebase Authorized Domains!";
-                } else {
-                    statusMsg.innerText = error.message || "Login failed. Try again.";
-                }
-            } finally {
-                loginBtn.disabled = false;
-            }
-        });
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            showStatus(true);
+
+            auth.signInWithPopup(provider).catch(error => {
+                showStatus(false);
+                Popup.fire({
+                    icon: 'error',
+                    title: 'লগইন ব্যর্থ হয়েছে!',
+                    text: error.message,
+                    confirmButtonText: 'ঠিক আছে'
+                });
+            });
+        }
+
+        function showStatus(show) {
+            document.getElementById('status-msg').style.display = show ? 'block' : 'none';
+        }
     </script>
 </body>
 </html>
