@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users Management - OXI ADMIN</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg: #0b061a; --card: #160d2e; --cyan: #00ffd1; --purple: #b026ff; --danger: #ff4d4d; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
+        .back-btn { background: var(--card); color: var(--cyan); border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .table-container { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: rgba(176, 38, 255, 0.2); color: var(--cyan); padding: 15px; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; color: #fff; margin-right: 5px; }
+        .btn-wallet { background: var(--purple); }
+        .btn-ban { background: var(--danger); }
+        .btn-unban { background: #00c853; }
+        .search-box { width: 100%; padding: 12px; background: var(--card); border: 1px solid var(--purple); border-radius: 8px; color: #fff; margin-bottom: 20px; outline: none; }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    
+    <h2>Registered Users</h2>
+    <input type="text" id="userSearch" class="search-box" placeholder="Search by name, email or phone..." onkeyup="filterUsers()">
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Wallet</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="user-list"></tbody>
+        </table>
+    </div>
+
+    <h2>Banned Users</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="banned-list"></tbody>
+        </table>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        checkAuth();
+
+        // Load Users
+        db.ref('users').on('value', snapshot => {
+            const tbody = document.getElementById('user-list');
+            tbody.innerHTML = "";
+            snapshot.forEach(child => {
+                const u = child.val();
+                const phone = u.phone || u.mobile || u.phoneNumber || "No Number";
+                tbody.innerHTML += `
+                    <tr class="user-row">
+                        <td>${u.name}</td>
+                        <td>${phone}</td>
+                        <td>${u.email}</td>
+                        <td style="color:var(--cyan)">৳${u.wallet || 0}</td>
+                        <td>
+                            <button class="btn btn-wallet" onclick="editWallet('${child.key}', ${u.wallet || 0})">Wallet</button>
+                            <button class="btn btn-ban" onclick="banUser('${child.key}', '${u.email}')">Ban</button>
+                        </td>
+                    </tr>`;
+            });
+        });
+
+        // Load Banned
+        db.ref('bannedUsers').on('value', snapshot => {
+            const tbody = document.getElementById('banned-list');
+            tbody.innerHTML = "";
+            snapshot.forEach(child => {
+                const b = child.val();
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${b.email}</td>
+                        <td>${b.reason}</td>
+                        <td><button class="btn btn-unban" onclick="unbanUser('${child.key}')">Unban</button></td>
+                    </tr>`;
+            });
+        });
+
+        function editWallet(key, current) {
+            SwalDark.fire({
+                title: 'Update Balance',
+                input: 'number',
+                inputValue: current,
+                showCancelButton: true
+            }).then(r => {
+                if(r.isConfirmed) db.ref('users/'+key+'/wallet').set(Number(r.value));
+            });
+        }
+
+        function banUser(key, email) {
+            SwalDark.fire({
+                title: 'Reason for Ban?',
+                input: 'text',
+                showCancelButton: true
+            }).then(r => {
+                if(r.isConfirmed) {
+                    db.ref('bannedUsers/'+key).set({ email, reason: r.value || "Rules Violation" });
+                    db.ref('users/'+key).remove();
+                }
+            });
+        }
+
+        function unbanUser(key) {
+            db.ref('bannedUsers/'+key).once('value', s => {
+                const data = s.val();
+                db.ref('users/'+key).set({ email: data.email, name: "Restored User", wallet: 0 });
+                db.ref('bannedUsers/'+key).remove();
+            });
+        }
+
+        function filterUsers() {
+            let input = document.getElementById('userSearch').value.toLowerCase();
+            let rows = document.getElementsByClassName('user-row');
+            for(let row of rows) {
+                row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
