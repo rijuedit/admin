@@ -1,94 +1,98 @@
+<!-- Admin/admins.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Admins - OXI ADMIN</title>
+    <title>Admin Management - OXI E-Sports</title>
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <!-- SweetAlert2 & FontAwesome & Fonts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <!-- Configuration JS -->
+    <script src="config.js"></script>
     <style>
         :root {
-            --bg-dark: #0b061a;
+            --bg-color: #0b061a;
             --card-bg: #160d2e;
-            --cyan: #00ffd1;
-            --purple: #b026ff;
-            --text-light: #e0e0e0;
-            --danger: #ff4d4d;
+            --cyan-accent: #00ffd1;
+            --purple-glow: #b026ff;
+            --text-color: #ffffff;
+            --text-muted: #a098c0;
+            --danger-color: #ff4757;
+            --border-color: rgba(255, 255, 255, 0.08);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
             min-height: 100vh;
-            padding: 30px 5%;
         }
 
-        /* Top Bar */
-        .top-bar {
+        /* Top Bar Navigation */
+        .top-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
 
-        .back-btn {
-            background: rgba(0, 255, 209, 0.1);
-            color: var(--cyan);
-            border: 1px solid var(--cyan);
-            padding: 10px 20px;
-            border-radius: 30px;
+        .btn-dashboard {
+            background: transparent;
+            border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent);
+            padding: 8px 18px;
+            border-radius: 20px;
             cursor: pointer;
-            text-decoration: none;
             font-weight: 600;
-            font-size: 14px;
-            display: flex;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .back-btn:hover {
-            background: var(--cyan);
-            color: #000;
+        .btn-dashboard:hover {
+            background: var(--cyan-accent);
+            color: var(--bg-color);
             box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
         }
 
-        .add-admin-btn {
-            background: linear-gradient(90deg, var(--purple), #8a2be2);
-            color: white;
+        .btn-add-admin {
+            background: linear-gradient(135deg, #8a2be2, #b026ff);
             border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 600;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 20px;
             cursor: pointer;
-            display: flex;
+            font-weight: 600;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
-            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
+            transition: all 0.3s ease;
         }
 
-        .add-admin-btn:hover {
+        .btn-add-admin:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.7);
         }
 
-        /* Main Container Card */
-        .content-card {
+        /* Main Glass Card */
+        .glass-card {
             background: var(--card-bg);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(176, 38, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         .card-header {
@@ -96,29 +100,31 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 15px;
         }
 
         .card-header h2 {
-            color: var(--cyan);
-            font-size: 22px;
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--cyan-accent);
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .admin-count-badge {
-            background: rgba(0, 255, 209, 0.15);
-            color: var(--cyan);
+        .badge-count {
+            background: rgba(0, 255, 209, 0.1);
+            color: var(--cyan-accent);
+            border: 1px solid rgba(0, 255, 209, 0.3);
             padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
+            border-radius: 15px;
+            font-size: 0.85rem;
         }
 
-        /* Table Styling */
-        .table-wrapper {
+        /* Admin Table */
+        .table-responsive {
+            width: 100%;
             overflow-x: auto;
         }
 
@@ -129,258 +135,516 @@
         }
 
         th {
-            background: rgba(0, 0, 0, 0.3);
-            color: #888;
-            padding: 16px 20px;
-            font-size: 13px;
+            padding: 14px 16px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 2px solid rgba(0, 255, 209, 0.2);
+            border-bottom: 1px solid var(--border-color);
         }
 
         td {
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 14px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
+            font-size: 0.95rem;
         }
 
-        tr:hover {
-            background: rgba(255, 255, 255, 0.02);
+        tr:last-child td {
+            border-bottom: none;
         }
 
-        /* Role Badges */
-        .role-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-            text-transform: uppercase;
-        }
-
+        /* Badges */
         .role-super {
-            background: linear-gradient(45deg, #f39c12, #e67e22);
-            color: #fff;
-            box-shadow: 0 0 10px rgba(243, 156, 18, 0.3);
+            background: linear-gradient(135deg, #ff9f43, #ff5252);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .role-normal {
+        .role-admin {
             background: rgba(0, 255, 209, 0.15);
-            color: var(--cyan);
-            border: 1px solid rgba(0, 255, 209, 0.3);
+            color: var(--cyan-accent);
+            border: 1px solid rgba(0, 255, 209, 0.4);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .you-tag {
+        .badge-you {
             background: rgba(176, 38, 255, 0.2);
-            color: #d175ff;
+            color: var(--purple-glow);
+            border: 1px solid rgba(176, 38, 255, 0.4);
             padding: 2px 8px;
             border-radius: 10px;
-            font-size: 10px;
+            font-size: 0.7rem;
             margin-left: 8px;
-            border: 1px solid rgba(176, 38, 255, 0.4);
         }
 
-        /* Remove Button */
-        .btn-remove {
-            background: rgba(255, 77, 77, 0.1);
-            color: var(--danger);
-            border: 1px solid rgba(255, 77, 77, 0.3);
-            padding: 8px 16px;
+        /* Action Buttons */
+        .action-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-permission {
+            background: rgba(0, 255, 209, 0.1);
+            border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent);
+            padding: 6px 14px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
-            transition: 0.3s;
+            font-size: 0.82rem;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-permission:hover {
+            background: var(--cyan-accent);
+            color: var(--bg-color);
+            box-shadow: 0 0 10px rgba(0, 255, 209, 0.4);
+        }
+
+        .btn-remove {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
         .btn-remove:hover {
-            background: var(--danger);
+            background: var(--danger-color);
             color: white;
-            box-shadow: 0 0 12px rgba(255, 77, 77, 0.5);
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.4);
         }
 
-        /* Custom SweetAlert Dark UI */
-        .swal-dark-custom {
-            background: #160d2e !important;
-            color: #fff !important;
-            border: 1px solid #b026ff !important;
-            border-radius: 15px !important;
+        .text-protected {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.85rem;
         }
 
-        .swal2-input, .swal2-select {
-            background: rgba(0,0,0,0.4) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: #fff !important;
-            border-radius: 8px !important;
+        /* Permission Checkboxes Modal Styling */
+        .perm-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            text-align: left;
+            margin-top: 15px;
         }
-        .swal2-input:focus, .swal2-select:focus {
-            border-color: var(--cyan) !important;
+
+        .perm-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .perm-item span {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Custom Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #332d48;
+            transition: .3s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--cyan-accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background-color: #0b061a;
         }
     </style>
 </head>
 <body>
 
-    <!-- Top Navigation Bar -->
-    <div class="top-bar">
-        <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
-        <button class="add-admin-btn" onclick="showAddAdminModal()"><i class="fas fa-user-plus"></i> Add New Admin</button>
+    <!-- Navigation Header -->
+    <div class="top-nav">
+        <a href="dashboard.html" class="btn-dashboard">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+        <button class="btn-add-admin" onclick="openAddAdminModal()">
+            <i class="fas fa-user-plus"></i> Add New Admin
+        </button>
     </div>
 
-    <!-- Main Table Card -->
-    <div class="content-card">
+    <!-- Main Container Card -->
+    <div class="glass-card">
         <div class="card-header">
             <h2><i class="fas fa-user-shield"></i> System Admins</h2>
-            <span class="admin-count-badge" id="total-admins">0 Admins</span>
+            <div class="badge-count"><span id="totalAdminCount">0</span> Admins Total</div>
         </div>
 
-        <div class="table-wrapper">
+        <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
                         <th>Admin Email</th>
                         <th>Role</th>
-                        <th style="text-align: right;">Action</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="admin-table-body">
-                    <!-- Loaded via JavaScript -->
+                <tbody id="adminsTableBody">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading System Admins...
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Configuration & Logic Script -->
-    <script src="config.js"></script>
     <script>
-        checkAuth();
+        let currentUserEmail = '';
 
-        let loggedInEmail = "";
-
-        // Wait for auth to get logged-in user
+        // Monitor Auth State
         auth.onAuthStateChanged(user => {
-            if(user) {
-                loggedInEmail = user.email;
-                loadAllAdmins();
+            if (user) {
+                currentUserEmail = user.email;
+                verifySuperAdminAccess();
+            } else {
+                window.location.href = 'login.html';
             }
         });
 
-        function loadAllAdmins() {
-            const tbody = document.getElementById('admin-table-body');
-            
-            // Listen to both nodes simultaneously
-            db.ref().on('value', snapshot => {
-                tbody.innerHTML = "";
-                let count = 0;
-
-                const superAdmins = snapshot.child('superAdmins').val() || {};
-                const normalAdmins = snapshot.child('admins').val() || {};
-
-                // 1. Render Super Admins
-                Object.keys(superAdmins).forEach(key => {
-                    count++;
-                    const email = key.replace(/,/g, '.');
-                    const isSelf = (email.toLowerCase() === loggedInEmail.toLowerCase());
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>
-                                <i class="fas fa-envelope" style="color:#888; margin-right:8px;"></i>
-                                <b>${email}</b>
-                                ${isSelf ? '<span class="you-tag">YOU</span>' : ''}
-                            </td>
-                            <td><span class="role-badge role-super"><i class="fas fa-crown"></i> Super Admin</span></td>
-                            <td style="text-align: right;">
-                                ${isSelf ? '<span style="font-size:12px; color:#666; italic;">Protected</span>' : 
-                                `<button class="btn-remove" onclick="removeAdmin('superAdmins', '${key}', '${email}')"><i class="fas fa-trash-alt"></i> Remove</button>`}
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                // 2. Render Normal Admins
-                Object.keys(normalAdmins).forEach(key => {
-                    count++;
-                    const email = key.replace(/,/g, '.');
-                    const isSelf = (email.toLowerCase() === loggedInEmail.toLowerCase());
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>
-                                <i class="fas fa-envelope" style="color:#888; margin-right:8px;"></i>
-                                <b>${email}</b>
-                                ${isSelf ? '<span class="you-tag">YOU</span>' : ''}
-                            </td>
-                            <td><span class="role-badge role-normal"><i class="fas fa-shield-alt"></i> Admin</span></td>
-                            <td style="text-align: right;">
-                                ${isSelf ? '<span style="font-size:12px; color:#666; italic;">Protected</span>' : 
-                                `<button class="btn-remove" onclick="removeAdmin('admins', '${key}', '${email}')"><i class="fas fa-trash-alt"></i> Remove</button>`}
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById('total-admins').innerText = `${count} Admins Total`;
-            });
-        }
-
-        // Add Admin Modal
-        function showAddAdminModal() {
-            SwalDark.fire({
-                title: '<span style="color:var(--cyan);"><i class="fas fa-user-plus"></i> Add System Admin</span>',
-                html: `
-                    <div style="text-align:left; margin-top:15px;">
-                        <label style="font-size:12px; color:#aaa;">Admin Email Address</label>
-                        <input id="new-admin-email" type="email" class="swal2-input" placeholder="admin@example.com" style="margin-top:5px;">
-                    </div>
-                    <div style="text-align:left; margin-top:15px;">
-                        <label style="font-size:12px; color:#aaa;">Assign Admin Role</label>
-                        <select id="new-admin-role" class="swal2-select" style="width:100%; margin-top:5px;">
-                            <option value="admins">Normal Admin</option>
-                            <option value="superAdmins">Super Admin</option>
-                        </select>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Grant Access',
-                confirmButtonColor: '#b026ff',
-                cancelButtonColor: '#444'
-            }).then(result => {
-                if (result.isConfirmed) {
-                    const email = document.getElementById('new-admin-email').value.trim();
-                    const role = document.getElementById('new-admin-role').value;
-
-                    if (!email || !email.includes('@')) {
-                        SwalDark.fire('Invalid Email', 'Please enter a valid email address.', 'error');
-                        return;
-                    }
-
-                    const key = emailToKey(email);
-                    db.ref(`${role}/${key}`).set(true).then(() => {
-                        SwalDark.fire('Success!', `${email} has been added as ${role === 'superAdmins' ? 'Super Admin' : 'Admin'}.`, 'success');
+        // Verify Super Admin Authorization
+        function verifySuperAdminAccess() {
+            const userKey = emailToKey(currentUserEmail);
+            db.ref('superAdmins/' + userKey).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    loadAdminsList();
+                } else {
+                    SwalDark.fire({
+                        icon: 'error',
+                        title: 'Access Denied',
+                        text: 'Only Super Admins can manage System Admin permissions.'
+                    }).then(() => {
+                        window.location.href = 'dashboard.html';
                     });
                 }
             });
         }
 
-        // Remove Admin Function
-        function removeAdmin(path, key, email) {
+        // Fetch and Render Admins List
+        function loadAdminsList() {
+            const adminsRef = db.ref('admins');
+            const superAdminsRef = db.ref('superAdmins');
+
+            Promise.all([superAdminsRef.once('value'), adminsRef.once('value')])
+                .then(([superSnap, adminSnap]) => {
+                    const tableBody = document.getElementById('adminsTableBody');
+                    tableBody.innerHTML = '';
+
+                    const superAdmins = superSnap.val() || {};
+                    const normalAdmins = adminSnap.val() || {};
+
+                    let totalCount = 0;
+                    let rowsHtml = '';
+
+                    // 1. Render Super Admins first
+                    Object.keys(superAdmins).forEach(key => {
+                        totalCount++;
+                        const email = superAdmins[key].email || key.replace(/,/g, '.');
+                        const isSelf = (email.toLowerCase() === currentUserEmail.toLowerCase());
+
+                        rowsHtml += `
+                            <tr>
+                                <td>
+                                    <i class="fas fa-envelope" style="color: var(--text-muted); margin-right: 8px;"></i>
+                                    <strong>${email}</strong>
+                                    ${isSelf ? '<span class="badge-you">YOU</span>' : ''}
+                                </td>
+                                <td>
+                                    <span class="role-super"><i class="fas fa-crown"></i> SUPER ADMIN</span>
+                                </td>
+                                <td>
+                                    <span class="text-protected"><i class="fas fa-lock"></i> Protected</span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    // 2. Render Normal Admins next
+                    Object.keys(normalAdmins).forEach(key => {
+                        totalCount++;
+                        const adminObj = normalAdmins[key];
+                        const email = adminObj.email || key.replace(/,/g, '.');
+                        const isSelf = (email.toLowerCase() === currentUserEmail.toLowerCase());
+
+                        rowsHtml += `
+                            <tr>
+                                <td>
+                                    <i class="fas fa-envelope" style="color: var(--text-muted); margin-right: 8px;"></i>
+                                    <strong>${email}</strong>
+                                    ${isSelf ? '<span class="badge-you">YOU</span>' : ''}
+                                </td>
+                                <td>
+                                    <span class="role-admin"><i class="fas fa-shield-alt"></i> ADMIN</span>
+                                </td>
+                                <td>
+                                    <div class="action-cell">
+                                        <button class="btn-permission" onclick="openPermissionsModal('${key}', '${email}')">
+                                            <i class="fas fa-sliders-h"></i> Permissions
+                                        </button>
+                                        ${!isSelf ? `
+                                            <button class="btn-remove" onclick="removeAdmin('${key}', '${email}')">
+                                                <i class="fas fa-trash-alt"></i> Remove
+                                            </button>
+                                        ` : '<span class="text-protected"><i class="fas fa-lock"></i> Protected</span>'}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    document.getElementById('totalAdminCount').innerText = totalCount;
+
+                    if (totalCount === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 20px;">No admins found.</td></tr>`;
+                    } else {
+                        tableBody.innerHTML = rowsHtml;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching admins:', err);
+                    SwalDark.fire('Error', 'Failed to load system admin list.', 'error');
+                });
+        }
+
+        // Modal: Manage Permissions for a Normal Admin
+        function openPermissionsModal(adminKey, adminEmail) {
+            db.ref('admins/' + adminKey + '/permissions').once('value', snapshot => {
+                const perms = snapshot.val() || {
+                    paymentSettings: true,
+                    users: true,
+                    addMoney: true,
+                    banners: true,
+                    categories: true,
+                    matches: true
+                };
+
+                SwalDark.fire({
+                    title: '<i class="fas fa-user-cog" style="color: var(--cyan-accent);"></i> Admin Permissions',
+                    html: `
+                        <div style="text-align: left; margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted);">
+                            Configuring access rights for: <br><strong style="color: var(--cyan-accent);">${adminEmail}</strong>
+                        </div>
+                        <div class="perm-grid">
+                            <div class="perm-item">
+                                <span><i class="fas fa-sliders-h"></i> Payment Settings</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_payment" ${perms.paymentSettings ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-users"></i> Users Management</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_users" ${perms.users ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-wallet"></i> Deposit Requests</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_addMoney" ${perms.addMoney ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-images"></i> Manage Banners</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_banners" ${perms.banners ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-list"></i> Manage Categories</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_categories" ${perms.categories ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-gamepad"></i> Manage Matches</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_matches" ${perms.matches ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Save Permissions',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#b026ff',
+                    cancelButtonColor: '#ff4757',
+                    preConfirm: () => {
+                        return {
+                            paymentSettings: document.getElementById('perm_payment').checked,
+                            users: document.getElementById('perm_users').checked,
+                            addMoney: document.getElementById('perm_addMoney').checked,
+                            banners: document.getElementById('perm_banners').checked,
+                            categories: document.getElementById('perm_categories').checked,
+                            matches: document.getElementById('perm_matches').checked
+                        };
+                    }
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        db.ref('admins/' + adminKey + '/permissions').set(result.value)
+                            .then(() => {
+                                SwalDark.fire('Success', 'Permissions updated successfully!', 'success');
+                                loadAdminsList();
+                            })
+                            .catch(err => SwalDark.fire('Error', err.message, 'error'));
+                    }
+                });
+            });
+        }
+
+        // Modal: Add New Normal Admin
+        function openAddAdminModal() {
             SwalDark.fire({
-                title: 'Revoke Access?',
-                text: `Are you sure you want to remove ${email} from admins?`,
-                icon: 'warning',
+                title: '<i class="fas fa-user-plus" style="color: var(--cyan-accent);"></i> Add New Admin',
+                html: `
+                    <div style="text-align: left; margin-top: 10px;">
+                        <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Admin Email Address</label>
+                        <input type="email" id="newAdminEmail" class="swal2-input" placeholder="admin@example.com" style="width: 100%; box-sizing: border-box; margin: 0 0 15px 0; background: #0b061a; color: white; border: 1px solid rgba(255,255,255,0.2);">
+                    </div>
+                `,
                 showCancelButton: true,
-                confirmButtonText: 'Yes, Remove',
-                confirmButtonColor: '#ff4d4d',
-                cancelButtonColor: '#444'
+                confirmButtonText: 'Add Admin',
+                confirmButtonColor: '#00ffd1',
+                cancelButtonColor: '#ff4757',
+                preConfirm: () => {
+                    const email = document.getElementById('newAdminEmail').value.trim();
+                    if (!email) {
+                        Swal.showValidationMessage('Please enter a valid email address');
+                        return false;
+                    }
+                    return email;
+                }
             }).then(result => {
                 if (result.isConfirmed) {
-                    db.ref(`${path}/${key}`).remove().then(() => {
-                        SwalDark.fire('Removed!', 'Admin access has been revoked.', 'success');
+                    const email = result.value;
+                    const key = emailToKey(email);
+
+                    // Check if already super admin or normal admin
+                    db.ref('superAdmins/' + key).once('value', sSnap => {
+                        if (sSnap.exists()) {
+                            SwalDark.fire('Notice', 'This user is already a Super Admin!', 'info');
+                            return;
+                        }
+
+                        // Add to regular admins with default full permissions
+                        const defaultPermissions = {
+                            paymentSettings: true,
+                            users: true,
+                            addMoney: true,
+                            banners: true,
+                            categories: true,
+                            matches: true
+                        };
+
+                        db.ref('admins/' + key).set({
+                            email: email,
+                            addedAt: firebase.database.ServerValue.TIMESTAMP,
+                            permissions: defaultPermissions
+                        }).then(() => {
+                            SwalDark.fire('Added!', `${email} is now an Admin.`, 'success');
+                            loadAdminsList();
+                        }).catch(err => {
+                            SwalDark.fire('Error', err.message, 'error');
+                        });
                     });
+                }
+            });
+        }
+
+        // Remove Normal Admin
+        function removeAdmin(adminKey, adminEmail) {
+            if (adminEmail.toLowerCase() === currentUserEmail.toLowerCase()) {
+                SwalDark.fire('Action Denied', 'You cannot remove yourself!', 'warning');
+                return;
+            }
+
+            SwalDark.fire({
+                title: 'Are you sure?',
+                text: `Remove ${adminEmail} from System Admins?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff4757',
+                cancelButtonColor: '#332d48',
+                confirmButtonText: 'Yes, Remove'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref('admins/' + adminKey).remove()
+                        .then(() => {
+                            SwalDark.fire('Removed', 'Admin removed successfully.', 'success');
+                            loadAdminsList();
+                        })
+                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
                 }
             });
         }
