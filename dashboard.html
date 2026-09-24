@@ -1,58 +1,341 @@
+<!-- Admin/dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>OXI ADMIN - Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - OXI E-Sports</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Config -->
+    <script src="config.js"></script>
     <style>
-        :root { --bg: #0b061a; --card: #160d2e; --cyan: #00ffd1; --purple: #b026ff; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; }
-        .header { padding: 20px; background: var(--card); display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--purple); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; }
-        .stat-card { background: var(--card); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid rgba(0,255,209,0.1); }
-        .stat-card i { font-size: 30px; color: var(--cyan); }
-        
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 20px; }
-        .menu-item { background: var(--purple); color: #fff; padding: 20px; border-radius: 12px; text-align: center; cursor: pointer; text-decoration: none; font-weight: bold; transition: 0.3s; }
-        .menu-item:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--purple); }
-        .logout { background: #ff4d4d !important; }
+        :root {
+            --bg-color: #0b061a;
+            --card-bg: #160d2e;
+            --cyan-accent: #00ffd1;
+            --purple-glow: #b026ff;
+            --text-color: #ffffff;
+            --text-muted: #a098c0;
+            --danger: #ff4757;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .welcome-text h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--cyan-accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .welcome-text p {
+            margin: 5px 0 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #8a2be2, #b026ff);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        /* Glass Cards */
+        .dashboard-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--cyan-accent);
+            box-shadow: 0 10px 40px rgba(0, 255, 209, 0.15);
+        }
+
+        .dashboard-card i {
+            font-size: 2.5rem;
+            color: var(--cyan-accent);
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+
+        .dashboard-card:hover i {
+            transform: scale(1.1);
+            color: var(--purple-glow);
+        }
+
+        .dashboard-card h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .dashboard-card p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Specific Card Colors */
+        .card-logout {
+            border-color: rgba(255, 71, 87, 0.3);
+        }
+        .card-logout i { color: var(--danger); }
+        .card-logout:hover {
+            border-color: var(--danger);
+            box-shadow: 0 10px 40px rgba(255, 71, 87, 0.15);
+        }
+        .card-logout:hover i { color: var(--danger); }
+
+        .card-admins {
+            background: linear-gradient(145deg, rgba(22, 13, 46, 1) 0%, rgba(176, 38, 255, 0.1) 100%);
+        }
+        .card-admins i { color: var(--purple-glow); }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: var(--cyan-accent);
+            font-size: 1.5rem;
+            flex-direction: column;
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>OXI ADMIN PANEL</h1>
-        <button class="menu-item logout" onclick="auth.signOut()">Logout</button>
+
+    <!-- Full Screen Loader -->
+    <div id="loader">
+        <i class="fas fa-circle-notch fa-spin fa-2x"></i>
+        <div>Loading Dashboard...</div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card"><i class="fas fa-users"></i><h3 id="s-u">0</h3><p>USERS</p></div>
-        <div class="stat-card"><i class="fas fa-wallet"></i><h3 id="s-d">0</h3><p>PENDING DEPOSITS</p></div>
-        <div class="stat-card"><i class="fas fa-gamepad"></i><h3 id="s-c">0</h3><p>CATEGORIES</p></div>
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="welcome-text">
+            <h1>OXI E-Sports</h1>
+            <p>Admin Control Panel</p>
+        </div>
+        <div class="admin-badge" id="adminRoleBadge">
+            <i class="fas fa-shield-alt"></i> <span id="adminRoleText">Admin</span>
+        </div>
     </div>
 
-    <div class="menu-grid">
-        <a href="categories.html" class="menu-item"><i class="fas fa-gamepad"></i><br>Games & Matches</a>
-        <a href="users.html" class="menu-item"><i class="fas fa-users"></i><br>Users & Bans</a>
-        <a href="add-money.html" class="menu-item"><i class="fas fa-hand-holding-usd"></i><br>Add Money</a>
-        <a href="banners.html" class="menu-item"><i class="fas fa-images"></i><br>App Banners</a>
-        <a href="payment-settings.html" class="menu-item"><i class="fas fa-shield-alt"></i><br>Payment Settings</a>
-        <a href="admins.html" class="menu-item"><i class="fas fa-user-shield"></i><br>Admin Management</a>
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+        
+        <!-- App Settings (Notice & Support) -->
+        <a href="app-settings.html" class="dashboard-card" id="card-app-settings" style="display: none;">
+            <i class="fas fa-mobile-alt"></i>
+            <h3>App Settings</h3>
+            <p>Manage Notice & Support</p>
+        </a>
+
+        <!-- Payment Settings -->
+        <a href="payment-settings.html" class="dashboard-card" id="card-payment-settings" style="display: none;">
+            <i class="fas fa-cog"></i>
+            <h3>Payment Settings</h3>
+            <p>bKash, Nagad, Auto Add</p>
+        </a>
+
+        <!-- Users Management -->
+        <a href="users.html" class="dashboard-card" id="card-users" style="display: none;">
+            <i class="fas fa-users"></i>
+            <h3>Manage Users</h3>
+            <p>View & Ban Users</p>
+        </a>
+
+        <!-- Add Money Requests -->
+        <a href="add-money.html" class="dashboard-card" id="card-add-money" style="display: none;">
+            <i class="fas fa-wallet"></i>
+            <h3>Add Money</h3>
+            <p>Approve Deposit Requests</p>
+        </a>
+
+        <!-- Banners -->
+        <a href="banners.html" class="dashboard-card" id="card-banners" style="display: none;">
+            <i class="fas fa-images"></i>
+            <h3>Banners</h3>
+            <p>Home Screen Slider</p>
+        </a>
+
+        <!-- Match Categories -->
+        <a href="categories.html" class="dashboard-card" id="card-categories" style="display: none;">
+            <i class="fas fa-list-alt"></i>
+            <h3>Categories</h3>
+            <p>Game Match Types</p>
+        </a>
+
+        <!-- Matches -->
+        <a href="matches.html" class="dashboard-card" id="card-matches" style="display: none;">
+            <i class="fas fa-gamepad"></i>
+            <h3>Matches</h3>
+            <p>Create & Host Rooms</p>
+        </a>
+
+        <!-- System Admins (Super Admin Only) -->
+        <a href="admins.html" class="dashboard-card card-admins" id="card-admins" style="display: none;">
+            <i class="fas fa-user-shield"></i>
+            <h3>System Admins</h3>
+            <p>Manage Admin Access</p>
+        </a>
+
+        <!-- Logout -->
+        <div class="dashboard-card card-logout" onclick="logoutAdmin()">
+            <i class="fas fa-sign-out-alt"></i>
+            <h3>Logout</h3>
+            <p>End Session</p>
+        </div>
+
     </div>
 
-    <script src="config.js"></script>
     <script>
-        checkAuth();
-        db.ref('users').on('value', s => document.getElementById('s-u').innerText = s.numChildren());
-        db.ref('deposit_requests').on('value', s => {
-            let count = 0;
-            s.forEach(d => { if(d.val().status === 'pending') count++; });
-            document.getElementById('s-d').innerText = count;
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                verifyAdminAccess(user.email);
+            } else {
+                window.location.href = 'login.html';
+            }
         });
-        db.ref('match_categories').on('value', s => document.getElementById('s-c').innerText = s.numChildren());
+
+        function verifyAdminAccess(email) {
+            const userKey = emailToKey(email);
+            
+            // First check if Super Admin
+            db.ref('superAdmins/' + userKey).once('value', superSnap => {
+                if (superSnap.exists()) {
+                    // Is Super Admin -> Show all cards
+                    document.getElementById('adminRoleText').innerText = 'SUPER ADMIN';
+                    document.getElementById('adminRoleBadge').style.background = 'linear-gradient(135deg, #ff9f43, #ff5252)';
+                    
+                    showCards({
+                        appSettings: true,
+                        paymentSettings: true,
+                        users: true,
+                        addMoney: true,
+                        banners: true,
+                        categories: true,
+                        matches: true
+                    });
+                    
+                    document.getElementById('card-admins').style.display = 'flex';
+                    hideLoader();
+                } else {
+                    // Check if Normal Admin
+                    db.ref('admins/' + userKey).once('value', adminSnap => {
+                        if (adminSnap.exists()) {
+                            const adminData = adminSnap.val();
+                            const perms = adminData.permissions || {};
+                            
+                            document.getElementById('adminRoleText').innerText = 'ADMIN';
+                            
+                            // App Settings defaults to true if not strictly false
+                            perms.appSettings = perms.appSettings !== false;
+
+                            showCards(perms);
+                            document.getElementById('card-admins').style.display = 'none'; // Normal admins can't see this
+                            hideLoader();
+                        } else {
+                            // Not an admin at all
+                            auth.signOut().then(() => {
+                                SwalDark.fire('Access Denied', 'You are not authorized to view the admin panel.', 'error')
+                                    .then(() => window.location.href = 'login.html');
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function showCards(perms) {
+            if (perms.appSettings) document.getElementById('card-app-settings').style.display = 'flex';
+            if (perms.paymentSettings) document.getElementById('card-payment-settings').style.display = 'flex';
+            if (perms.users) document.getElementById('card-users').style.display = 'flex';
+            if (perms.addMoney) document.getElementById('card-add-money').style.display = 'flex';
+            if (perms.banners) document.getElementById('card-banners').style.display = 'flex';
+            if (perms.categories) document.getElementById('card-categories').style.display = 'flex';
+            if (perms.matches) document.getElementById('card-matches').style.display = 'flex';
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        function logoutAdmin() {
+            SwalDark.fire({
+                title: 'Logout?',
+                text: "Are you sure you want to end your admin session?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff4757',
+                cancelButtonColor: '#332d48',
+                confirmButtonText: 'Yes, Logout'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    auth.signOut().then(() => {
+                        window.location.href = 'login.html';
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html>
