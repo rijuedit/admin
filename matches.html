@@ -172,10 +172,54 @@
             padding-top: 15px;
         }
 
-        /* SWAL Modals */
-        .swal-field-label { text-align: left; display: block; margin-top: 10px; font-size: 0.85rem; color: var(--cyan); font-weight: bold; }
-        .swal2-input, .swal2-select { background: #0b061a !important; color: white !important; border: 1px solid rgba(0,255,209,0.3) !important; width: 100% !important; margin-top: 5px !important; }
-        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        /* SweetAlert Modal Fix - Responsive, No horizontal scroll */
+        .swal2-popup {
+            width: 92% !important;
+            max-width: 420px !important;
+            padding: 20px 16px 16px !important;
+            box-sizing: border-box !important;
+        }
+        .swal2-html-container {
+            overflow-x: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .swal-field-label {
+            text-align: left;
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 4px;
+            font-size: 0.78rem;
+            color: var(--cyan);
+            font-weight: bold;
+        }
+        .swal2-input, .swal2-select {
+            background: #0b061a !important;
+            color: white !important;
+            border: 1px solid rgba(0,255,209,0.3) !important;
+            width: 100% !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            font-size: 0.9rem !important;
+            height: 42px !important;
+        }
+        .swal-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .swal-row > div {
+            flex: 1;
+            min-width: 0; /* Prevents input overflow */
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -220,7 +264,7 @@
             }
         });
 
-        // Helper: Check if match start time is older than 7 days
+        // Check if match start time is older than 7 days
         function isOlderThan7Days(m) {
             if (!m.rawDate || !m.rawTime) return false;
             const startTime = new Date(`${m.rawDate}T${m.rawTime}:00`).getTime();
@@ -405,6 +449,7 @@
 
             SwalDark.fire({
                 title: 'Create New Match',
+                width: 420,
                 html: `
                     <label class="swal-field-label">CATEGORY</label>
                     <select id="mCat" class="swal2-select">${categoriesHtml}</select>
@@ -412,48 +457,68 @@
                     <label class="swal-field-label">MATCH TITLE</label>
                     <input id="mTitle" class="swal2-input" placeholder="e.g. Free Fire Solo Battle">
                     
-                    <div style="display:flex; gap:10px;">
-                        <div style="flex:1">
+                    <div class="swal-row">
+                        <div>
                             <label class="swal-field-label">MATCH DATE</label>
                             <input type="date" id="mDate" class="swal2-input">
                         </div>
-                        <div style="flex:1">
+                        <div>
                             <label class="swal-field-label">MATCH TIME</label>
                             <input type="time" id="mTime" class="swal2-input">
                         </div>
                     </div>
                     
-                    <div style="display:flex; gap:10px;">
-                        <div style="flex:1">
+                    <div class="swal-row">
+                        <div>
                             <label class="swal-field-label">WIN PRIZE (৳)</label>
                             <input type="number" id="mPrize" class="swal2-input" placeholder="e.g. 500">
                         </div>
-                        <div style="flex:1">
+                        <div>
                             <label class="swal-field-label">PER KILL (৳)</label>
                             <input type="number" id="mKill" class="swal2-input" placeholder="e.g. 10">
                         </div>
                     </div>
 
-                    <div style="display:flex; gap:10px;">
-                        <div style="flex:1">
+                    <div class="swal-row">
+                        <div>
                             <label class="swal-field-label">ENTRY FEE (৳)</label>
                             <input type="number" id="mFee" class="swal2-input" placeholder="e.g. 30">
                         </div>
-                        <div style="flex:1">
+                        <div>
                             <label class="swal-field-label">TOTAL SPOTS</label>
                             <input type="number" id="mSpots" class="swal2-input" placeholder="e.g. 48">
                         </div>
                     </div>
 
-                    <label class="swal-field-label">TYPE, VERSION, MAP</label>
-                    <div style="display:flex; gap:5px;">
-                        <select id="mType" class="swal2-select"><option>Solo</option><option>Duo</option><option>Squad</option></select>
-                        <select id="mVer" class="swal2-select"><option>MOBILE</option><option>PC</option></select>
-                        <select id="mMap" class="swal2-select"><option>Bermuda</option><option>Purgatory</option><option>Kalahari</option></select>
+                    <div class="swal-row">
+                        <div>
+                            <label class="swal-field-label">TYPE</label>
+                            <select id="mType" class="swal2-select">
+                                <option>Solo</option>
+                                <option>Duo</option>
+                                <option>Squad</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="swal-field-label">VERSION</label>
+                            <select id="mVer" class="swal2-select">
+                                <option>MOBILE</option>
+                                <option>PC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="swal-field-label">MAP</label>
+                            <select id="mMap" class="swal2-select">
+                                <option>Bermuda</option>
+                                <option>Purgatory</option>
+                                <option>Kalahari</option>
+                            </select>
+                        </div>
                     </div>
                 `,
                 showCancelButton: true,
                 confirmButtonText: 'Create Match',
+                cancelButtonText: 'Cancel',
                 preConfirm: () => {
                     const data = {
                         cat: document.getElementById('mCat').value,
