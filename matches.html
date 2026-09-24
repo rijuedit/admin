@@ -5,15 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Match Management - Admin</title>
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Config -->
     <script src="config.js"></script>
     <style>
         :root {
@@ -24,7 +20,6 @@
             --text-main: #e2e8f0;
             --danger: #ff4757;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -32,7 +27,6 @@
             color: var(--text-main);
             padding: 20px;
         }
-
         .header {
             display: flex;
             justify-content: space-between;
@@ -43,44 +37,23 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            color: var(--cyan);
-            margin: 0;
-        }
-
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header h1 { font-size: 1.5rem; color: var(--cyan); margin: 0; }
         .btn {
             background: linear-gradient(45deg, var(--purple), var(--cyan));
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
+            color: white; border: none; padding: 10px 20px; border-radius: 8px;
+            font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s;
         }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 255, 209, 0.3); }
         .btn-danger { background: var(--danger); }
         .btn-back { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); }
         .btn-back:hover { background: rgba(0, 255, 209, 0.1); box-shadow: none; }
 
-        /* Categories Grid */
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
         }
-
         .category-box {
             background: var(--card-bg);
             border: 1px solid rgba(0, 255, 209, 0.2);
@@ -89,8 +62,6 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
         .category-box:hover {
             transform: translateY(-5px);
@@ -98,36 +69,24 @@
             box-shadow: 0 8px 25px rgba(176, 38, 255, 0.2);
         }
         .category-box img {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            object-fit: cover;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 60px; height: 60px; border-radius: 12px; object-fit: cover;
+            margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .category-box h3 {
-            margin: 0 0 10px 0;
-            color: white;
-            font-size: 1.3rem;
-        }
+        .category-box h3 { margin: 0 0 10px 0; color: white; font-size: 1.3rem; }
         .match-count-badge {
             background: rgba(176, 38, 255, 0.2);
             color: var(--cyan);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
+            padding: 5px 15px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: bold;
             border: 1px solid rgba(176, 38, 255, 0.5);
             display: inline-block;
         }
 
-        /* Matches Grid */
         .matches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
         }
-
         .match-card {
             background: var(--card-bg);
             border: 1px solid rgba(0, 255, 209, 0.1);
@@ -135,25 +94,16 @@
             padding: 20px;
             position: relative;
         }
-        .match-card h3 {
-            margin: 0 0 10px 0;
-            color: var(--cyan);
-            font-size: 1.2rem;
-        }
+        .match-card h3 { margin: 0 0 10px 0; color: var(--cyan); font-size: 1.2rem; }
         .match-info { font-size: 0.9rem; color: #a0aec0; margin-bottom: 5px; }
         .match-info span { color: white; font-weight: bold; }
 
-        /* Countdown Timer Box */
         .timer-box {
             background: rgba(176, 38, 255, 0.1);
             color: var(--purple);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 8px 12px; border-radius: 6px;
+            font-size: 0.85rem; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
             margin: 15px 0;
             border: 1px solid rgba(176, 38, 255, 0.3);
         }
@@ -162,24 +112,18 @@
             color: var(--danger);
             border-color: rgba(255, 71, 87, 0.3);
         }
-
         .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 15px;
+            display: flex; gap: 10px; margin-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;
         }
-
-        /* SWAL Modals */
         .swal-field-label { text-align: left; display: block; margin-top: 10px; font-size: 0.85rem; color: var(--cyan); font-weight: bold; }
         .swal2-input, .swal2-select { background: #0b061a !important; color: white !important; border: 1px solid rgba(0,255,209,0.3) !important; width: 100% !important; margin-top: 5px !important; }
-        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- Header for Categories View -->
     <div class="header" id="headerCategories">
         <div class="header-left">
             <h1><i class="fas fa-boxes"></i> Match Categories</h1>
@@ -187,7 +131,6 @@
         <button class="btn" onclick="openAddMatchModal()"><i class="fas fa-plus"></i> Create Match</button>
     </div>
 
-    <!-- Header for Matches View (Hidden initially) -->
     <div class="header" id="headerMatches" style="display: none;">
         <div class="header-left">
             <button class="btn btn-back" onclick="showCategories()"><i class="fas fa-arrow-left"></i> Back</button>
@@ -196,47 +139,57 @@
         <button class="btn" onclick="openAddMatchModal()"><i class="fas fa-plus"></i> Create Match</button>
     </div>
 
-    <!-- Container for Category Boxes -->
     <div class="categories-grid" id="categoriesContainer">
-        <!-- Boxes Load Here -->
         <div style="color: #a0aec0; padding: 20px;">Loading categories...</div>
     </div>
 
-    <!-- Container for Match Cards (Hidden initially) -->
-    <div class="matches-grid" id="matchesContainer" style="display: none;">
-        <!-- Matches Load Here -->
-    </div>
+    <div class="matches-grid" id="matchesContainer" style="display: none;"></div>
 
     <script>
         let allCategories = {};
         let allMatches = [];
         let currentActiveCategoryKey = null;
 
+        // Match is expired if start time + 1 hour has passed
+        function isMatchExpired(m) {
+            if (!m.rawDate || !m.rawTime) return false;
+            const matchTime = new Date(`${m.rawDate}T${m.rawTime}:00`).getTime();
+            if (isNaN(matchTime)) return false;
+            const oneHour = 60 * 60 * 1000;
+            return (Date.now() - matchTime) > oneHour;
+        }
+
         auth.onAuthStateChanged(user => {
-            if (user) {
-                fetchData();
-            } else {
-                window.location.href = 'index.html';
-            }
+            if (user) fetchData();
+            else window.location.href = 'index.html';
         });
 
-        // Fetch Both Categories and Matches
         function fetchData() {
             db.ref('match_categories').on('value', catSnap => {
                 allCategories = catSnap.val() || {};
-                
+
                 db.ref('matches').on('value', matchSnap => {
                     allMatches = [];
+                    const toDelete = [];
+
                     if (matchSnap.exists()) {
                         matchSnap.forEach(child => {
-                            allMatches.push({ id: child.key, ...child.val() });
+                            const m = { id: child.key, ...child.val() };
+                            // Auto-remove from DB if 1 hour past start time
+                            if (isMatchExpired(m)) {
+                                toDelete.push(m.id);
+                            } else {
+                                allMatches.push(m);
+                            }
                         });
                     }
 
-                    // Always re-render categories to update match counts
-                    renderCategories();
+                    // Hard delete expired matches from Firebase
+                    toDelete.forEach(id => {
+                        db.ref('matches/' + id).remove();
+                    });
 
-                    // If a category is currently open, refresh its matches
+                    renderCategories();
                     if (currentActiveCategoryKey) {
                         renderMatchesForCategory(currentActiveCategoryKey);
                     }
@@ -244,22 +197,19 @@
             });
         }
 
-        // Render the Category Boxes
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
-            // Calculate matches per category
             const matchCounts = {};
             allMatches.forEach(m => {
-                const cat = m.categoryKey;
-                if(cat) {
-                    matchCounts[cat] = (matchCounts[cat] || 0) + 1;
+                if (m.categoryKey) {
+                    matchCounts[m.categoryKey] = (matchCounts[m.categoryKey] || 0) + 1;
                 }
             });
 
             const catKeys = Object.keys(allCategories);
-            if(catKeys.length === 0) {
+            if (catKeys.length === 0) {
                 container.innerHTML = `<div style="color:#a0aec0;">No categories found. Please add categories first.</div>`;
                 return;
             }
@@ -267,122 +217,117 @@
             catKeys.forEach(key => {
                 const cat = allCategories[key];
                 const count = matchCounts[key] || 0;
-                const imgTag = cat.image ? `<img src="${cat.image}" alt="img">` : `<i class="fas fa-gamepad fa-3x" style="color:var(--cyan); margin-bottom:15px;"></i>`;
+                const imgTag = cat.image
+                    ? `<img src="${cat.image}" alt="img">`
+                    : `<i class="fas fa-gamepad fa-3x" style="color:var(--cyan); margin-bottom:15px;"></i>`;
 
                 container.innerHTML += `
-                    <div class="category-box" onclick="openCategoryMatches('${key}', '${cat.title.replace(/'/g, "\\'")}')">
+                    <div class="category-box" onclick="openCategoryMatches('${key}', '${(cat.title || '').replace(/'/g, "\\'")}')">
                         ${imgTag}
-                        <h3>${cat.title}</h3>
+                        <h3>${cat.title || 'Category'}</h3>
                         <div class="match-count-badge">${count} Match${count !== 1 ? 'es' : ''}</div>
                     </div>
                 `;
             });
         }
 
-        // Switch to Matches View
         function openCategoryMatches(catKey, catTitle) {
             currentActiveCategoryKey = catKey;
-            
             document.getElementById('headerCategories').style.display = 'none';
             document.getElementById('categoriesContainer').style.display = 'none';
-            
             document.getElementById('headerMatches').style.display = 'flex';
             document.getElementById('matchesContainer').style.display = 'grid';
-            
             document.getElementById('selectedCategoryTitle').innerText = catTitle + ' Matches';
-
             renderMatchesForCategory(catKey);
         }
 
-        // Switch back to Categories View
         function showCategories() {
             currentActiveCategoryKey = null;
-
             document.getElementById('headerMatches').style.display = 'none';
             document.getElementById('matchesContainer').style.display = 'none';
-            
             document.getElementById('headerCategories').style.display = 'flex';
             document.getElementById('categoriesContainer').style.display = 'grid';
         }
 
-        // Render Matches for the Selected Category
         function renderMatchesForCategory(catKey) {
             const container = document.getElementById('matchesContainer');
             container.innerHTML = '';
 
-            const filteredMatches = allMatches.filter(m => m.categoryKey === catKey);
+            // Only non-expired matches of this category
+            const filtered = allMatches
+                .filter(m => m.categoryKey === catKey && !isMatchExpired(m))
+                .reverse();
 
-            if (filteredMatches.length > 0) {
-                // Reverse to show newest created first
-                filteredMatches.reverse().forEach(m => {
-                    const joinedCount = m.joinedUsers ? Object.keys(m.joinedUsers).length : 0;
-                    const targetTime = (m.rawDate && m.rawTime) ? `${m.rawDate}T${m.rawTime}:00` : '';
-                    const totalSpotsDisplay = m.totalSpots ? m.totalSpots : 'N/A';
-
-                    container.innerHTML += `
-                        <div class="match-card">
-                            <h3>${m.title || 'Untitled Match'}</h3>
-                            <div class="match-info">Type: <span>${m.type || 'N/A'}</span> | Map: <span>${m.map || 'N/A'}</span></div>
-                            <div class="match-info">Date: <span>${m.matchDate || 'TBA'}</span> | Time: <span>${m.matchTime || 'TBA'}</span></div>
-                            
-                            <div class="timer-box" data-time="${targetTime}">
-                                <i class="fas fa-clock"></i> <span class="countdown-text">Calculating...</span>
-                            </div>
-
-                            <div class="match-info">Win Prize: <span>৳${m.winPrize || 0}</span> | Per Kill: <span>৳${m.perKill || 0}</span></div>
-                            <div class="match-info">Entry Fee: <span>৳${m.entryFee || 0}</span></div>
-                            <div class="match-info">Joined: <span>${joinedCount} / ${totalSpotsDisplay}</span></div>
-
-                            <div class="actions">
-                                <button class="btn btn-danger" style="flex:1; justify-content:center;" onclick="deleteMatch('${m.id}')">Delete Match</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color:#a0aec0; padding: 40px; border: 1px dashed rgba(0,255,209,0.3); border-radius: 10px;">No matches found in this category.</div>`;
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color:#a0aec0; padding: 40px; border: 1px dashed rgba(0,255,209,0.3); border-radius: 10px;">No active matches in this category.<br><small style="opacity:0.7">Matches auto-remove 1 hour after start time.</small></div>`;
+                return;
             }
+
+            filtered.forEach(m => {
+                const joinedCount = m.joinedUsers ? Object.keys(m.joinedUsers).length : 0;
+                const targetTime = (m.rawDate && m.rawTime) ? `${m.rawDate}T${m.rawTime}:00` : '';
+                const totalSpotsDisplay = m.totalSpots ? m.totalSpots : 'N/A';
+
+                container.innerHTML += `
+                    <div class="match-card">
+                        <h3>${m.title || 'Untitled Match'}</h3>
+                        <div class="match-info">Type: <span>${m.type || 'N/A'}</span> | Map: <span>${m.map || 'N/A'}</span></div>
+                        <div class="match-info">Date: <span>${m.matchDate || 'TBA'}</span> | Time: <span>${m.matchTime || 'TBA'}</span></div>
+                        <div class="timer-box" data-time="${targetTime}">
+                            <i class="fas fa-clock"></i> <span class="countdown-text">Calculating...</span>
+                        </div>
+                        <div class="match-info">Win Prize: <span>৳${m.winPrize || 0}</span> | Per Kill: <span>৳${m.perKill || 0}</span></div>
+                        <div class="match-info">Entry Fee: <span>৳${m.entryFee || 0}</span></div>
+                        <div class="match-info">Joined: <span>${joinedCount} / ${totalSpotsDisplay}</span></div>
+                        <div class="actions">
+                            <button class="btn btn-danger" style="flex:1; justify-content:center;" onclick="deleteMatch('${m.id}')">Delete Match</button>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        // Live Countdown Timer (Runs globally for rendered timers)
         setInterval(() => {
-            const timers = document.querySelectorAll('.timer-box');
-            const now = new Date().getTime();
-
-            timers.forEach(box => {
+            document.querySelectorAll('.timer-box').forEach(box => {
                 const targetStr = box.getAttribute('data-time');
                 const textSpan = box.querySelector('.countdown-text');
-                
+                if (!textSpan) return;
                 if (!targetStr) { textSpan.innerText = "Time TBA"; return; }
 
                 const targetDate = new Date(targetStr).getTime();
                 if (isNaN(targetDate)) { textSpan.innerText = "Invalid Time"; return; }
 
-                const distance = targetDate - now;
-
+                const distance = targetDate - Date.now();
                 if (distance < 0) {
                     box.classList.add('started');
-                    box.innerHTML = `<i class="fas fa-play"></i> <span class="countdown-text">Match Started / Ended</span>`;
+                    box.innerHTML = `<i class="fas fa-play"></i> <span class="countdown-text">Match Started</span>`;
                 } else {
                     const d = Math.floor(distance / (1000 * 60 * 60 * 24));
                     const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     const s = Math.floor((distance % (1000 * 60)) / 1000);
-
                     let timeStr = "Starts in: ";
                     if (d > 0) timeStr += d + "d ";
-                    timeStr += (h < 10 ? "0"+h : h) + "h " + (m < 10 ? "0"+m : m) + "m " + (s < 10 ? "0"+s : s) + "s";
+                    timeStr += (h < 10 ? "0" + h : h) + "h " + (m < 10 ? "0" + m : m) + "m " + (s < 10 ? "0" + s : s) + "s";
                     textSpan.innerText = timeStr;
                 }
             });
         }, 1000);
 
-        // Add Match Modal Setup
+        // Re-check expiry every 30s and refresh UI
+        setInterval(() => {
+            const before = allMatches.length;
+            allMatches = allMatches.filter(m => !isMatchExpired(m));
+            if (allMatches.length !== before) {
+                renderCategories();
+                if (currentActiveCategoryKey) renderMatchesForCategory(currentActiveCategoryKey);
+            }
+        }, 30000);
+
         function openAddMatchModal() {
             let categoriesHtml = '<option value="">Select Category</option>';
             for (let key in allCategories) {
-                // If a category is currently open, auto-select it in the dropdown
-                let selected = (currentActiveCategoryKey === key) ? 'selected' : '';
+                const selected = (currentActiveCategoryKey === key) ? 'selected' : '';
                 categoriesHtml += `<option value="${key}" ${selected}>${allCategories[key].title}</option>`;
             }
 
@@ -391,10 +336,8 @@
                 html: `
                     <label class="swal-field-label">CATEGORY</label>
                     <select id="mCat" class="swal2-select">${categoriesHtml}</select>
-                    
                     <label class="swal-field-label">MATCH TITLE</label>
                     <input id="mTitle" class="swal2-input" placeholder="e.g. Free Fire Solo Battle">
-                    
                     <div style="display:flex; gap:10px;">
                         <div style="flex:1">
                             <label class="swal-field-label">MATCH DATE</label>
@@ -405,7 +348,6 @@
                             <input type="time" id="mTime" class="swal2-input">
                         </div>
                     </div>
-                    
                     <div style="display:flex; gap:10px;">
                         <div style="flex:1">
                             <label class="swal-field-label">WIN PRIZE (৳)</label>
@@ -416,7 +358,6 @@
                             <input type="number" id="mKill" class="swal2-input" placeholder="e.g. 10">
                         </div>
                     </div>
-
                     <div style="display:flex; gap:10px;">
                         <div style="flex:1">
                             <label class="swal-field-label">ENTRY FEE (৳)</label>
@@ -427,7 +368,6 @@
                             <input type="number" id="mSpots" class="swal2-input" placeholder="e.g. 48">
                         </div>
                     </div>
-
                     <label class="swal-field-label">TYPE, VERSION, MAP</label>
                     <div style="display:flex; gap:5px;">
                         <select id="mType" class="swal2-select"><option>Solo</option><option>Duo</option><option>Squad</option></select>
@@ -451,24 +391,22 @@
                         ver: document.getElementById('mVer').value,
                         map: document.getElementById('mMap').value
                     };
-                    for(let key in data) { 
-                        if(!data[key]) { Swal.showValidationMessage("All fields are required!"); return false; } 
+                    for (let key in data) {
+                        if (!data[key]) { Swal.showValidationMessage("All fields are required!"); return false; }
                     }
                     return data;
                 }
             }).then(res => {
-                if(res.isConfirmed) saveMatch(res.value);
+                if (res.isConfirmed) saveMatch(res.value);
             });
         }
 
-        // Format Date (DD-MMM-YYYY)
         function formatDateDisplay(dateStr) {
             const d = new Date(dateStr);
             const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
             return `${(d.getDate() < 10 ? '0' : '') + d.getDate()}-${months[d.getMonth()]}-${d.getFullYear()}`;
         }
 
-        // Format Time (12 Hour AM/PM)
         function formatTimeDisplay(timeStr) {
             let [hours, minutes] = timeStr.split(':');
             let ampm = 'AM';
@@ -478,10 +416,8 @@
             return `${(hours < 10 ? '0' : '') + hours}:${minutes} ${ampm}`;
         }
 
-        // Save Match to Firebase
         function saveMatch(data) {
-            const newRef = db.ref('matches').push();
-            newRef.set({
+            db.ref('matches').push().set({
                 categoryKey: data.cat,
                 title: data.title,
                 rawDate: data.date,
@@ -502,7 +438,6 @@
             });
         }
 
-        // Delete Match
         function deleteMatch(matchId) {
             SwalDark.fire({
                 title: 'Delete Match?',
@@ -511,7 +446,7 @@
                 showCancelButton: true,
                 confirmButtonText: 'Yes, delete it!'
             }).then(res => {
-                if(res.isConfirmed) {
+                if (res.isConfirmed) {
                     db.ref(`matches/${matchId}`).remove().then(() => {
                         SwalDark.fire('Deleted!', 'Match has been deleted.', 'success');
                     });
