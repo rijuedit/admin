@@ -1,109 +1,269 @@
+<!-- Admin/payment-settings.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Payment Settings - OXI ADMIN</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Settings - OXI E-Sports</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Config -->
+    <script src="config.js"></script>
     <style>
-        :root { --bg: #0b061a; --card: #160d2e; --cyan: #00ffd1; --purple: #b026ff; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
-        .back-btn { background: var(--card); color: var(--cyan); border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; margin-bottom: 20px; }
-        .settings-container { max-width: 900px; margin: 0 auto; }
-        .gateway-card { background: var(--card); border-radius: 15px; padding: 25px; margin-bottom: 20px; border-left: 5px solid var(--purple); }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; outline: none; }
-        input:focus { border-color: var(--cyan); }
-        .switch { position: relative; width: 50px; height: 25px; }
+        :root {
+            --bg-color: #0b061a;
+            --card-bg: #160d2e;
+            --cyan-accent: #00ffd1;
+            --purple-glow: #b026ff;
+            --text-color: #ffffff;
+            --text-muted: #a098c0;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        .top-nav {
+            margin-bottom: 30px;
+        }
+
+        .btn-dashboard {
+            background: transparent;
+            border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent);
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-dashboard:hover {
+            background: var(--cyan-accent);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            max-width: 650px;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .card-title {
+            color: var(--cyan-accent);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(11, 6, 26, 0.6);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .gateway-title {
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gateway-input {
+            width: 60%;
+            padding: 10px 14px;
+            background: #0b061a;
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .gateway-input:focus {
+            border-color: var(--cyan-accent);
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 17px; width: 17px; left: 4px; bottom: 4px; background: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background: var(--cyan); }
-        input:checked + .slider:before { transform: translateX(25px); }
-        .save-btn { background: var(--purple); color: #fff; width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 20px; }
-        .auto-box { background: rgba(0,255,209,0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--cyan); }
+
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #332d48; transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute; content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white; transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--cyan-accent); }
+        input:checked + .slider:before { transform: translateX(22px); background-color: #0b061a; }
+
+        .btn-save {
+            background: linear-gradient(135deg, #8a2be2, #b026ff);
+            color: white; border: none; padding: 14px 28px;
+            border-radius: 10px; font-weight: bold; cursor: pointer;
+            width: 100%; font-size: 1rem; margin-top: 15px;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.7);
+        }
     </style>
 </head>
 <body>
-    <a href="dashboard.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
 
-    <div class="settings-container">
-        <h2><i class="fas fa-wallet"></i> Payment Gateway Settings</h2>
+    <div class="top-nav">
+        <a href="dashboard.html" class="btn-dashboard">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+    </div>
 
-        <div class="auto-box">
+    <div class="glass-card">
+        <h2 class="card-title"><i class="fas fa-wallet"></i> Payment Gateway Settings</h2>
+
+        <!-- Auto Add Money Toggle -->
+        <div class="setting-row">
             <div>
-                <h4 style="margin:0;">Automatic Verification</h4>
-                <small id="auto-text" style="color: var(--cyan);">Manual Mode Active</small>
+                <div class="gateway-title" style="color: var(--cyan-accent);">
+                    <i class="fas fa-bolt"></i> Auto Add Money System
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;">
+                    Enable automatic deposit verification via Transaction ID
+                </div>
             </div>
             <label class="switch">
-                <input type="checkbox" id="auto-mode" onchange="updateAutoMode()">
+                <input type="checkbox" id="autoAddMoneyActive">
                 <span class="slider"></span>
             </label>
         </div>
 
-        <div class="gateway-card">
-            <div class="row">
-                <h4>bKash Personal</h4>
-                <label class="switch"><input type="checkbox" id="bk-active"><span class="slider"></span></label>
-            </div>
-            <input type="text" id="bk-num" placeholder="Enter bKash Number">
+        <!-- bKash -->
+        <div class="setting-row">
+            <span class="gateway-title" style="color: #e2136e;"><i class="fas fa-mobile-alt"></i> bKash</span>
+            <input type="text" id="bkashNum" class="gateway-input" placeholder="bKash Number">
+            <label class="switch">
+                <input type="checkbox" id="bkashActive">
+                <span class="slider"></span>
+            </label>
         </div>
 
-        <div class="gateway-card" style="border-left-color: #f7941d;">
-            <div class="row">
-                <h4>Nagad Personal</h4>
-                <label class="switch"><input type="checkbox" id="ng-active"><span class="slider"></span></label>
-            </div>
-            <input type="text" id="ng-num" placeholder="Enter Nagad Number">
+        <!-- Nagad -->
+        <div class="setting-row">
+            <span class="gateway-title" style="color: #f7921e;"><i class="fas fa-mobile-alt"></i> Nagad</span>
+            <input type="text" id="nagadNum" class="gateway-input" placeholder="Nagad Number">
+            <label class="switch">
+                <input type="checkbox" id="nagadActive">
+                <span class="slider"></span>
+            </label>
         </div>
 
-        <div class="gateway-card" style="border-left-color: #8c3494;">
-            <div class="row">
-                <h4>Rocket Personal</h4>
-                <label class="switch"><input type="checkbox" id="rk-active"><span class="slider"></span></label>
-            </div>
-            <input type="text" id="rk-num" placeholder="Enter Rocket Number">
+        <!-- Rocket -->
+        <div class="setting-row">
+            <span class="gateway-title" style="color: #8c3494;"><i class="fas fa-mobile-alt"></i> Rocket</span>
+            <input type="text" id="rocketNum" class="gateway-input" placeholder="Rocket Number">
+            <label class="switch">
+                <input type="checkbox" id="rocketActive">
+                <span class="slider"></span>
+            </label>
         </div>
 
-        <button class="save-btn" onclick="saveSettings()">SAVE ALL SETTINGS</button>
+        <button class="btn-save" onclick="savePaymentSettings()">
+            <i class="fas fa-save"></i> Save Payment Settings
+        </button>
     </div>
 
-    <script src="config.js"></script>
     <script>
-        checkAuth();
-        db.ref('paymentSettings').on('value', s => {
-            const d = s.val() || {};
-            document.getElementById('bk-num').value = d.bkash || "";
-            document.getElementById('ng-num').value = d.nagad || "";
-            document.getElementById('rk-num').value = d.rocket || "";
-            document.getElementById('bk-active').checked = d.bkashActive;
-            document.getElementById('ng-active').checked = d.nagadActive;
-            document.getElementById('rk-active').checked = d.rocketActive;
-            document.getElementById('auto-mode').checked = d.autoAddMoneyActive;
-            document.getElementById('auto-text').innerText = d.autoAddMoneyActive ? "Auto Mode Active" : "Manual Mode Active";
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loadPaymentSettings();
+            } else {
+                window.location.href = 'login.html';
+            }
         });
 
-        function updateAutoMode() {
-            const val = document.getElementById('auto-mode').checked;
-            db.ref('paymentSettings/autoAddMoneyActive').set(val);
+        function loadPaymentSettings() {
+            db.ref('paymentSettings').once('value', snap => {
+                const data = snap.val();
+                if (data) {
+                    document.getElementById('autoAddMoneyActive').checked = !!data.autoAddMoneyActive;
+                    
+                    document.getElementById('bkashNum').value = data.bkash || '';
+                    document.getElementById('bkashActive').checked = !!data.bkashActive;
+
+                    document.getElementById('nagadNum').value = data.nagad || '';
+                    document.getElementById('nagadActive').checked = !!data.nagadActive;
+
+                    document.getElementById('rocketNum').value = data.rocket || '';
+                    document.getElementById('rocketActive').checked = !!data.rocketActive;
+                }
+            });
         }
 
-        function saveSettings() {
-            const data = {
-                bkash: document.getElementById('bk-num').value,
-                nagad: document.getElementById('ng-num').value,
-                rocket: document.getElementById('rk-num').value,
-                bkashActive: document.getElementById('bk-active').checked,
-                nagadActive: document.getElementById('ng-active').checked,
-                rocketActive: document.getElementById('rk-active').checked,
-                autoAddMoneyActive: document.getElementById('auto-mode').checked
+        function savePaymentSettings() {
+            const settings = {
+                autoAddMoneyActive: document.getElementById('autoAddMoneyActive').checked,
+                bkash: document.getElementById('bkashNum').value.trim(),
+                bkashActive: document.getElementById('bkashActive').checked,
+                nagad: document.getElementById('nagadNum').value.trim(),
+                nagadActive: document.getElementById('nagadActive').checked,
+                rocket: document.getElementById('rocketNum').value.trim(),
+                rocketActive: document.getElementById('rocketActive').checked,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
             };
-            db.ref('paymentSettings').update(data).then(() => {
-                SwalDark.fire('Success', 'Settings Saved!', 'success');
-            });
+
+            db.ref('paymentSettings').set(settings)
+                .then(() => SwalDark.fire('Saved!', 'Payment Settings updated successfully.', 'success'))
+                .catch(err => SwalDark.fire('Error', err.message, 'error'));
         }
     </script>
 </body>
