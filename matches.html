@@ -210,7 +210,7 @@
         .btn-room { background: rgba(0, 255, 209, 0.15); color: var(--cyan-accent); border: 1px solid var(--cyan-accent); }
         .btn-delete { background: rgba(255, 71, 87, 0.15); color: var(--danger-color); border: 1px solid var(--danger-color); }
 
-        /* Custom Dark Inputs for SweetAlert Modal */
+        /* Custom Dark Inputs for SweetAlert Modal with Native Pickers */
         .swal-field-label {
             display: block;
             text-align: left;
@@ -232,6 +232,7 @@
             box-sizing: border-box;
             font-size: 0.9rem;
             outline: none;
+            color-scheme: dark; /* Enables native dark mode date & time pickers */
         }
 
         .swal-input-dark:focus {
@@ -312,7 +313,31 @@
             });
         }
 
-        // Load Matches List (Client-side category filter)
+        // Helper to format Date (YYYY-MM-DD -> DD-MMM-YYYY)
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const monthIdx = parseInt(parts[1], 10) - 1;
+            return `${parts[2]}-${months[monthIdx] || parts[1]}-${parts[0]}`;
+        }
+
+        // Helper to format Time (HH:MM -> 12 Hours AM/PM)
+        function formatTimeDisplay(timeStr) {
+            if (!timeStr) return '';
+            const parts = timeStr.split(':');
+            if (parts.length < 2) return timeStr;
+            let hours = parseInt(parts[0], 10);
+            let minutes = parts[1];
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            const strHours = hours < 10 ? '0' + hours : hours;
+            return `${strHours}:${minutes} ${ampm}`;
+        }
+
+        // Load Matches List
         function loadMatches() {
             db.ref('matches').on('value', snapshot => {
                 const container = document.getElementById('matchesContainer');
@@ -354,7 +379,7 @@
                                     <div class="details-grid" style="grid-template-columns: 1fr 1fr 1fr;">
                                         <div class="detail-item">
                                             <label>TYPE</label>
-                                            <span>${m.type || 'SOLO'}</span>
+                                            <span>${m.type || 'Solo'}</span>
                                         </div>
                                         <div class="detail-item">
                                             <label>VERSION</label>
@@ -405,8 +430,11 @@
             });
         }
 
-        // Open Modal: Create Match (With complete labeled UI matching screenshot 2)
+        // Open Modal: Create Match (Native Date & Time Pickers)
         function openCreateMatchModal() {
+            // Set default date to today YYYY-MM-DD
+            const today = new Date().toISOString().split('T')[0];
+
             SwalDark.fire({
                 title: '<i class="fas fa-plus-circle" style="color: var(--cyan-accent);"></i> Match Add',
                 html: `
@@ -417,15 +445,15 @@
                             <input type="text" id="m_title" class="swal-input-dark" placeholder="Free Match / Battle Royale #01">
                         </div>
 
-                        <!-- Date and Time -->
+                        <!-- Date and Time with Native Android Pickers -->
                         <div class="swal-row-2">
                             <div>
                                 <label class="swal-field-label">MATCH DATE</label>
-                                <input type="text" id="m_date" class="swal-input-dark" placeholder="23-09-2026">
+                                <input type="date" id="m_date" class="swal-input-dark" value="${today}">
                             </div>
                             <div>
                                 <label class="swal-field-label">MATCH TIME</label>
-                                <input type="text" id="m_time" class="swal-input-dark" placeholder="10:00 AM">
+                                <input type="time" id="m_time" class="swal-input-dark" value="10:00">
                             </div>
                         </div>
 
@@ -493,8 +521,8 @@
                 cancelButtonColor: '#332d48',
                 preConfirm: () => {
                     const title = document.getElementById('m_title').value.trim();
-                    const date = document.getElementById('m_date').value.trim();
-                    const time = document.getElementById('m_time').value.trim();
+                    const rawDate = document.getElementById('m_date').value;
+                    const rawTime = document.getElementById('m_time').value;
                     const winPrize = parseFloat(document.getElementById('m_winPrize').value) || 0;
                     const perKill = parseFloat(document.getElementById('m_perKill').value) || 0;
                     const entryFee = parseFloat(document.getElementById('m_entryFee').value) || 0;
@@ -507,16 +535,26 @@
                         Swal.showValidationMessage('Please enter Match Title');
                         return false;
                     }
-                    if (!date || !time) {
-                        Swal.showValidationMessage('Please enter Date and Time');
+                    if (!rawDate) {
+                        Swal.showValidationMessage('Please select Match Date');
                         return false;
                     }
+                    if (!rawTime) {
+                        Swal.showValidationMessage('Please select Match Time');
+                        return false;
+                    }
+
+                    // Format date and time for pretty display
+                    const formattedDate = formatDateDisplay(rawDate);
+                    const formattedTime = formatTimeDisplay(rawTime);
 
                     return {
                         categoryKey: currentCatKey,
                         title: title,
-                        matchDate: date,
-                        matchTime: time,
+                        matchDate: formattedDate,
+                        matchTime: formattedTime,
+                        rawDate: rawDate,
+                        rawTime: rawTime,
                         winPrize: winPrize,
                         perKill: perKill,
                         entryFee: entryFee,
