@@ -4,111 +4,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Matches - OXI E-Sports</title>
-    <!-- Firebase SDKs -->
+    <title>Match Management - Admin</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Config -->
     <script src="config.js"></script>
     <style>
         :root {
-            --bg-color: #0b061a;
+            --bg-dark: #0b061a;
             --card-bg: #160d2e;
-            --cyan-accent: #00ffd1;
-            --purple-glow: #b026ff;
-            --text-color: #ffffff;
-            --text-muted: #a098c0;
-            --danger-color: #ff4757;
-            --success-color: #2ed573;
-            --border-color: rgba(255, 255, 255, 0.08);
+            --cyan: #00ffd1;
+            --purple: #b026ff;
+            --text-main: #e2e8f0;
+            --danger: #ff4757;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             padding: 20px;
-            box-sizing: border-box;
-            min-height: 100vh;
         }
 
-        /* Navigation Top Bar */
-        .top-nav {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 209, 0.2);
         }
 
-        .btn-back {
-            background: transparent;
-            border: 1px solid var(--cyan-accent);
-            color: var(--cyan-accent);
-            padding: 8px 18px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-back:hover {
-            background: var(--cyan-accent);
-            color: var(--bg-color);
-            box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
-        }
-
-        .btn-create {
-            background: linear-gradient(135deg, #8a2be2, #b026ff);
-            border: none;
-            color: white;
-            padding: 10px 22px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .btn-create:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(176, 38, 255, 0.7);
-        }
-
-        /* Header Card */
-        .header-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: 20px 25px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header-card h2 {
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--cyan);
             margin: 0;
-            color: var(--cyan-accent);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.4rem;
         }
 
-        /* Match Grid */
+        .btn {
+            background: linear-gradient(45deg, var(--purple), var(--cyan));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 255, 209, 0.3); }
+        .btn-danger { background: var(--danger); }
+
         .matches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -117,520 +69,286 @@
 
         .match-card {
             background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(0, 255, 209, 0.1);
+            border-radius: 12px;
             padding: 20px;
             position: relative;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s;
         }
 
-        .match-card:hover {
-            border-color: rgba(0, 255, 209, 0.3);
+        .match-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--cyan);
+            font-size: 1.2rem;
         }
 
-        .match-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--cyan-accent);
-            margin-bottom: 8px;
-        }
+        .match-info { font-size: 0.9rem; color: #a0aec0; margin-bottom: 5px; }
+        .match-info span { color: white; font-weight: bold; }
 
-        .match-time {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .detail-item label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .detail-item span {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .room-info-box {
+        /* Countdown Timer Box */
+        .timer-box {
             background: rgba(176, 38, 255, 0.1);
-            border: 1px dashed var(--purple-glow);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 15px;
-        }
-
-        .room-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.88rem;
-            margin-bottom: 6px;
-        }
-
-        .room-row:last-child { margin-bottom: 0; }
-        .room-label { color: var(--text-muted); }
-        .room-val { color: var(--cyan-accent); font-weight: bold; }
-
-        .card-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-act {
-            flex: 1;
-            padding: 8px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
+            color: var(--purple);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
             font-weight: bold;
-            font-size: 0.82rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-room { background: rgba(0, 255, 209, 0.15); color: var(--cyan-accent); border: 1px solid var(--cyan-accent); }
-        .btn-delete { background: rgba(255, 71, 87, 0.15); color: var(--danger-color); border: 1px solid var(--danger-color); }
-
-        /* Custom Dark Inputs for SweetAlert Modal with Native Pickers */
-        .swal-field-label {
-            display: block;
-            text-align: left;
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: var(--cyan-accent);
-            margin-bottom: 4px;
-            margin-top: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .swal-input-dark {
-            width: 100%;
-            padding: 10px 12px;
-            background: #0b061a;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 0.9rem;
-            outline: none;
-            color-scheme: dark; /* Enables native dark mode date & time pickers */
-        }
-
-        .swal-input-dark:focus {
-            border-color: var(--cyan-accent);
-            box-shadow: 0 0 10px rgba(0, 255, 209, 0.2);
-        }
-
-        .swal-row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .swal-row-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
+            margin: 15px 0;
+            border: 1px solid rgba(176, 38, 255, 0.3);
+        }
+        .timer-box.started {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--danger);
+            border-color: rgba(255, 71, 87, 0.3);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 15px;
+        }
+
+        .swal-field-label { text-align: left; display: block; margin-top: 10px; font-size: 0.85rem; color: var(--cyan); font-weight: bold; }
+        .swal2-input, .swal2-select { background: #0b061a !important; color: white !important; border: 1px solid rgba(0,255,209,0.3) !important; width: 100% !important; margin-top: 5px !important; }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1); cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation Header -->
-    <div class="top-nav">
-        <a href="categories.html" class="btn-back">
-            <i class="fas fa-arrow-left"></i> All Categories
-        </a>
-        <button class="btn-create" onclick="openCreateMatchModal()">
-            <i class="fas fa-plus"></i> Create Match
-        </button>
+    <div class="header">
+        <h1><i class="fas fa-gamepad"></i> Match Management</h1>
+        <button class="btn" onclick="openAddMatchModal()"><i class="fas fa-plus"></i> Create Match</button>
     </div>
 
-    <!-- Category Header Card -->
-    <div class="header-card">
-        <div>
-            <h2 id="categoryTitle"><i class="fas fa-gamepad"></i> Loading Category...</h2>
-            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">
-                Manage matches, set Room ID & Password, or create new tournament rooms.
-            </div>
-        </div>
-    </div>
-
-    <!-- Match Grid -->
     <div class="matches-grid" id="matchesContainer">
-        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">
-            <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading Matches...
-        </div>
+        <!-- Matches Load Here -->
     </div>
 
     <script>
-        let currentCatKey = '';
-
-        // Get Category Key from URL (?cat=KEY)
-        const urlParams = new URLSearchParams(window.location.search);
-        currentCatKey = urlParams.get('cat') || '';
+        let adminUser = null;
+        let categoriesHtml = '<option value="">Select Category</option>';
 
         auth.onAuthStateChanged(user => {
             if (user) {
-                if (!currentCatKey) {
-                    window.location.href = 'categories.html';
-                    return;
-                }
-                loadCategoryInfo();
+                adminUser = user;
+                loadCategories();
                 loadMatches();
             } else {
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
             }
         });
 
-        // Load Category Info Header
-        function loadCategoryInfo() {
-            db.ref('match_categories/' + currentCatKey).once('value', snap => {
-                if (snap.exists()) {
-                    document.getElementById('categoryTitle').innerHTML = `<i class="fas fa-gamepad"></i> ${snap.val().title} Matches`;
-                } else {
-                    document.getElementById('categoryTitle').innerText = 'Matches List';
-                }
-            });
-        }
-
-        // Helper to format Date (YYYY-MM-DD -> DD-MMM-YYYY)
-        function formatDateDisplay(dateStr) {
-            if (!dateStr) return '';
-            const parts = dateStr.split('-');
-            if (parts.length !== 3) return dateStr;
-            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            const monthIdx = parseInt(parts[1], 10) - 1;
-            return `${parts[2]}-${months[monthIdx] || parts[1]}-${parts[0]}`;
-        }
-
-        // Helper to format Time (HH:MM -> 12 Hours AM/PM)
-        function formatTimeDisplay(timeStr) {
-            if (!timeStr) return '';
-            const parts = timeStr.split(':');
-            if (parts.length < 2) return timeStr;
-            let hours = parseInt(parts[0], 10);
-            let minutes = parts[1];
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            const strHours = hours < 10 ? '0' + hours : hours;
-            return `${strHours}:${minutes} ${ampm}`;
-        }
-
-        // Load Matches List
-        function loadMatches() {
-            db.ref('matches').on('value', snapshot => {
-                const container = document.getElementById('matchesContainer');
-                container.innerHTML = '';
-                let matchCount = 0;
-
-                if (snapshot.exists()) {
-                    snapshot.forEach(child => {
-                        const m = child.val();
-                        const matchKey = child.key;
-
-                        if (m.categoryKey === currentCatKey) {
-                            matchCount++;
-                            const joinedCount = m.joinedUsers ? Object.keys(m.joinedUsers).length : 0;
-                            const maxSpots = m.totalSpots || 48;
-
-                            container.innerHTML += `
-                                <div class="match-card">
-                                    <div class="match-title">${m.title}</div>
-                                    <div class="match-time">
-                                        <i class="far fa-calendar-alt"></i> ${m.matchDate || ''} | <i class="far fa-clock"></i> ${m.matchTime || ''}
-                                    </div>
-
-                                    <div class="details-grid">
-                                        <div class="detail-item">
-                                            <label>WIN PRIZE</label>
-                                            <span>BDT ${m.winPrize || 0}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>PER KILL</label>
-                                            <span>BDT ${m.perKill || 0}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>ENTRY FEE</label>
-                                            <span>BDT ${m.entryFee || 0}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="details-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                                        <div class="detail-item">
-                                            <label>TYPE</label>
-                                            <span>${m.type || 'Solo'}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>VERSION</label>
-                                            <span>${m.version || 'MOBILE'}</span>
-                                        </div>
-                                        <div class="detail-item">
-                                            <label>MAP</label>
-                                            <span>${m.map || 'Bermuda'}</span>
-                                        </div>
-                                    </div>
-
-                                    <div style="font-size:0.8rem; color:var(--cyan-accent); font-weight:bold; margin-bottom:10px;">
-                                        Joined Players: ${joinedCount} / ${maxSpots}
-                                    </div>
-
-                                    <div class="room-info-box">
-                                        <div class="room-row">
-                                            <span class="room-label">Room ID:</span>
-                                            <span class="room-val">${m.roomId || 'Not Updated'}</span>
-                                        </div>
-                                        <div class="room-row">
-                                            <span class="room-label">Password:</span>
-                                            <span class="room-val">${m.roomPassword || 'Not Updated'}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-actions">
-                                        <button class="btn-act btn-room" onclick="openRoomModal('${matchKey}', '${m.roomId || ''}', '${m.roomPassword || ''}')">
-                                            <i class="fas fa-key"></i> Room Details
-                                        </button>
-                                        <button class="btn-act btn-delete" onclick="deleteMatch('${matchKey}')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                        }
+        function loadCategories() {
+            db.ref('match_categories').once('value', snap => {
+                categoriesHtml = '<option value="">Select Category</option>';
+                if(snap.exists()){
+                    snap.forEach(child => {
+                        categoriesHtml += `<option value="${child.key}">${child.val().title}</option>`;
                     });
                 }
+            });
+        }
 
-                if (matchCount === 0) {
-                    container.innerHTML = `
-                        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 50px;">
-                            No matches created in this category yet. Click "Create Match" above.
-                        </div>
-                    `;
+        function loadMatches() {
+            const container = document.getElementById('matchesContainer');
+            db.ref('matches').on('value', snap => {
+                container.innerHTML = '';
+                if (snap.exists()) {
+                    let matchesData = [];
+                    snap.forEach(child => { matchesData.push({ id: child.key, ...child.val() }); });
+                    matchesData.reverse().forEach(m => {
+                        const joinedCount = m.joinedUsers ? Object.keys(m.joinedUsers).length : 0;
+                        const targetTime = (m.rawDate && m.rawTime) ? `${m.rawDate}T${m.rawTime}:00` : '';
+
+                        container.innerHTML += `
+                            <div class="match-card">
+                                <h3>${m.title}</h3>
+                                <div class="match-info">Type: <span>${m.type}</span> | Map: <span>${m.map}</span></div>
+                                <div class="match-info">Date: <span>${m.matchDate}</span> | Time: <span>${m.matchTime}</span></div>
+                                
+                                <div class="timer-box" data-time="${targetTime}">
+                                    <i class="fas fa-clock"></i> <span class="countdown-text">Calculating...</span>
+                                </div>
+
+                                <div class="match-info">Win Prize: <span>৳${m.winPrize}</span> | Per Kill: <span>৳${m.perKill}</span></div>
+                                <div class="match-info">Entry Fee: <span>৳${m.entryFee}</span></div>
+                                <div class="match-info">Joined: <span>${joinedCount} / ${m.totalSpots}</span></div>
+
+                                <div class="actions">
+                                    <button class="btn btn-danger" style="flex:1; justify-content:center;" onclick="deleteMatch('${m.id}')">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color:#a0aec0;">No matches created yet.</div>`;
                 }
             });
         }
 
-        // Open Modal: Create Match (Native Date & Time Pickers)
-        function openCreateMatchModal() {
-            // Set default date to today YYYY-MM-DD
-            const today = new Date().toISOString().split('T')[0];
+        setInterval(() => {
+            const timers = document.querySelectorAll('.timer-box');
+            const now = new Date().getTime();
 
+            timers.forEach(box => {
+                const targetStr = box.getAttribute('data-time');
+                const textSpan = box.querySelector('.countdown-text');
+                
+                if (!targetStr) { textSpan.innerText = "Time TBA"; return; }
+
+                const targetDate = new Date(targetStr).getTime();
+                if (isNaN(targetDate)) { textSpan.innerText = "Invalid Time"; return; }
+
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    box.classList.add('started');
+                    box.innerHTML = `<i class="fas fa-play"></i> <span class="countdown-text">Match Started / Ended</span>`;
+                } else {
+                    const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    let timeStr = "Starts in: ";
+                    if (d > 0) timeStr += d + "d ";
+                    timeStr += (h < 10 ? "0"+h : h) + "h " + (m < 10 ? "0"+m : m) + "m " + (s < 10 ? "0"+s : s) + "s";
+                    textSpan.innerText = timeStr;
+                }
+            });
+        }, 1000);
+
+        function openAddMatchModal() {
             SwalDark.fire({
-                title: '<i class="fas fa-plus-circle" style="color: var(--cyan-accent);"></i> Match Add',
+                title: 'Create New Match',
                 html: `
-                    <div style="text-align: left; font-family:'Segoe UI',sans-serif;">
-                        <!-- Match Title -->
-                        <div>
-                            <label class="swal-field-label">MATCH TITLE</label>
-                            <input type="text" id="m_title" class="swal-input-dark" placeholder="Free Match / Battle Royale #01">
+                    <label class="swal-field-label">CATEGORY</label>
+                    <select id="mCat" class="swal2-select">${categoriesHtml}</select>
+                    
+                    <label class="swal-field-label">MATCH TITLE</label>
+                    <input id="mTitle" class="swal2-input" placeholder="e.g. Free Fire Solo Battle">
+                    
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1">
+                            <label class="swal-field-label">MATCH DATE</label>
+                            <input type="date" id="mDate" class="swal2-input">
                         </div>
+                        <div style="flex:1">
+                            <label class="swal-field-label">MATCH TIME</label>
+                            <input type="time" id="mTime" class="swal2-input">
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1">
+                            <label class="swal-field-label">WIN PRIZE (৳)</label>
+                            <input type="number" id="mPrize" class="swal2-input" placeholder="e.g. 500">
+                        </div>
+                        <div style="flex:1">
+                            <label class="swal-field-label">PER KILL (৳)</label>
+                            <input type="number" id="mKill" class="swal2-input" placeholder="e.g. 10">
+                        </div>
+                    </div>
 
-                        <!-- Date and Time with Native Android Pickers -->
-                        <div class="swal-row-2">
-                            <div>
-                                <label class="swal-field-label">MATCH DATE</label>
-                                <input type="date" id="m_date" class="swal-input-dark" value="${today}">
-                            </div>
-                            <div>
-                                <label class="swal-field-label">MATCH TIME</label>
-                                <input type="time" id="m_time" class="swal-input-dark" value="10:00">
-                            </div>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1">
+                            <label class="swal-field-label">ENTRY FEE (৳)</label>
+                            <input type="number" id="mFee" class="swal2-input" placeholder="e.g. 30">
                         </div>
+                        <div style="flex:1">
+                            <label class="swal-field-label">TOTAL SPOTS</label>
+                            <input type="number" id="mSpots" class="swal2-input" placeholder="e.g. 48">
+                        </div>
+                    </div>
 
-                        <!-- Prize & Entry Row -->
-                        <div class="swal-row-3">
-                            <div>
-                                <label class="swal-field-label">WIN PRIZE</label>
-                                <input type="number" id="m_winPrize" class="swal-input-dark" placeholder="50" value="50">
-                            </div>
-                            <div>
-                                <label class="swal-field-label">PER KILL</label>
-                                <input type="number" id="m_perKill" class="swal-input-dark" placeholder="0" value="0">
-                            </div>
-                            <div>
-                                <label class="swal-field-label">ENTRY FEE</label>
-                                <input type="number" id="m_entryFee" class="swal-input-dark" placeholder="0" value="0">
-                            </div>
-                        </div>
-
-                        <!-- Total Spots -->
-                        <div>
-                            <label class="swal-field-label">TOTAL SPOTS / PLAYER LIMIT</label>
-                            <input type="number" id="m_spots" class="swal-input-dark" placeholder="48" value="48">
-                        </div>
-
-                        <!-- Type & Version -->
-                        <div class="swal-row-2">
-                            <div>
-                                <label class="swal-field-label">TYPE</label>
-                                <select id="m_type" class="swal-input-dark">
-                                    <option value="Solo">Solo</option>
-                                    <option value="Duo">Duo</option>
-                                    <option value="Squad">Squad</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="swal-field-label">VERSION</label>
-                                <select id="m_version" class="swal-input-dark">
-                                    <option value="MOBILE">MOBILE</option>
-                                    <option value="PC">PC</option>
-                                    <option value="TPP">TPP</option>
-                                    <option value="FPP">FPP</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Map Selection -->
-                        <div>
-                            <label class="swal-field-label">MAP</label>
-                            <select id="m_map" class="swal-input-dark">
-                                <option value="Bermuda">Bermuda</option>
-                                <option value="Purgatory">Purgatory</option>
-                                <option value="Kalahari">Kalahari</option>
-                                <option value="Alpine">Alpine</option>
-                                <option value="Nexterra">Nexterra</option>
-                                <option value="Solara">Solara</option>
-                            </select>
-                        </div>
+                    <label class="swal-field-label">TYPE, VERSION, MAP</label>
+                    <div style="display:flex; gap:5px;">
+                        <select id="mType" class="swal2-select"><option>Solo</option><option>Duo</option><option>Squad</option></select>
+                        <select id="mVer" class="swal2-select"><option>MOBILE</option><option>PC</option></select>
+                        <select id="mMap" class="swal2-select"><option>Bermuda</option><option>Purgatory</option><option>Kalahari</option></select>
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'CREATE',
-                cancelButtonText: 'CANCEL',
-                confirmButtonColor: '#b026ff',
-                cancelButtonColor: '#332d48',
+                confirmButtonText: 'Create Match',
                 preConfirm: () => {
-                    const title = document.getElementById('m_title').value.trim();
-                    const rawDate = document.getElementById('m_date').value;
-                    const rawTime = document.getElementById('m_time').value;
-                    const winPrize = parseFloat(document.getElementById('m_winPrize').value) || 0;
-                    const perKill = parseFloat(document.getElementById('m_perKill').value) || 0;
-                    const entryFee = parseFloat(document.getElementById('m_entryFee').value) || 0;
-                    const spots = parseInt(document.getElementById('m_spots').value) || 48;
-                    const type = document.getElementById('m_type').value;
-                    const version = document.getElementById('m_version').value;
-                    const map = document.getElementById('m_map').value;
-
-                    if (!title) {
-                        Swal.showValidationMessage('Please enter Match Title');
-                        return false;
-                    }
-                    if (!rawDate) {
-                        Swal.showValidationMessage('Please select Match Date');
-                        return false;
-                    }
-                    if (!rawTime) {
-                        Swal.showValidationMessage('Please select Match Time');
-                        return false;
-                    }
-
-                    // Format date and time for pretty display
-                    const formattedDate = formatDateDisplay(rawDate);
-                    const formattedTime = formatTimeDisplay(rawTime);
-
-                    return {
-                        categoryKey: currentCatKey,
-                        title: title,
-                        matchDate: formattedDate,
-                        matchTime: formattedTime,
-                        rawDate: rawDate,
-                        rawTime: rawTime,
-                        winPrize: winPrize,
-                        perKill: perKill,
-                        entryFee: entryFee,
-                        totalSpots: spots,
-                        type: type,
-                        version: version,
-                        map: map,
-                        roomId: '',
-                        roomPassword: '',
-                        status: 'active',
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    const data = {
+                        cat: document.getElementById('mCat').value,
+                        title: document.getElementById('mTitle').value,
+                        date: document.getElementById('mDate').value,
+                        time: document.getElementById('mTime').value,
+                        prize: document.getElementById('mPrize').value,
+                        kill: document.getElementById('mKill').value,
+                        fee: document.getElementById('mFee').value,
+                        spots: document.getElementById('mSpots').value,
+                        type: document.getElementById('mType').value,
+                        ver: document.getElementById('mVer').value,
+                        map: document.getElementById('mMap').value
                     };
+                    for(let key in data) { if(!data[key]) { Swal.showValidationMessage("All fields are required!"); return false; } }
+                    return data;
                 }
-            }).then(result => {
-                if (result.isConfirmed) {
-                    db.ref('matches').push(result.value)
-                        .then(() => {
-                            SwalDark.fire('Created!', 'Match published successfully.', 'success');
-                        })
-                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
-                }
+            }).then(res => {
+                if(res.isConfirmed) saveMatch(res.value);
             });
         }
 
-        // Open Modal: Room Details (Set Room ID and Password)
-        function openRoomModal(matchKey, currentRoomId, currentRoomPass) {
-            SwalDark.fire({
-                title: '<i class="fas fa-key" style="color: var(--cyan-accent);"></i> Room Details',
-                html: `
-                    <div style="text-align: left;">
-                        <label class="swal-field-label">ROOM ID</label>
-                        <input type="text" id="edit_roomId" class="swal-input-dark" value="${currentRoomId}" placeholder="Enter Room ID">
-                        
-                        <label class="swal-field-label">ROOM PASSWORD</label>
-                        <input type="text" id="edit_roomPass" class="swal-input-dark" value="${currentRoomPass}" placeholder="Enter Room Password">
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Update Room',
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: '#00ffd1',
-                cancelButtonColor: '#ff4757',
-                preConfirm: () => {
-                    return {
-                        roomId: document.getElementById('edit_roomId').value.trim(),
-                        roomPassword: document.getElementById('edit_roomPass').value.trim()
-                    };
-                }
-            }).then(result => {
-                if (result.isConfirmed) {
-                    db.ref('matches/' + matchKey).update(result.value)
-                        .then(() => {
-                            SwalDark.fire('Updated!', 'Room ID and Password updated.', 'success');
-                        })
-                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
-                }
+        function formatDateDisplay(dateStr) {
+            const d = new Date(dateStr);
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return `${(d.getDate() < 10 ? '0' : '') + d.getDate()}-${months[d.getMonth()]}-${d.getFullYear()}`;
+        }
+
+        function formatTimeDisplay(timeStr) {
+            let [hours, minutes] = timeStr.split(':');
+            let ampm = 'AM';
+            hours = parseInt(hours);
+            if (hours >= 12) { ampm = 'PM'; if (hours > 12) hours -= 12; }
+            if (hours === 0) hours = 12;
+            return `${(hours < 10 ? '0' : '') + hours}:${minutes} ${ampm}`;
+        }
+
+        function saveMatch(data) {
+            const newRef = db.ref('matches').push();
+            newRef.set({
+                categoryKey: data.cat,
+                title: data.title,
+                rawDate: data.date,
+                rawTime: data.time,
+                matchDate: formatDateDisplay(data.date),
+                matchTime: formatTimeDisplay(data.time),
+                winPrize: Number(data.prize),
+                perKill: Number(data.kill),
+                entryFee: Number(data.fee),
+                totalSpots: Number(data.spots),
+                type: data.type,
+                version: data.ver,
+                map: data.map,
+                status: 'open',
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                SwalDark.fire('Created!', 'Match created successfully.', 'success');
             });
         }
 
-        // Delete Match
-        function deleteMatch(matchKey) {
+        function deleteMatch(matchId) {
             SwalDark.fire({
                 title: 'Delete Match?',
-                text: "This match will be permanently deleted!",
+                text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ff4757',
-                cancelButtonColor: '#332d48',
-                confirmButtonText: 'Yes, Delete'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    db.ref('matches/' + matchKey).remove()
-                        .then(() => {
-                            SwalDark.fire('Deleted!', 'Match removed successfully.', 'success');
-                        })
-                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
+                confirmButtonText: 'Yes, delete it!'
+            }).then(res => {
+                if(res.isConfirmed) {
+                    db.ref(`matches/${matchId}`).remove().then(() => {
+                        SwalDark.fire('Deleted!', 'Match has been deleted.', 'success');
+                    });
                 }
             });
         }
