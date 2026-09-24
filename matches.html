@@ -1,483 +1,577 @@
+<!-- Admin/matches.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Management - OXI ADMIN</title>
+    <title>Manage Matches - OXI E-Sports</title>
     <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <!-- SweetAlert2 & FontAwesome & Fonts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Config -->
+    <script src="config.js"></script>
     <style>
         :root {
-            --bg-dark: #0b061a;
+            --bg-color: #0b061a;
             --card-bg: #160d2e;
-            --cyan: #00ffd1;
-            --purple: #b026ff;
-            --text-light: #e0e0e0;
-            --danger: #ff4d4d;
+            --cyan-accent: #00ffd1;
+            --purple-glow: #b026ff;
+            --text-color: #ffffff;
+            --text-muted: #a098c0;
+            --danger-color: #ff4757;
+            --success-color: #2ed573;
+            --border-color: rgba(255, 255, 255, 0.08);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
             min-height: 100vh;
-            padding: 30px 5%;
         }
 
-        /* Top Bar */
-        .top-bar {
+        /* Navigation Top Bar */
+        .top-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
-        .back-btn {
-            background: rgba(0, 255, 209, 0.1);
-            color: var(--cyan);
-            border: 1px solid var(--cyan);
-            padding: 10px 20px;
-            border-radius: 30px;
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent);
+            padding: 8px 18px;
+            border-radius: 20px;
             cursor: pointer;
-            text-decoration: none;
             font-weight: 600;
-            font-size: 14px;
-            display: flex;
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
 
-        .back-btn:hover {
-            background: var(--cyan);
-            color: #000;
+        .btn-back:hover {
+            background: var(--cyan-accent);
+            color: var(--bg-color);
             box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
         }
 
-        .create-match-btn {
-            background: linear-gradient(90deg, var(--purple), #8a2be2);
-            color: white;
+        .btn-create {
+            background: linear-gradient(135deg, #8a2be2, #b026ff);
             border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 600;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 20px;
             cursor: pointer;
-            display: flex;
+            font-weight: 600;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
-            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
+            transition: all 0.3s ease;
         }
 
-        .create-match-btn:hover {
+        .btn-create:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(176, 38, 255, 0.6);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.7);
         }
 
-        /* Header Info */
-        .category-header {
+        /* Header Card */
+        .header-card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 20px 25px;
             margin-bottom: 25px;
-            border-left: 5px solid var(--cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-card h2 {
+            margin: 0;
+            color: var(--cyan-accent);
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            font-size: 1.4rem;
         }
 
-        .category-header h2 {
-            color: var(--cyan);
-            font-size: 22px;
-        }
-
-        /* Match Grid Layout */
-        .match-grid {
+        /* Match Grid */
+        .matches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
         }
 
-        /* Black Mobile Match Card */
         .match-card {
-            background: #000000;
-            border: 1fr solid #222222;
+            background: var(--card-bg);
             border-radius: 16px;
+            border: 1px solid var(--border-color);
             padding: 20px;
             position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: 0.3s;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
         }
 
         .match-card:hover {
-            border-color: var(--cyan);
-        }
-
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #1a1a1a;
-            padding-bottom: 12px;
-            margin-bottom: 15px;
-        }
-
-        .match-id {
-            color: var(--cyan);
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .match-time {
-            color: #888;
-            font-size: 12px;
+            border-color: rgba(0, 255, 209, 0.3);
         }
 
         .match-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--cyan-accent);
+            margin-bottom: 8px;
+        }
+
+        .match-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .detail-item label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .detail-item span {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .room-info-box {
+            background: rgba(176, 38, 255, 0.1);
+            border: 1px dashed var(--purple-glow);
+            border-radius: 10px;
+            padding: 12px;
             margin-bottom: 15px;
         }
 
-        .info-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            background: #0a0a0a;
-            padding: 12px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 12px;
-            border: 1px solid #161616;
+        .room-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            margin-bottom: 6px;
         }
 
-        .info-box label {
-            display: block;
-            font-size: 10px;
-            color: #777;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .info-box span {
-            font-size: 14px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .prize-win { color: var(--cyan) !important; }
-        .prize-fee { color: var(--purple) !important; }
+        .room-row:last-child { margin-bottom: 0; }
+        .room-label { color: var(--text-muted); }
+        .room-val { color: var(--cyan-accent); font-weight: bold; }
 
         .card-actions {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
         }
 
-        .btn-action {
+        .btn-act {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
             border-radius: 8px;
             border: none;
-            font-weight: 600;
-            font-size: 12px;
             cursor: pointer;
+            font-weight: bold;
+            font-size: 0.82rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: 0.3s;
         }
 
-        .btn-room {
-            background: rgba(0, 255, 209, 0.15);
-            color: var(--cyan);
-            border: 1px solid rgba(0, 255, 209, 0.3);
+        .btn-room { background: rgba(0, 255, 209, 0.15); color: var(--cyan-accent); border: 1px solid var(--cyan-accent); }
+        .btn-delete { background: rgba(255, 71, 87, 0.15); color: var(--danger-color); border: 1px solid var(--danger-color); }
+
+        /* Custom Dark Inputs for SweetAlert Modal */
+        .swal-field-label {
+            display: block;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--cyan-accent);
+            margin-bottom: 4px;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
         }
 
-        .btn-room:hover {
-            background: var(--cyan);
-            color: #000;
+        .swal-input-dark {
+            width: 100%;
+            padding: 10px 12px;
+            background: #0b061a;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            outline: none;
         }
 
-        .btn-delete {
-            background: rgba(255, 77, 77, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(255, 77, 77, 0.3);
+        .swal-input-dark:focus {
+            border-color: var(--cyan-accent);
+            box-shadow: 0 0 10px rgba(0, 255, 209, 0.2);
         }
 
-        .btn-delete:hover {
-            background: var(--danger);
-            color: #fff;
+        .swal-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
-        .empty-msg {
-            text-align: center;
-            padding: 50px 20px;
-            background: var(--card-bg);
-            border-radius: 15px;
-            color: #888;
-            grid-column: 1 / -1;
-            border: 1px dashed rgba(255,255,255,0.1);
-        }
-
-        /* Light Theme SweetAlert Input Fix */
-        .swal-light-input {
-            width: 100% !important;
-            padding: 10px !important;
-            margin: 6px 0 !important;
-            border: 1px solid #ccc !important;
-            border-radius: 6px !important;
-            font-size: 14px !important;
-            box-sizing: border-box !important;
+        .swal-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <a href="categories.html" class="back-btn"><i class="fas fa-arrow-left"></i> All Categories</a>
-        <button class="create-match-btn" onclick="showAddMatchModal()"><i class="fas fa-plus-circle"></i> Create Match</button>
+    <!-- Navigation Header -->
+    <div class="top-nav">
+        <a href="categories.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> All Categories
+        </a>
+        <button class="btn-create" onclick="openCreateMatchModal()">
+            <i class="fas fa-plus"></i> Create Match
+        </button>
     </div>
 
-    <!-- Category Header Info -->
-    <div class="category-header">
-        <i class="fas fa-gamepad" style="font-size: 28px; color: var(--cyan);"></i>
+    <!-- Category Header Card -->
+    <div class="header-card">
         <div>
-            <h2 id="cat-title-text">Loading Category...</h2>
-            <p style="font-size: 12px; color: #888;">Manage all matches, update Room ID/Pass or create new ones.</p>
+            <h2 id="categoryTitle"><i class="fas fa-gamepad"></i> Loading Category...</h2>
+            <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">
+                Manage matches, set Room ID & Password, or create new tournament rooms.
+            </div>
         </div>
     </div>
 
-    <!-- Matches Container -->
-    <div id="match-container" class="match-grid">
-        <div class="empty-msg"><i class="fas fa-spinner fa-spin"></i> Loading matches from database...</div>
+    <!-- Match Grid -->
+    <div class="matches-grid" id="matchesContainer">
+        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px;">
+            <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading Matches...
+        </div>
     </div>
 
-    <!-- Configuration -->
-    <script src="config.js"></script>
     <script>
-        checkAuth();
+        let currentCatKey = '';
 
+        // Get Category Key from URL (?cat=KEY)
         const urlParams = new URLSearchParams(window.location.search);
-        const catKey = urlParams.get('cat');
+        currentCatKey = urlParams.get('cat') || '';
 
-        if (!catKey) {
-            window.location.href = "categories.html";
-        }
-
-        // Load Category Details
-        db.ref('match_categories/' + catKey).once('value', snapshot => {
-            if (snapshot.exists()) {
-                document.getElementById('cat-title-text').innerText = snapshot.val().title + " Matches";
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                if (!currentCatKey) {
+                    window.location.href = 'categories.html';
+                    return;
+                }
+                loadCategoryInfo();
+                loadMatches();
             } else {
-                document.getElementById('cat-title-text').innerText = "Game Matches";
+                window.location.href = 'login.html';
             }
         });
 
-        // Load Matches - Client Side Filtering (Fixes missing match bug)
-        db.ref('matches').on('value', snapshot => {
-            const container = document.getElementById('match-container');
-            container.innerHTML = "";
+        // Load Category Info Header
+        function loadCategoryInfo() {
+            db.ref('match_categories/' + currentCatKey).once('value', snap => {
+                if (snap.exists()) {
+                    document.getElementById('categoryTitle').innerHTML = `<i class="fas fa-gamepad"></i> ${snap.val().title} Matches`;
+                } else {
+                    document.getElementById('categoryTitle').innerText = 'Matches List';
+                }
+            });
+        }
 
-            if (!snapshot.exists()) {
-                container.innerHTML = `<div class="empty-msg"><i class="fas fa-ghost" style="font-size:30px; margin-bottom:10px; display:block;"></i>No matches created yet. Click "+ Create Match" to start.</div>`;
-                return;
-            }
+        // Load Matches List (Client-side category filter)
+        function loadMatches() {
+            db.ref('matches').on('value', snapshot => {
+                const container = document.getElementById('matchesContainer');
+                container.innerHTML = '';
+                let matchCount = 0;
 
-            let matchFoundCount = 0;
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const m = child.val();
+                        const matchKey = child.key;
 
-            snapshot.forEach(child => {
-                const match = child.val();
+                        if (m.categoryKey === currentCatKey) {
+                            matchCount++;
+                            const joinedCount = m.joinedUsers ? Object.keys(m.joinedUsers).length : 0;
+                            const maxSpots = m.totalSpots || 48;
 
-                // Check category match key
-                if (match.categoryKey === catKey || match.category === catKey) {
-                    matchFoundCount++;
+                            container.innerHTML += `
+                                <div class="match-card">
+                                    <div class="match-title">${m.title}</div>
+                                    <div class="match-time">
+                                        <i class="far fa-calendar-alt"></i> ${m.matchDate || ''} | <i class="far fa-clock"></i> ${m.matchTime || ''}
+                                    </div>
 
-                    const hasRoomInfo = match.roomId && match.roomId.trim() !== "";
+                                    <div class="details-grid">
+                                        <div class="detail-item">
+                                            <label>WIN PRIZE</label>
+                                            <span>BDT ${m.winPrize || 0}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>PER KILL</label>
+                                            <span>BDT ${m.perKill || 0}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>ENTRY FEE</label>
+                                            <span>BDT ${m.entryFee || 0}</span>
+                                        </div>
+                                    </div>
 
-                    container.innerHTML += `
-                        <div class="match-card">
-                            <div class="card-top">
-                                <span class="match-id">MATCH #${child.key.slice(-5).toUpperCase()}</span>
-                                <span class="match-time"><i class="far fa-clock"></i> ${match.matchDate || ''} ${match.matchTime || ''}</span>
-                            </div>
-                            
-                            <div class="match-title">${match.title || 'Untitled Match'}</div>
+                                    <div class="details-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                                        <div class="detail-item">
+                                            <label>TYPE</label>
+                                            <span>${m.type || 'SOLO'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>VERSION</label>
+                                            <span>${m.version || 'MOBILE'}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <label>MAP</label>
+                                            <span>${m.map || 'Bermuda'}</span>
+                                        </div>
+                                    </div>
 
-                            <div class="info-row">
-                                <div class="info-box">
-                                    <label>Win Prize</label>
-                                    <span class="prize-win">৳${match.winPrize || 0}</span>
+                                    <div style="font-size:0.8rem; color:var(--cyan-accent); font-weight:bold; margin-bottom:10px;">
+                                        Joined Players: ${joinedCount} / ${maxSpots}
+                                    </div>
+
+                                    <div class="room-info-box">
+                                        <div class="room-row">
+                                            <span class="room-label">Room ID:</span>
+                                            <span class="room-val">${m.roomId || 'Not Updated'}</span>
+                                        </div>
+                                        <div class="room-row">
+                                            <span class="room-label">Password:</span>
+                                            <span class="room-val">${m.roomPassword || 'Not Updated'}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-actions">
+                                        <button class="btn-act btn-room" onclick="openRoomModal('${matchKey}', '${m.roomId || ''}', '${m.roomPassword || ''}')">
+                                            <i class="fas fa-key"></i> Room Details
+                                        </button>
+                                        <button class="btn-act btn-delete" onclick="deleteMatch('${matchKey}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="info-box">
-                                    <label>Per Kill</label>
-                                    <span>৳${match.perKill || 0}</span>
-                                </div>
-                                <div class="info-box">
-                                    <label>Entry Fee</label>
-                                    <span class="prize-fee">৳${match.entryFee || 0}</span>
-                                </div>
-                            </div>
+                            `;
+                        }
+                    });
+                }
 
-                            <div class="info-row" style="background: #111;">
-                                <div class="info-box">
-                                    <label>Type</label>
-                                    <span>${match.type || 'SOLO'}</span>
-                                </div>
-                                <div class="info-box">
-                                    <label>Version</label>
-                                    <span>${match.version || 'Mobile'}</span>
-                                </div>
-                                <div class="info-box">
-                                    <label>Map</label>
-                                    <span>${match.map || 'Bermuda'}</span>
-                                </div>
-                            </div>
-
-                            ${hasRoomInfo ? `
-                                <div style="background: rgba(0,255,209,0.08); border:1px solid rgba(0,255,209,0.2); border-radius:8px; padding:8px 12px; margin-bottom:12px; font-size:12px; color:var(--cyan); display:flex; justify-content:space-between;">
-                                    <span><b>ID:</b> ${match.roomId}</span>
-                                    <span><b>PASS:</b> ${match.roomPassword || 'None'}</span>
-                                </div>
-                            ` : ''}
-
-                            <div class="card-actions">
-                                <button class="btn-action btn-room" onclick="showRoomModal('${child.key}', '${match.roomId || ''}', '${match.roomPassword || ''}')">
-                                    <i class="fas fa-key"></i> Room ID/Pass
-                                </button>
-                                <button class="btn-action btn-delete" onclick="deleteMatch('${child.key}')">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </div>
+                if (matchCount === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 50px;">
+                            No matches created in this category yet. Click "Create Match" above.
                         </div>
                     `;
                 }
             });
+        }
 
-            if (matchFoundCount === 0) {
-                container.innerHTML = `<div class="empty-msg"><i class="fas fa-ghost" style="font-size:30px; margin-bottom:10px; display:block;"></i>No matches created in this category yet. Click "+ Create Match" above.</div>`;
-            }
-        });
-
-        // Modal: Create New Match (Light Theme Overlay)
-        function showAddMatchModal() {
-            Swal.fire({
-                title: 'Create New Match',
-                background: '#ffffff',
-                color: '#000000',
+        // Open Modal: Create Match (With complete labeled UI matching screenshot 2)
+        function openCreateMatchModal() {
+            SwalDark.fire({
+                title: '<i class="fas fa-plus-circle" style="color: var(--cyan-accent);"></i> Match Add',
                 html: `
-                    <div style="text-align:left;">
-                        <input id="m-title" class="swal-light-input" placeholder="Match Title (e.g. Free Fire Duo Special)">
-                        <div style="display:flex; gap:10px;">
-                            <input id="m-date" class="swal-light-input" type="date">
-                            <input id="m-time" class="swal-light-input" type="time">
+                    <div style="text-align: left; font-family:'Segoe UI',sans-serif;">
+                        <!-- Match Title -->
+                        <div>
+                            <label class="swal-field-label">MATCH TITLE</label>
+                            <input type="text" id="m_title" class="swal-input-dark" placeholder="Free Match / Battle Royale #01">
                         </div>
-                        <div style="display:flex; gap:10px;">
-                            <input id="m-win" class="swal-light-input" type="number" placeholder="Win Prize (৳)">
-                            <input id="m-kill" class="swal-light-input" type="number" placeholder="Per Kill (৳)">
+
+                        <!-- Date and Time -->
+                        <div class="swal-row-2">
+                            <div>
+                                <label class="swal-field-label">MATCH DATE</label>
+                                <input type="text" id="m_date" class="swal-input-dark" placeholder="23-09-2026">
+                            </div>
+                            <div>
+                                <label class="swal-field-label">MATCH TIME</label>
+                                <input type="text" id="m_time" class="swal-input-dark" placeholder="10:00 AM">
+                            </div>
                         </div>
-                        <input id="m-entry" class="swal-light-input" type="number" placeholder="Entry Fee Per Player (৳)">
-                        
-                        <div style="display:flex; gap:10px;">
-                            <select id="m-type" class="swal-light-input">
-                                <option value="SOLO">SOLO</option>
-                                <option value="DUO">DUO</option>
-                                <option value="SQUAD">SQUAD</option>
-                            </select>
-                            <select id="m-map" class="swal-light-input">
+
+                        <!-- Prize & Entry Row -->
+                        <div class="swal-row-3">
+                            <div>
+                                <label class="swal-field-label">WIN PRIZE</label>
+                                <input type="number" id="m_winPrize" class="swal-input-dark" placeholder="50" value="50">
+                            </div>
+                            <div>
+                                <label class="swal-field-label">PER KILL</label>
+                                <input type="number" id="m_perKill" class="swal-input-dark" placeholder="0" value="0">
+                            </div>
+                            <div>
+                                <label class="swal-field-label">ENTRY FEE</label>
+                                <input type="number" id="m_entryFee" class="swal-input-dark" placeholder="0" value="0">
+                            </div>
+                        </div>
+
+                        <!-- Total Spots -->
+                        <div>
+                            <label class="swal-field-label">TOTAL SPOTS / PLAYER LIMIT</label>
+                            <input type="number" id="m_spots" class="swal-input-dark" placeholder="48" value="48">
+                        </div>
+
+                        <!-- Type & Version -->
+                        <div class="swal-row-2">
+                            <div>
+                                <label class="swal-field-label">TYPE</label>
+                                <select id="m_type" class="swal-input-dark">
+                                    <option value="Solo">Solo</option>
+                                    <option value="Duo">Duo</option>
+                                    <option value="Squad">Squad</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="swal-field-label">VERSION</label>
+                                <select id="m_version" class="swal-input-dark">
+                                    <option value="MOBILE">MOBILE</option>
+                                    <option value="PC">PC</option>
+                                    <option value="TPP">TPP</option>
+                                    <option value="FPP">FPP</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Map Selection -->
+                        <div>
+                            <label class="swal-field-label">MAP</label>
+                            <select id="m_map" class="swal-input-dark">
                                 <option value="Bermuda">Bermuda</option>
                                 <option value="Purgatory">Purgatory</option>
                                 <option value="Kalahari">Kalahari</option>
                                 <option value="Alpine">Alpine</option>
-                                <option value="Nextterra">Nextterra</option>
+                                <option value="Nexterra">Nexterra</option>
+                                <option value="Solara">Solara</option>
                             </select>
                         </div>
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'Publish Match',
+                confirmButtonText: 'CREATE',
+                cancelButtonText: 'CANCEL',
                 confirmButtonColor: '#b026ff',
-                cancelButtonColor: '#666'
-            }).then(result => {
-                if (result.isConfirmed) {
-                    const title = document.getElementById('m-title').value.trim();
-                    const matchDate = document.getElementById('m-date').value;
-                    const matchTime = document.getElementById('m-time').value;
-                    const winPrize = document.getElementById('m-win').value;
-                    const perKill = document.getElementById('m-kill').value;
-                    const entryFee = document.getElementById('m-entry').value;
-                    const type = document.getElementById('m-type').value;
-                    const map = document.getElementById('m-map').value;
+                cancelButtonColor: '#332d48',
+                preConfirm: () => {
+                    const title = document.getElementById('m_title').value.trim();
+                    const date = document.getElementById('m_date').value.trim();
+                    const time = document.getElementById('m_time').value.trim();
+                    const winPrize = parseFloat(document.getElementById('m_winPrize').value) || 0;
+                    const perKill = parseFloat(document.getElementById('m_perKill').value) || 0;
+                    const entryFee = parseFloat(document.getElementById('m_entryFee').value) || 0;
+                    const spots = parseInt(document.getElementById('m_spots').value) || 48;
+                    const type = document.getElementById('m_type').value;
+                    const version = document.getElementById('m_version').value;
+                    const map = document.getElementById('m_map').value;
 
-                    if (!title || !entryFee) {
-                        SwalDark.fire('Error', 'Match Title and Entry Fee are required.', 'error');
-                        return;
+                    if (!title) {
+                        Swal.showValidationMessage('Please enter Match Title');
+                        return false;
+                    }
+                    if (!date || !time) {
+                        Swal.showValidationMessage('Please enter Date and Time');
+                        return false;
                     }
 
-                    const newMatchData = {
-                        categoryKey: catKey,
+                    return {
+                        categoryKey: currentCatKey,
                         title: title,
-                        matchDate: matchDate || 'Today',
-                        matchTime: matchTime || 'TBA',
-                        winPrize: Number(winPrize) || 0,
-                        perKill: Number(perKill) || 0,
-                        entryFee: Number(entryFee) || 0,
+                        matchDate: date,
+                        matchTime: time,
+                        winPrize: winPrize,
+                        perKill: perKill,
+                        entryFee: entryFee,
+                        totalSpots: spots,
                         type: type,
-                        version: 'Mobile',
+                        version: version,
                         map: map,
                         roomId: '',
                         roomPassword: '',
-                        createdAt: Date.now()
+                        status: 'active',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
                     };
-
-                    db.ref('matches').push(newMatchData).then(() => {
-                        SwalDark.fire('Published!', 'New match created successfully.', 'success');
-                    });
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref('matches').push(result.value)
+                        .then(() => {
+                            SwalDark.fire('Created!', 'Match published successfully.', 'success');
+                        })
+                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
                 }
             });
         }
 
-        // Modal: Update Room ID and Password
-        function showRoomModal(matchKey, currentId, currentPass) {
-            Swal.fire({
-                title: 'Set Room Credentials',
-                background: '#ffffff',
-                color: '#000000',
+        // Open Modal: Room Details (Set Room ID and Password)
+        function openRoomModal(matchKey, currentRoomId, currentRoomPass) {
+            SwalDark.fire({
+                title: '<i class="fas fa-key" style="color: var(--cyan-accent);"></i> Room Details',
                 html: `
-                    <div style="text-align:left;">
-                        <label style="font-size:12px; color:#555;">Room ID</label>
-                        <input id="r-id" class="swal-light-input" value="${currentId}" placeholder="Enter Room ID">
-                        <label style="font-size:12px; color:#555; margin-top:10px; display:block;">Room Password</label>
-                        <input id="r-pass" class="swal-light-input" value="${currentPass}" placeholder="Enter Password">
+                    <div style="text-align: left;">
+                        <label class="swal-field-label">ROOM ID</label>
+                        <input type="text" id="edit_roomId" class="swal-input-dark" value="${currentRoomId}" placeholder="Enter Room ID">
+                        
+                        <label class="swal-field-label">ROOM PASSWORD</label>
+                        <input type="text" id="edit_roomPass" class="swal-input-dark" value="${currentRoomPass}" placeholder="Enter Room Password">
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'Save Credentials',
+                confirmButtonText: 'Update Room',
+                cancelButtonText: 'Cancel',
                 confirmButtonColor: '#00ffd1',
-                cancelButtonColor: '#666'
+                cancelButtonColor: '#ff4757',
+                preConfirm: () => {
+                    return {
+                        roomId: document.getElementById('edit_roomId').value.trim(),
+                        roomPassword: document.getElementById('edit_roomPass').value.trim()
+                    };
+                }
             }).then(result => {
                 if (result.isConfirmed) {
-                    const roomId = document.getElementById('r-id').value.trim();
-                    const roomPassword = document.getElementById('r-pass').value.trim();
-
-                    db.ref(`matches/${matchKey}`).update({
-                        roomId: roomId,
-                        roomPassword: roomPassword
-                    }).then(() => {
-                        SwalDark.fire('Updated!', 'Room details have been saved.', 'success');
-                    });
+                    db.ref('matches/' + matchKey).update(result.value)
+                        .then(() => {
+                            SwalDark.fire('Updated!', 'Room ID and Password updated.', 'success');
+                        })
+                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
                 }
             });
         }
@@ -486,16 +580,19 @@
         function deleteMatch(matchKey) {
             SwalDark.fire({
                 title: 'Delete Match?',
-                text: 'This action cannot be undone!',
+                text: "This match will be permanently deleted!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, Delete',
-                confirmButtonColor: '#ff4d4d'
-            }).then(result => {
+                confirmButtonColor: '#ff4757',
+                cancelButtonColor: '#332d48',
+                confirmButtonText: 'Yes, Delete'
+            }).then((result) => {
                 if (result.isConfirmed) {
-                    db.ref(`matches/${matchKey}`).remove().then(() => {
-                        SwalDark.fire('Deleted!', 'Match has been removed.', 'success');
-                    });
+                    db.ref('matches/' + matchKey).remove()
+                        .then(() => {
+                            SwalDark.fire('Deleted!', 'Match removed successfully.', 'success');
+                        })
+                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
                 }
             });
         }
