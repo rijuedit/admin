@@ -1,0 +1,106 @@
+<!-- Admin/app-settings.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Settings - OXI E-Sports</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b061a;
+            --card-bg: #160d2e;
+            --cyan-accent: #00ffd1;
+            --text-color: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 20px;
+        }
+        .top-nav { margin-bottom: 30px; }
+        .btn-dashboard {
+            background: transparent; border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent); padding: 8px 18px; border-radius: 20px;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .glass-card {
+            background: var(--card-bg); border-radius: 16px;
+            border: 1px solid var(--border-color); padding: 25px;
+            max-width: 600px; margin: 0 auto;
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--cyan-accent); font-weight: bold; }
+        input, textarea {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color); color: white;
+            border-radius: 8px; box-sizing: border-box; font-family: inherit;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #00ffd1, #00b894);
+            color: #0b061a; border: none; padding: 12px 25px;
+            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="dashboard.html" class="btn-dashboard"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <div class="glass-card">
+        <h2 style="margin-top:0; color:var(--cyan-accent);"><i class="fas fa-cog"></i> App Settings</h2>
+        
+        <div class="form-group">
+            <label>Scrolling Notice Text (Home Page)</label>
+            <textarea id="noticeText" rows="3" placeholder="Enter scrolling notice here..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Support Link (WhatsApp / Telegram URL)</label>
+            <input type="text" id="supportLink" placeholder="https://wa.me/message/... or https://t.me/...">
+        </div>
+
+        <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+    </div>
+
+    <script>
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.ref('appSettings').once('value', snap => {
+                    const data = snap.val();
+                    if(data) {
+                        document.getElementById('noticeText').value = data.notice || '';
+                        document.getElementById('supportLink').value = data.supportLink || '';
+                    }
+                });
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        function saveSettings() {
+            const notice = document.getElementById('noticeText').value.trim();
+            const supportLink = document.getElementById('supportLink').value.trim();
+
+            db.ref('appSettings').set({
+                notice: notice,
+                supportLink: supportLink
+            }).then(() => {
+                SwalDark.fire('Saved!', 'App settings updated successfully.', 'success');
+            }).catch(err => {
+                SwalDark.fire('Error', err.message, 'error');
+            });
+        }
+    </script>
+</body>
+</html>
