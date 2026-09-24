@@ -4,89 +4,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Settings - OXI E-Sports</title>
+    <title>App Settings - OXI E-Sports Admin</title>
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Configuration -->
     <script src="config.js"></script>
     <style>
         :root {
             --bg-color: #0b061a;
             --card-bg: #160d2e;
             --cyan-accent: #00ffd1;
+            --purple-glow: #b026ff;
             --text-color: #ffffff;
+            --text-muted: #a098c0;
             --border-color: rgba(255, 255, 255, 0.08);
         }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 20px;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
         }
-        .top-nav { margin-bottom: 30px; }
+
+        .top-nav {
+            margin-bottom: 30px;
+        }
+
         .btn-dashboard {
-            background: transparent; border: 1px solid var(--cyan-accent);
-            color: var(--cyan-accent); padding: 8px 18px; border-radius: 20px;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+            background: transparent;
+            border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent);
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
         }
+
+        .btn-dashboard:hover {
+            background: var(--cyan-accent);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px rgba(0, 255, 209, 0.4);
+        }
+
         .glass-card {
-            background: var(--card-bg); border-radius: 16px;
-            border: 1px solid var(--border-color); padding: 25px;
-            max-width: 600px; margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            max-width: 650px;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; color: var(--cyan-accent); font-weight: bold; }
-        input, textarea {
-            width: 100%; padding: 12px; background: rgba(0,0,0,0.2);
-            border: 1px solid var(--border-color); color: white;
-            border-radius: 8px; box-sizing: border-box; font-family: inherit;
+
+        .card-title {
+            color: var(--cyan-accent);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
         }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--cyan-accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 14px;
+            background: rgba(11, 6, 26, 0.6);
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--cyan-accent);
+            box-shadow: 0 0 10px rgba(0, 255, 209, 0.2);
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
         .btn-save {
-            background: linear-gradient(135deg, #00ffd1, #00b894);
-            color: #0b061a; border: none; padding: 12px 25px;
-            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;
+            background: linear-gradient(135deg, #8a2be2, #b026ff);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
             font-size: 1rem;
+            box-shadow: 0 0 15px rgba(176, 38, 255, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(176, 38, 255, 0.7);
         }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <a href="dashboard.html" class="btn-dashboard"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <a href="dashboard.html" class="btn-dashboard">
+            <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
     </div>
 
     <div class="glass-card">
-        <h2 style="margin-top:0; color:var(--cyan-accent);"><i class="fas fa-cog"></i> App Settings</h2>
+        <h2 class="card-title"><i class="fas fa-sliders-h"></i> App General Settings</h2>
         
         <div class="form-group">
-            <label>Scrolling Notice Text (Home Page)</label>
-            <textarea id="noticeText" rows="3" placeholder="Enter scrolling notice here..."></textarea>
+            <label><i class="fas fa-bullhorn"></i> Home Screen Notice Ticker</label>
+            <textarea id="noticeText" rows="4" placeholder="Enter notice text to scroll on the user home screen..."></textarea>
+            <div class="help-text">This notice text will continuously scroll under the banner slider on the User Home Screen.</div>
         </div>
 
         <div class="form-group">
-            <label>Support Link (WhatsApp / Telegram URL)</label>
-            <input type="text" id="supportLink" placeholder="https://wa.me/message/... or https://t.me/...">
+            <label><i class="fas fa-headset"></i> Support Contact / Link</label>
+            <input type="text" id="supportLink" placeholder="e.g. https://wa.me/8801700000000 or https://t.me/your_handle">
+            <div class="help-text">Direct URL or WhatsApp/Telegram link for the floating support button.</div>
         </div>
 
-        <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+        <button class="btn-save" onclick="saveSettings()">
+            <i class="fas fa-save"></i> Save Settings
+        </button>
     </div>
 
     <script>
         auth.onAuthStateChanged(user => {
             if (user) {
-                db.ref('appSettings').once('value', snap => {
-                    const data = snap.val();
-                    if(data) {
-                        document.getElementById('noticeText').value = data.notice || '';
-                        document.getElementById('supportLink').value = data.supportLink || '';
-                    }
-                });
+                loadSettings();
             } else {
                 window.location.href = 'login.html';
             }
         });
+
+        function loadSettings() {
+            db.ref('appSettings').once('value', snap => {
+                const data = snap.val();
+                if (data) {
+                    document.getElementById('noticeText').value = data.notice || '';
+                    document.getElementById('supportLink').value = data.supportLink || '';
+                }
+            });
+        }
 
         function saveSettings() {
             const notice = document.getElementById('noticeText').value.trim();
@@ -94,9 +197,10 @@
 
             db.ref('appSettings').set({
                 notice: notice,
-                supportLink: supportLink
+                supportLink: supportLink,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
-                SwalDark.fire('Saved!', 'App settings updated successfully.', 'success');
+                SwalDark.fire('Saved!', 'App Notice and Support Link updated successfully.', 'success');
             }).catch(err => {
                 SwalDark.fire('Error', err.message, 'error');
             });
