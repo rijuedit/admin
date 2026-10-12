@@ -316,4 +316,372 @@
         <!-- Super Admins List -->
         <h3 class="section-title super"><i class="fas fa-crown"></i> Super Admins</h3>
         <div id="superAdminsList" class="admin-list-container">
-            <div style="text-align: center; color: var(--text-muted); 
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+
+        <!-- Normal Admins List -->
+        <h3 class="section-title normal"><i class="fas fa-wrench"></i> Normal Admins</h3>
+        <div id="normalAdminsList" class="admin-list-container">
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserEmail = '';
+
+        // Monitor Auth State
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserEmail = user.email;
+                verifySuperAdminAccess();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Verify Super Admin Authorization
+        function verifySuperAdminAccess() {
+            const userKey = emailToKey(currentUserEmail);
+            db.ref('superAdmins/' + userKey).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    loadAdminsList();
+                } else {
+                    SwalDark.fire({
+                        icon: 'error',
+                        title: 'Access Denied',
+                        text: 'Only Super Admins can manage System Admin permissions.'
+                    }).then(() => {
+                        window.location.href = 'dashboard.html';
+                    });
+                }
+            });
+        }
+
+        // Fetch and Render Admins List
+        function loadAdminsList() {
+            const adminsRef = db.ref('admins');
+            const superAdminsRef = db.ref('superAdmins');
+
+            Promise.all([superAdminsRef.once('value'), adminsRef.once('value')])
+                .then(([superSnap, adminSnap]) => {
+                    const superListDiv = document.getElementById('superAdminsList');
+                    const normalListDiv = document.getElementById('normalAdminsList');
+                    
+                    superListDiv.innerHTML = '';
+                    normalListDiv.innerHTML = '';
+
+                    const superAdmins = superSnap.val() || {};
+                    const normalAdmins = adminSnap.val() || {};
+
+                    // 1. Render Super Admins
+                    let superCount = 0;
+                    Object.keys(superAdmins).forEach(key => {
+                        superCount++;
+                        const email = superAdmins[key].email || key.replace(/,/g, '.');
+                        const isSelf = (email.toLowerCase() === currentUserEmail.toLowerCase());
+
+                        superListDiv.innerHTML += `
+                            <div class="admin-item">
+                                <div class="admin-info">
+                                    <div class="admin-email"><i class="fas fa-crown crown"></i> ${email}</div>
+                                    <div class="admin-role-text">Super Admin ${isSelf ? '(You)' : ''}</div>
+                                </div>
+                                <div class="admin-actions">
+                                    ${!isSelf ? `
+                                        <button class="btn-remove" onclick="removeSuperAdmin('${key}', '${email}')">
+                                            <i class="fas fa-trash-alt"></i> Remove
+                                        </button>
+                                    ` : '<span class="text-protected"><i class="fas fa-lock"></i> You</span>'}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    if (superCount === 0) {
+                        superListDiv.innerHTML = `<div style="text-align:center; color: #a098c0; padding: 10px;">No Super Admins found.</div>`;
+                    }
+
+                    // 2. Render Normal Admins
+                    let normalCount = 0;
+                    Object.keys(normalAdmins).forEach(key => {
+                        normalCount++;
+                        const adminObj = normalAdmins[key];
+                        const email = adminObj.email || key.replace(/,/g, '.');
+
+                        normalListDiv.innerHTML += `
+                            <div class="admin-item">
+                                <div class="admin-info">
+                                    <div class="admin-email"><i class="fas fa-wrench wrench"></i> ${email}</div>
+                                    <div class="admin-role-text">Normal Admin</div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-permission" onclick="openPermissionsModal('${key}', '${email}')">
+                                        <i class="fas fa-sliders-h"></i> Permissions
+                                    </button>
+                                    <button class="btn-remove" onclick="removeNormalAdmin('${key}', '${email}')">
+                                        <i class="fas fa-trash-alt"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    if (normalCount === 0) {
+                        normalListDiv.innerHTML = `<div style="text-align:center; color: #a098c0; padding: 10px;">No Normal Admins found.</div>`;
+                    }
+                })
+                .catch(err => {
+                    SwalDark.fire('Error', 'Failed to load system admin list.', 'error');
+                });
+        }
+
+        // Modal: Add Super Admin
+        function openAddSuperAdminModal() {
+            SwalDark.fire({
+                title: '<i class="fas fa-crown" style="color: #ffc107;"></i> Add Super Admin',
+                html: `
+                    <div style="text-align: left; margin-top: 10px;">
+                        <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Admin Email Address</label>
+                        <input type="email" id="newAdminEmail" class="swal2-input" placeholder="superadmin@example.com" style="width: 100%; box-sizing: border-box; margin: 0 0 15px 0; background: #0b061a; color: white; border: 1px solid rgba(255,255,255,0.2);">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Add Super Admin',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#ff4757',
+                preConfirm: () => {
+                    const email = document.getElementById('newAdminEmail').value.trim();
+                    if (!email) {
+                        Swal.showValidationMessage('Please enter a valid email address');
+                        return false;
+                    }
+                    return email;
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const email = result.value;
+                    const key = emailToKey(email);
+
+                    // Remove from Normal admin if exists, then add to Super admin
+                    db.ref('admins/' + key).remove().then(() => {
+                        db.ref('superAdmins/' + key).set({
+                            email: email,
+                            addedAt: firebase.database.ServerValue.TIMESTAMP
+                        }).then(() => {
+                            SwalDark.fire('Added!', `${email} is now a Super Admin.`, 'success');
+                            loadAdminsList();
+                        }).catch(err => SwalDark.fire('Error', err.message, 'error'));
+                    });
+                }
+            });
+        }
+
+        // Modal: Add Normal Admin
+        function openAddNormalAdminModal() {
+            SwalDark.fire({
+                title: '<i class="fas fa-wrench" style="color: #60a5fa;"></i> Add Normal Admin',
+                html: `
+                    <div style="text-align: left; margin-top: 10px;">
+                        <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Admin Email Address</label>
+                        <input type="email" id="newAdminEmail" class="swal2-input" placeholder="admin@example.com" style="width: 100%; box-sizing: border-box; margin: 0 0 15px 0; background: #0b061a; color: white; border: 1px solid rgba(255,255,255,0.2);">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Add Normal Admin',
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#ff4757',
+                preConfirm: () => {
+                    const email = document.getElementById('newAdminEmail').value.trim();
+                    if (!email) {
+                        Swal.showValidationMessage('Please enter a valid email address');
+                        return false;
+                    }
+                    return email;
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    const email = result.value;
+                    const key = emailToKey(email);
+
+                    // Check if already super admin
+                    db.ref('superAdmins/' + key).once('value', sSnap => {
+                        if (sSnap.exists()) {
+                            SwalDark.fire('Notice', 'This user is already a Super Admin!', 'info');
+                            return;
+                        }
+
+                        const defaultPermissions = {
+                            appSettings: true,
+                            paymentSettings: true,
+                            users: true,
+                            addMoney: true,
+                            banners: true,
+                            categories: true,
+                            matches: true
+                        };
+
+                        db.ref('admins/' + key).set({
+                            email: email,
+                            addedAt: firebase.database.ServerValue.TIMESTAMP,
+                            permissions: defaultPermissions
+                        }).then(() => {
+                            SwalDark.fire('Added!', `${email} is now a Normal Admin.`, 'success');
+                            loadAdminsList();
+                        }).catch(err => {
+                            SwalDark.fire('Error', err.message, 'error');
+                        });
+                    });
+                }
+            });
+        }
+
+        // Remove Super Admin
+        function removeSuperAdmin(adminKey, adminEmail) {
+            SwalDark.fire({
+                title: 'Are you sure?',
+                text: `Remove ${adminEmail} from Super Admins?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff4757',
+                cancelButtonColor: '#332d48',
+                confirmButtonText: 'Yes, Remove'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref('superAdmins/' + adminKey).remove()
+                        .then(() => {
+                            SwalDark.fire('Removed', 'Super Admin removed successfully.', 'success');
+                            loadAdminsList();
+                        })
+                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
+                }
+            });
+        }
+
+        // Remove Normal Admin
+        function removeNormalAdmin(adminKey, adminEmail) {
+            SwalDark.fire({
+                title: 'Are you sure?',
+                text: `Remove ${adminEmail} from Normal Admins?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff4757',
+                cancelButtonColor: '#332d48',
+                confirmButtonText: 'Yes, Remove'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    db.ref('admins/' + adminKey).remove()
+                        .then(() => {
+                            SwalDark.fire('Removed', 'Normal Admin removed successfully.', 'success');
+                            loadAdminsList();
+                        })
+                        .catch(err => SwalDark.fire('Error', err.message, 'error'));
+                }
+            });
+        }
+
+        // Permissions Modal for Normal Admins
+        function openPermissionsModal(adminKey, adminEmail) {
+            db.ref('admins/' + adminKey + '/permissions').once('value', snapshot => {
+                const perms = snapshot.val() || {};
+                
+                const isAppSetChecked = perms.appSettings !== false; 
+                const isPaySetChecked = perms.paymentSettings !== false;
+                const isUserChecked = perms.users !== false;
+                const isAddMonChecked = perms.addMoney !== false;
+                const isBanChecked = perms.banners !== false;
+                const isCatChecked = perms.categories !== false;
+                const isMatchChecked = perms.matches !== false;
+
+                SwalDark.fire({
+                    title: '<i class="fas fa-sliders-h" style="color: #60a5fa;"></i> Admin Permissions',
+                    html: `
+                        <div style="text-align: left; margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted);">
+                            Configuring access rights for: <br><strong style="color: #60a5fa;">${adminEmail}</strong>
+                        </div>
+                        <div class="perm-grid">
+                            <div class="perm-item">
+                                <span><i class="fas fa-mobile-alt"></i> App Settings</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_appSettings" ${isAppSetChecked ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-sliders-h"></i> Payment Settings</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_payment" ${isPaySetChecked ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-users"></i> Users Management</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_users" ${isUserChecked ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-wallet"></i> Deposit Requests</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_addMoney" ${isAddMonChecked ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-images"></i> Manage Banners</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_banners" ${isBanChecked ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-list"></i> Manage Categories</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_categories" ${isCatChecked ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="perm-item">
+                                <span><i class="fas fa-gamepad"></i> Manage Matches</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="perm_matches" ${isMatchChecked ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Save Permissions',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#b026ff',
+                    cancelButtonColor: '#ff4757',
+                    preConfirm: () => {
+                        return {
+                            appSettings: document.getElementById('perm_appSettings').checked,
+                            paymentSettings: document.getElementById('perm_payment').checked,
+                            users: document.getElementById('perm_users').checked,
+                            addMoney: document.getElementById('perm_addMoney').checked,
+                            banners: document.getElementById('perm_banners').checked,
+                            categories: document.getElementById('perm_categories').checked,
+                            matches: document.getElementById('perm_matches').checked
+                        };
+                    }
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        db.ref('admins/' + adminKey + '/permissions').set(result.value)
+                            .then(() => {
+                                SwalDark.fire('Success', 'Permissions updated successfully!', 'success');
+                                loadAdminsList();
+                            })
+                            .catch(err => SwalDark.fire('Error', err.message, 'error'));
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
